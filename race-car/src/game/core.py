@@ -122,6 +122,8 @@ def place_car():
     car.lane = lane
 
 
+
+
 def get_action():
     """
     Reads pygame events and returns an action string based on arrow keys or spacebar.
@@ -275,13 +277,11 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
             break
 
         # Handle action - get_action() is a method for using arrow keys to steer - implement own logic here!
-
         if model:
-            action = model.return_action(state_to_state_dict(STATE))
-            handle_action(action)
-        else:
+            print(STATE)
+            action = model.return_action(STATE)
+        else: 
             action = get_action()
-            handle_action(action)
 
          # Log the action with tick
         if log_actions:
