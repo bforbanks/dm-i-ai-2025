@@ -109,15 +109,23 @@ def evaluate_detailed(max_examples: int = 20):
             print(f"Text: {statement}")
             print()
             
-            # Get detailed semantic analysis
-            start_time = time.time()
-            all_topics, source_files, context_preview = get_detailed_semantic_analysis(statement, true_topic)
-            analysis_time = time.time() - start_time
+            # Get detailed semantic analysis with timing breakdown
+            print(f"🔍 PERFORMANCE TIMING:")
             
-            # Get model prediction
+            # Time semantic search separately
+            semantic_start = time.time()
+            all_topics, source_files, context_preview = get_detailed_semantic_analysis(statement, true_topic)
+            semantic_time = time.time() - semantic_start
+            
+            # Time model prediction with further breakdown
             pred_start = time.time()
             pred_truth, pred_topic = predict(statement)
             pred_time = time.time() - pred_start
+            
+            print(f"   Semantic Search: {semantic_time:.2f}s")
+            print(f"   Model Prediction: {pred_time:.2f}s")
+            print(f"   Total: {semantic_time + pred_time:.2f}s")
+            print()
             
             # Show results with VERY CLEAR correctness indicators
             truth_correct = pred_truth == true_truth
@@ -182,10 +190,7 @@ def evaluate_detailed(max_examples: int = 20):
             print(f"   {context_preview}")
             print()
             
-            print(f"⏱️  TIMING:")
-            print(f"   Semantic Analysis: {analysis_time:.1f}s")
-            print(f"   Model Prediction: {pred_time:.1f}s")
-            print(f"   Total: {analysis_time + pred_time:.1f}s")
+            # Timing section removed since we now show it earlier
             
             # Update accuracy counters
             if pred_truth == true_truth:

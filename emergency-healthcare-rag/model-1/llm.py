@@ -12,11 +12,11 @@ def classify_truth_only(statement: str, context: str, model: str = 'gemma3:12b')
     
     prompt = f"""You are a medical expert. Determine if this medical statement is true or false.
 
-STATEMENT: {statement}
+    STATEMENT: {statement}
 
-CONTEXT: {context}
+    CONTEXT: {context}
 
-Respond with ONLY: 1 (if true) or 0 (if false)"""
+    Respond with ONLY: 1 (if true) or 0 (if false)"""
 
     response = ollama.chat(
         model=model,
@@ -48,20 +48,20 @@ def classify_topic_and_truth_combined(statement: str, candidate_topics: list, co
     
     prompt = f"""You are a medical expert. Analyze this statement and provide two determinations:
 
-STATEMENT: {statement}
+            STATEMENT: {statement}
 
-RELEVANT CONTEXT:
-{context}
+            RELEVANT CONTEXT:
+            {context}
 
-TOPIC CANDIDATES:
-{candidates_text}
+            TOPIC CANDIDATES:
+            {candidates_text}
 
-TASKS:
-1. Choose which topic (0-114) the statement best relates to from the candidates above
-2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
+            TASKS:
+            1. Choose which topic (0-114) the statement best relates to from the candidates above
+            2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
 
-Respond with ONLY two numbers separated by a comma: topic_id,truth_value
-Example: 78,1"""
+            Respond with ONLY two numbers separated by a comma: topic_id,truth_value
+            Example: 78,1"""
 
     response = ollama.chat(
         model=model,

@@ -40,7 +40,7 @@ def chunk_document(content: str, chunk_size: int = CHUNK_SIZE, overlap: int = OV
     return chunks
 
 def create_embeddings():
-    """Generate embeddings for all document chunks"""
+    """Generate embeddings for all document chunks AND topic names"""
     model = SentenceTransformer('all-MiniLM-L6-v2')
     
     documents = load_all_documents()
@@ -56,11 +56,21 @@ def create_embeddings():
     print(f"Generating embeddings for {len(all_chunks)} chunks...")
     embeddings = model.encode(all_chunks)
     
+    # Pre-compute topic embeddings to avoid recomputing them for every query
+    print("Generating embeddings for topic names...")
+    with open('data/topics.json', 'r') as f:
+        topics = json.load(f)
+    topic_names = list(topics.keys())
+    topic_embeddings = model.encode(topic_names)
+    
     data = {
         'embeddings': embeddings,
         'chunks': all_chunks,
         'metadata': chunk_metadata,
-        'model_name': 'all-MiniLM-L6-v2'
+        'model_name': 'all-MiniLM-L6-v2',
+        'topic_names': topic_names,
+        'topic_embeddings': topic_embeddings,
+        'topics_mapping': topics
     }
     
     with open(EMBEDDINGS_FILE, 'wb') as f:
@@ -102,28 +112,25 @@ def search_relevant_content(statement: str, top_k: int = 1, max_chars: int = 150
     return "\n\n".join(relevant_chunks)
 
 def get_top_k_topics_with_context(statement: str, k: int = 3) -> list:
-    """Get top K most likely topics with their relevant context chunks"""
-    import json
-    
-    # Load topics mapping
-    with open('data/topics.json', 'r') as f:
-        topics = json.load(f)
-    
+    """Get top K most likely topics with their relevant context chunks (OPTIMIZED)"""
     data = load_embeddings()
     model = SentenceTransformer(data['model_name'])
     
-    # Method 1: Topic name similarity
-    topic_names = list(topics.keys())
-    topic_embeddings = model.encode(topic_names)
+    # OPTIMIZATION: Use pre-computed topic embeddings instead of recomputing
+    topic_names = data['topic_names']
+    topic_embeddings = data['topic_embeddings']
+    topics = data['topics_mapping']
+    
+    # OPTIMIZATION: Embed statement only once
     statement_embedding = model.encode([statement])
     
-    # Get top K similar topic names
+    # Method 1: Topic name similarity using pre-computed embeddings
     similarities = np.dot(statement_embedding, topic_embeddings.T).flatten()
     top_k_indices = np.argsort(similarities)[-k:][::-1]
     
     # Method 2: Also find top relevant chunks and group by topic
-    query_embedding = model.encode([statement])
-    chunk_similarities = np.dot(query_embedding, data['embeddings'].T).flatten()
+    # OPTIMIZATION: Reuse the same statement embedding
+    chunk_similarities = np.dot(statement_embedding, data['embeddings'].T).flatten()
     top_chunk_indices = np.argsort(chunk_similarities)[-20:][::-1]  # Get top 20 chunks
     
     # Group chunks by topic based on their content
