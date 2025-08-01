@@ -1,0 +1,3 @@
+model:
+  class_path: models.Baseline.model.BaselineModel
+  init_args: {}

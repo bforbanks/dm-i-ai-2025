@@ -1,0 +1,29 @@
+# Base configuration with common trainer, data, and callback settings
+# This file should be inherited by model-specific configs
+
+# Data configuration - Common for all models
+data:
+  val_split: 0.2
+  batch_size: 16
+  num_workers: 0
+
+# Trainer configuration - Common for all models
+trainer:
+  max_epochs: 1000
+  max_time: "00:02:00:00"  # Maximum training time of 30 minutes
+  accelerator: auto
+  devices: auto
+  precision: 32
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelSummary
+      init_args:
+        max_depth: -1 
+    # - class_path: lightning.pytorch.callbacks.EarlyStopping
+    #   init_args:
+    #     monitor: "val_displacement_distance_epoch"
+    #     mode: "min"
+    #     patience: 10
+    #     verbose: true
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: "epoch"

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../equivariant-mesh-centroid-estimation"
+		}
+	],
+	"settings": {}
+}

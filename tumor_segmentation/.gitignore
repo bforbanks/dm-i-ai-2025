@@ -1,3 +1,6 @@
+checkpoints/
+lightning_logs/
+wandb_logs/
 
 # Emily-specific files
 .emily
