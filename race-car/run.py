@@ -13,9 +13,8 @@ Within game_loop, change get_action() to your custom models prediction for local
 
 
 if __name__ == '__main__':
-    mdl = MODEL()
     seed_value = 12345
     pygame.init()
     initialize_game_state("http://example.com/api/predict", seed_value)
-    game_loop(verbose=True, model=mdl) # For pygame window
+    game_loop(verbose=True, model=MODEL()) # For pygame window
     pygame.quit()
