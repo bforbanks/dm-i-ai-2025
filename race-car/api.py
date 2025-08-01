@@ -6,15 +6,8 @@ from dtos import RaceCarPredictRequestDto, RaceCarPredictResponseDto
 import random
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
-# from test_endpoint import return_action
-def return_action(state):
-    # Returns a list of actions
-    actions = []
-    action_choices = ['ACCELERATE', 'DECELERATE', 'STEER_LEFT', 'STEER_RIGHT', 'NOTHING']
-    for _ in range(10):
-        actions.append(random.choice(action_choices))
-    return actions
+from models.Lbaseline import Lbaseline
+model = Lbaseline()
 
 HOST = "0.0.0.0"
 PORT = 9052
@@ -44,7 +37,8 @@ async def validation_exception_handler(request, exc):
 @app.post('/predict', response_model=RaceCarPredictResponseDto)
 async def predict(request: RaceCarPredictRequestDto = Body(...)):
     request_dict = request.model_dump() # Converts the request to a dictionary
-    action = return_action(request_dict) # Returns a list of actions (our model is invoked here)
+    print(request_dict)
+    action = model.return_action(request_dict) # Returns a list of actions (our model is invoked here)
     return RaceCarPredictResponseDto( 
         actions=action
     ) # return in the correct format
