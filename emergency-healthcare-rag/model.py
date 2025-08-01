@@ -1,7 +1,10 @@
-import json
+import importlib
 from typing import Tuple
 
-### CALL YOUR CUSTOM MODEL VIA THIS FUNCTION ###
+# Model selection
+ACTIVE_MODEL = "model-1"
+
+### CALL THE CUSTOM MODEL VIA THIS FUNCTION ###
 def predict(statement: str) -> Tuple[int, int]:
     """
     Predict both binary classification (true/false) and topic classification for a medical statement.
@@ -14,13 +17,8 @@ def predict(statement: str) -> Tuple[int, int]:
             - statement_is_true: 1 if true, 0 if false
             - statement_topic: topic ID from 0-114
     """
-    # Naive baseline that always returns True for statement classification
-    statement_is_true = 1
-    
-    # Simple topic matching based on keywords in topic names
-    statement_topic = match_topic(statement)
-    
-    return statement_is_true, statement_topic
+    model_module = importlib.import_module(f"{ACTIVE_MODEL}.model")
+    return model_module.predict(statement)
 
 def match_topic(statement: str) -> int:
     """
