@@ -8,6 +8,8 @@ from ..elements.road import Road
 from ..elements.sensor import Sensor
 from ..mathematics.vector import Vector
 import json
+from typing import List
+
 
 # Define constants
 SCREEN_WIDTH = 1600
@@ -60,7 +62,11 @@ def intersects(rect1, rect2):
     return rect1.colliderect(rect2)
 
 # Game logic
-def handle_action(action: str):
+def handle_action(actions: str | List):
+    if isinstance(actions, list):
+        action = actions.pop(0) if actions else "NOTHING"
+    else: action = actions
+    
     if action == "ACCELERATE":
         STATE.ego.speed_up()
     elif action == "DECELERATE":
