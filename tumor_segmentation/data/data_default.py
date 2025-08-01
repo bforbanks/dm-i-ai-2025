@@ -44,10 +44,9 @@ class TumorSegmentationDataset(Dataset):
         return len(self.all_images)
 
     def __getitem__(self, idx):
-        # Load image
+        # Load image as grayscale for single-channel input
         img_path = self.all_images[idx]
-        image = cv2.imread(img_path, cv2.IMREAD_COLOR)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 
         # Load mask
         mask_path = self.all_masks[idx]
@@ -119,10 +118,8 @@ def get_transforms(is_training: bool = True, image_size: int = 256):
             [
                 A.Resize(image_size, image_size),
                 # Convert to float32 and normalize to [0-1] range for neural networks
-                # This prevents uint8/float32 mismatch errors
-                A.Normalize(
-                    mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0], max_pixel_value=255.0
-                ),
+                # Single channel (grayscale) normalization
+                A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
                 ToTensorV2(),
             ]
         )

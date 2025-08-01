@@ -222,7 +222,7 @@ class BaseModel(pl.LightningModule):
             img: Input image (H, W, C) where C can be 1 or 3
 
         Returns:
-            Preprocessed tensor (1, C, H, W)
+            Preprocessed tensor (1, 1, H, W) - PyTorch standard format (single channel)
         """
         # Handle different input formats
         if len(img.shape) == 3 and img.shape[2] == 1:
@@ -241,11 +241,8 @@ class BaseModel(pl.LightningModule):
         # Resize to model input size (assuming 256x256)
         img_resized = cv2.resize(img_2d, (256, 256), interpolation=cv2.INTER_LINEAR)
 
-        # Convert to RGB format for model (expects 3 channels)
-        img_rgb = np.stack([img_resized, img_resized, img_resized], axis=0)  # (3, H, W)
-
-        # Add batch dimension and convert to tensor
-        img_tensor = torch.from_numpy(img_rgb).unsqueeze(0)  # (1, 3, H, W)
+        # Convert to PyTorch standard format: (H, W) -> (1, H, W) -> (1, 1, H, W)
+        img_tensor = torch.from_numpy(img_resized).unsqueeze(0).unsqueeze(0)
 
         return img_tensor
 
@@ -260,10 +257,10 @@ class BaseModel(pl.LightningModule):
             original_shape: Original image shape (H, W)
 
         Returns:
-            Binary segmentation mask (H, W) with values 0-255
+            Binary segmentation mask (H, W, 3) with values 0-255 (RGB format with identical channels)
         """
         # Apply sigmoid to get probabilities
-        prob = torch.sigmoid(output)
+        prob = output
 
         # Convert to numpy and remove batch/channel dimensions
         prob_np = prob.squeeze().cpu().numpy()  # (H, W)
@@ -279,4 +276,10 @@ class BaseModel(pl.LightningModule):
                 interpolation=cv2.INTER_NEAREST,
             )
 
-        return binary_mask
+        # Invert colors (black becomes white, white becomes black)
+        # binary_mask = cv2.bitwise_not(binary_mask)
+
+        # Convert to RGB format with identical channels (H, W, 3) for validation compatibility
+        binary_mask_rgb = np.stack([binary_mask, binary_mask, binary_mask], axis=-1)
+
+        return binary_mask_rgb

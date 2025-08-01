@@ -11,14 +11,15 @@ import datetime
 import numpy as np
 from fastapi import FastAPI
 from dtos import TumorPredictRequestDto, TumorPredictResponseDto
-from utils import validate_segmentation, encode_request, decode_request
+from utils import validate_segmentation, encode_request, decode_request, plot_prediction
 from models import SimpleUNet
+from example import predict
 
 HOST = "0.0.0.0"
 PORT = 9052
 
 # Load the PyTorch Lightning model from checkpoint (class method)
-checkpoint_path = "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=39-val_dice=0.4218.ckpt"
+checkpoint_path = "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=20-val_dice=0.3963.ckpt"
 model = SimpleUNet.load_from_checkpoint(
     checkpoint_path, map_location="cpu"
 )  # Force CPU loading
@@ -34,46 +35,41 @@ def predict_endpoint(request: TumorPredictRequestDto):
     # Decode request str to numpy array
     img: np.ndarray = decode_request(request)
 
-    print(f"img shape: {img.shape}")
+    # print(f"Input img shape: {img.shape}")
 
-    # Obtain segmentation prediction
-    # predicted_segmentation = predict(img)
+    # print(f"Input img max: {img.max()}")
+    # print(f"Input img min: {img.min()}")
+
+    # Get prediction from model (all preprocessing/postprocessing happens in model)
     predicted_segmentation = model.predict(img)
 
-    print(f"predicted_segmentation shape: {predicted_segmentation.shape}")
+    # example_prediction = predict(img)
 
-    # convert grayscale to rgb
-    predicted_segmentation = cv2.cvtColor(predicted_segmentation, cv2.COLOR_GRAY2RGB)
+    # print(f"Predicted segmentation shape: {predicted_segmentation.shape}")
 
-    # make image# invert colors
-    predicted_segmentation = cv2.bitwise_not(predicted_segmentation)
+    # print(f"Predicted segmentation max: {predicted_segmentation.max()}")
+    # print(f"Predicted segmentation min: {predicted_segmentation.min()}")
+    # print(f"Predicted segmentation mean: {predicted_segmentation.mean()}")
+    # print(f"Predicted segmentation std: {predicted_segmentation.std()}")
 
-    # display image
-    # cv2.imshow("predicted_segmentation", predicted_segmentation)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # Plot using utils function (same as in plot_baseline_predictions.py)
+    # try:
+    #     # Create dummy mask (all zeros) since we don't have ground truth in inference
+    #     dummy_mask = np.zeros_like(predicted_segmentation)
 
-    # Also convert input image to RGB for validation
-    # Input is now always (H, W, 1) from decode_request
-    if predicted_segmentation.shape[2] == 1:  # Grayscale image with 1 channel
-        img_for_validation = cv2.cvtColor(
-            predicted_segmentation.squeeze(2), cv2.COLOR_GRAY2RGB
-        )
-    else:  # Already RGB with 3 channels
-        img_for_validation = predicted_segmentation
+    #     print("Displaying prediction using utils plot_prediction...")
+    #     plot_prediction(img, dummy_mask, predicted_segmentation)
 
-    print(f"img_for_validation shape: {img_for_validation.shape}")
-
-    # convert to np array
-    predicted_segmentation = np.array(predicted_segmentation)
-
-    # display image
-    # cv2.imshow("img_for_validation", img_for_validation)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # except Exception as e:
+    #     print(f"Error with utils plotting: {e}")
+    #     # Fallback to simple cv2 display
+    #     cv2.imshow("Predicted segmentation", predicted_segmentation)
+    #     cv2.imshow("Example prediction", example_prediction)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
 
     # Validate segmentation format
-    validate_segmentation(img_for_validation, predicted_segmentation)
+    validate_segmentation(img, predicted_segmentation)
 
     # Encode the segmentation array to a str
     encoded_segmentation = encode_request(predicted_segmentation)
