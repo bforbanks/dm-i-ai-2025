@@ -18,23 +18,23 @@ with open('data/topics.json', 'r') as f:
     topics_data = json.load(f)
     id_to_topic = {v: k for k, v in topics_data.items()}
 
-def get_detailed_semantic_analysis(statement: str):
+def get_detailed_semantic_analysis(statement: str, true_topic_id: int = None):
     """Get detailed semantic search analysis including file sources"""
     # Import model-1 search functions
     search_module = importlib.import_module("model-1.search")
     
-    # Get top 5 topic candidates with context
-    top_topics = search_module.get_top_k_topics_with_context(statement, k=5)
+    # Get ALL topics ranked for complete evaluation analysis  
+    all_topics = search_module.get_top_k_topics_with_context(statement, k=115)
     
     # Also get the targeted context to see what chunks are fed to LLM
-    if top_topics:
-        chosen_topic_id = top_topics[0]['topic_id']
+    if all_topics:
+        chosen_topic_id = all_topics[0]['topic_id']
         context = search_module.get_targeted_context_for_topic(statement, chosen_topic_id, max_chars=1500)
         
         # Extract file sources from chunks
         data = search_module.load_embeddings()
         chunk_files = set()
-        for topic in top_topics[:1]:  # Just for the chosen topic
+        for topic in all_topics[:1]:  # Just for the chosen topic
             for chunk in topic['best_chunks']:
                 chunk_text = chunk['text']
                 # Find which files these chunks came from
@@ -44,14 +44,43 @@ def get_detailed_semantic_analysis(statement: str):
                         chunk_files.add(Path(file_path).name)
                         break
         
-        return top_topics, list(chunk_files), context[:300] + "..." if len(context) > 300 else context
+        return all_topics, list(chunk_files), context[:300] + "..." if len(context) > 300 else context
     
     return [], [], ""
 
-def evaluate_detailed(max_examples: int = 5):
+def get_topics_to_display(all_topics, true_topic_id, pred_topic_id):
+    """Get the topics to display, ensuring true topic is included even if not in top 5"""
+    top_5 = all_topics[:5]
+    topics_to_show = []
+    
+    # Add top 5 with their rankings
+    for i, topic in enumerate(top_5):
+        topics_to_show.append({
+            **topic, 
+            'display_rank': i + 1,
+            'is_top_5': True
+        })
+    
+    # Check if true topic is in top 5
+    true_topic_in_top_5 = any(topic['topic_id'] == true_topic_id for topic in top_5)
+    
+    # If true topic is not in top 5, find it and add it
+    if not true_topic_in_top_5 and true_topic_id is not None:
+        for i, topic in enumerate(all_topics):
+            if topic['topic_id'] == true_topic_id:
+                topics_to_show.append({
+                    **topic,
+                    'display_rank': i + 1,
+                    'is_top_5': False
+                })
+                break
+    
+    return topics_to_show
+
+def evaluate_detailed(max_examples: int = 20):
     """Detailed evaluation showing all decision components"""
     
-    print("🔬 DETAILED MODEL EVALUATION")
+    print("\n🔬 DETAILED MODEL EVALUATION")
     print("=" * 80)
     print()
     
@@ -82,7 +111,7 @@ def evaluate_detailed(max_examples: int = 5):
             
             # Get detailed semantic analysis
             start_time = time.time()
-            top_5_topics, source_files, context_preview = get_detailed_semantic_analysis(statement)
+            all_topics, source_files, context_preview = get_detailed_semantic_analysis(statement, true_topic)
             analysis_time = time.time() - start_time
             
             # Get model prediction
@@ -112,11 +141,34 @@ def evaluate_detailed(max_examples: int = 5):
                 print("🔴 RESULT: ❌ BOTH TRUTH AND TOPIC WRONG")
             print()
             
-            print(f"🔍 TOP 5 SEMANTIC SEARCH TOPICS:")
-            for j, topic in enumerate(top_5_topics[:5]):
+            # Get topics to display including true topic even if not in top 5
+            topics_to_display = get_topics_to_display(all_topics, true_topic, pred_topic)
+            
+            # Find actual ranking of true topic
+            true_topic_rank = None
+            for i, topic in enumerate(all_topics):
+                if topic['topic_id'] == true_topic:
+                    true_topic_rank = i + 1
+                    break
+                    
+            print(f"🔍 SEMANTIC SEARCH TOPICS (True topic rank: {true_topic_rank}/115):")
+            
+            # Display top 5 first
+            top_5_topics = [t for t in topics_to_display if t['is_top_5']]
+            for topic in top_5_topics:
                 marker = "🎯" if topic['topic_id'] == true_topic else "📍" if topic['topic_id'] == pred_topic else "  "
-                score = topic.get('combined_score', 0.0)
-                print(f"   {j+1}. {marker} {topic['topic_name']} (ID: {topic['topic_id']}, Score: {score:.3f})")
+                score = topic.get('score', 0.0)
+                print(f"   {topic['display_rank']}. {marker} {topic['topic_name']} (ID: {topic['topic_id']}, Score: {score:.3f})")
+            
+            # Display true topic if it's not in top 5
+            non_top_5_topics = [t for t in topics_to_display if not t['is_top_5']]
+            if non_top_5_topics:
+                print(f"   ...")
+                for topic in non_top_5_topics:
+                    marker = "🎯" if topic['topic_id'] == true_topic else "📍" if topic['topic_id'] == pred_topic else "  "
+                    score = topic.get('score', 0.0)
+                    print(f"   {topic['display_rank']}. {marker} {topic['topic_name']} (ID: {topic['topic_id']}, Score: {score:.3f})")
+            
             print()
             
             print(f"📄 CONTEXT SOURCES (from {len(source_files)} files):")
@@ -142,7 +194,7 @@ def evaluate_detailed(max_examples: int = 5):
                 correct_topic += 1
                 
         except Exception as e:
-            print(f"❌ ERROR processing {statement_id}: {e}")
+            print(f"ERROR processing {statement_id}: {e}")
         
         print()
         print("-" * 80)
@@ -157,18 +209,9 @@ def evaluate_detailed(max_examples: int = 5):
     print(f"✅ Truth Accuracy:   {correct_truth}/{total_examples} ({100*correct_truth/total_examples:.1f}%)")
     print(f"🎯 Topic Accuracy:   {correct_topic}/{total_examples} ({100*correct_topic/total_examples:.1f}%)")
     
-    if both_correct_count == total_examples:
-        print("🎉 PERFECT SCORE! ALL PREDICTIONS CORRECT! 🎉")
-    elif both_correct_count >= total_examples * 0.8:
-        print("🌟 EXCELLENT PERFORMANCE! >80% fully correct")
-    elif both_correct_count >= total_examples * 0.6:
-        print("👍 GOOD PERFORMANCE! >60% fully correct")
-    else:
-        print("⚠️  NEEDS IMPROVEMENT - <60% fully correct")
-    
     print("=" * 80)
 
 if __name__ == "__main__":
     import sys
-    max_examples = int(sys.argv[1]) if len(sys.argv) > 1 else 5
+    max_examples = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     evaluate_detailed(max_examples)
