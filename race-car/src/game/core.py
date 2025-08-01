@@ -243,7 +243,10 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         pygame.display.set_caption("Race Car Game")
 
     while True:
-        delta = clock.tick(60)  # Limit to 60 FPS
+        if verbose:
+            delta = clock.tick(60)  # Limit to 60 FPS
+        else:
+            delta = clock.tick(100000000000)
         STATE.elapsed_game_time += delta
         STATE.ticks += 1
 
@@ -266,8 +269,9 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         remove_passed_cars()
         place_car()
 
-        print("Current action:", action)
-        print("Currnet tick:", STATE.ticks)
+        if verbose:
+            print("Current action:", action)
+            print("Currnet tick:", STATE.ticks)
 
         # Update sensors
         for sensor in STATE.sensors:
