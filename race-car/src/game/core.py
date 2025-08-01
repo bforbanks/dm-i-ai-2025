@@ -278,7 +278,7 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
 
         # Handle action - get_action() is a method for using arrow keys to steer - implement own logic here!
         if model:
-            action = model.return_action(state_to_state_dict(STATE))
+            action = model.return_action(state_to_state_dict(STATE))[0]
         else: 
             action = get_action()
 
