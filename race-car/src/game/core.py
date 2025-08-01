@@ -36,6 +36,25 @@ class GameState:
 
 STATE = None
 
+def state_to_state_dict(state: GameState):
+    """The state in this file is a GameState object. This function converts it
+    to a dictionary, in the same way as the state we receive from the API."""
+    
+    # Build sensors dictionary by name
+    sensors_dict = {}
+    for sensor in state.sensors:
+        sensors_dict[sensor.name] = sensor.reading
+    
+    return {
+        "did_crash": state.crashed,
+        "elapsed_ticks": state.ticks,
+        "distance": state.distance,
+        "velocity": {
+            "x": state.ego.velocity.x,
+            "y": state.ego.velocity.y
+        },
+        "sensors": sensors_dict
+    }
 
 def intersects(rect1, rect2):
     return rect1.colliderect(rect2)
@@ -234,7 +253,7 @@ def update_game(current_action: str):
 # Main game loop
 ACTION_LOG = []
 
-def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "actions_log.json"):
+def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "actions_log.json", model = None):
     global STATE
     clock = pygame.time.Clock()
     screen = None
@@ -256,13 +275,17 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
             break
 
         # Handle action - get_action() is a method for using arrow keys to steer - implement own logic here!
-        action = get_action()
 
-        # Log the action with tick
+        if model:
+            action = model.return_action(state_to_state_dict(STATE))
+            handle_action(action)
+        else:
+            action = get_action()
+            handle_action(action)
+
+         # Log the action with tick
         if log_actions:
             ACTION_LOG.append({"tick": STATE.ticks, "action": action})
-
-        handle_action(action)
 
         STATE.distance += STATE.ego.velocity.x
         update_cars()
