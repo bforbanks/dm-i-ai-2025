@@ -6,19 +6,19 @@ class Lbaseline:
         # Returns a list of actions
         front = state['sensors']['front']
         back = state['sensors']['back']
-        if front is not None:
+        if front:
             if front < 500:
-                return "DECELERATE"
+                return ["DECELERATE"]
             elif front > 500 and state["velocity"]["x"] < 15:
-                return "ACCELERATE"
+                return ["ACCELERATE"]
             else:
-                return "NOTHING"
-        if back is not None:
+                return ["NOTHING"]
+        if back:
             if back < 500:
-                return "ACCELERATE"
+                return ["ACCELERATE"]
             elif back > 500:
-                return "DECELERATE"
+                return ["DECELERATE"]
             else:
-                return "NOTHING"
+                return ["NOTHING"]
         else:
-            return "ACCELERATE"
+            return ["ACCELERATE"]
