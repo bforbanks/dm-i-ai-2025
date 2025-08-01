@@ -5,10 +5,10 @@ class BaselineModel:
             return "ACCELERATE"
         actions = []
         
-        if state.sensors[0].reading is not None:
-            if state.sensors[0].reading < 600:
+        if state['sensors']['front'] is not None:
+            if state['sensors']['front'] < 600:
                 action = 'DECELERATE'
-            elif state.sensors[0].reading > 800:
+            elif state['sensors']['back'] > 800:
                 action = 'ACCELERATE'
             else:
                 action = 'NOTHING'
