@@ -11,6 +11,10 @@ emergency-healthcare-rag/combined-model-2/embeddings.pkl
 emergency-healthcare-rag/combined-model-2/embeddings_condensed.pkl
 emergency-healthcare-rag/combined-model-2/evaluation_results.json
 
+# Evaluation results and outputs
+emergency-healthcare-rag/evaluation_results.json
+*.json
+
 # Emily-specific files
 .idea
 .vscode
