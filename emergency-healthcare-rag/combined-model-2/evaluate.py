@@ -49,6 +49,18 @@ def evaluate_sample(sample: Dict, sample_num: int, total_samples: int) -> Dict:
     
     print(f"Sample {sample_num}/{total_samples}: {statement[:50]}...")
     
+    # Get search results for display
+    try:
+        from search import get_top_k_topics_with_context
+        search_results = get_top_k_topics_with_context(statement, k=5)
+        print("  🔍 Search results (top 5):")
+        for i, result in enumerate(search_results, 1):
+            is_expected = result['topic_id'] == expected_topic
+            marker = "🎯" if is_expected else "  "
+            print(f"    {marker} {i}. {result['topic_id']:3d}: {result['topic_name']}")
+    except Exception as e:
+        print(f"  ⚠️  Could not get search results: {e}")
+    
     # Time the prediction
     start_time = time.time()
     predicted_truth, predicted_topic = predict(statement)

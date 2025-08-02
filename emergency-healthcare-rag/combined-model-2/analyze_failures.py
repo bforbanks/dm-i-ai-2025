@@ -33,27 +33,14 @@ def analyze_failure_case(statement: str, expected_truth: int, expected_topic: in
         print(f"{marker} {i}. {topic['topic_id']:3d}: {topic['topic_name']}")
     print()
     
-    # Get context for expected topic
-    context = get_targeted_context_for_topic(statement, expected_topic, max_chars=2000)
-    print(f"📖 Context for expected topic {expected_topic}:")
-    print("-" * 60)
-    print(context[:800] + "..." if len(context) > 800 else context)
-    print("-" * 60)
-    print()
-    
     # Test LLM with detailed prompt
     model = get_llm_model()
     model_info = get_model_info(model)
     print(f"🤖 Testing with model: {model_info['name']}")
     print()
     
-    candidates_text = "\n".join([
-        f"{topic['topic_id']}: {topic['topic_name']}" 
-        for topic in candidate_topics
-    ])
-    
     # Generate prompt using centralized function
-    prompt = generate_classification_prompt(statement, candidate_topics, context)
+    prompt = generate_classification_prompt(statement, candidate_topics, "")
 
     try:
         print("📤 Sending prompt to LLM...")
@@ -90,24 +77,6 @@ def analyze_failure_case(statement: str, expected_truth: int, expected_topic: in
                 print(f"  - Predicted: {predicted_truth} ({'TRUE' if predicted_truth else 'FALSE'})")
                 print(f"  - The LLM thinks this statement is {'TRUE' if predicted_truth else 'FALSE'}")
                 print(f"  - But it should be {'TRUE' if expected_truth else 'FALSE'}")
-                
-                # Check if the context supports the expected truth
-                context_lower = context.lower()
-                statement_lower = statement.lower()
-                
-                # Look for contradicting information
-                contradicting_terms = []
-                if expected_truth == 0:  # Should be false
-                    # Look for terms that might contradict the statement
-                    if "not" in context_lower or "incorrect" in context_lower or "false" in context_lower:
-                        contradicting_terms.append("negation terms found")
-                    if "different" in context_lower or "alternative" in context_lower:
-                        contradicting_terms.append("alternative information found")
-                
-                if contradicting_terms:
-                    print(f"  - Context analysis: {', '.join(contradicting_terms)}")
-                else:
-                    print(f"  - Context analysis: No obvious contradicting information found")
             
             if not topic_correct:
                 print(f"\n🤔 Topic Analysis:")
@@ -120,6 +89,43 @@ def analyze_failure_case(statement: str, expected_truth: int, expected_topic: in
             
     except Exception as e:
         print(f"❌ Error: {e}")
+
+def load_and_analyze_failures():
+    """Load evaluation results and analyze all failures"""
+    
+    # Load evaluation results
+    results_file = "evaluation_results.json"
+    if not os.path.exists(results_file):
+        print(f"❌ {results_file} not found. Run evaluate.py first.")
+        return
+    
+    with open(results_file, 'r') as f:
+        data = json.load(f)
+    
+    detailed_results = data.get('detailed_results', [])
+    if not detailed_results:
+        print("❌ No detailed results found in evaluation file.")
+        return
+    
+    # Find all failures
+    failures = []
+    for result in detailed_results:
+        if not result['truth_correct'] or not result['topic_correct']:
+            failures.append(result)
+    
+    print(f"🔍 Found {len(failures)} failure cases out of {len(detailed_results)} total samples")
+    print("=" * 80)
+    
+    # Analyze each failure
+    for i, failure in enumerate(failures, 1):
+        print(f"\n📝 Failure Case {i}/{len(failures)}")
+        print("-" * 60)
+        analyze_failure_case(
+            failure['statement'], 
+            failure['expected_truth'], 
+            failure['expected_topic']
+        )
+        print()
 
 def test_specific_failures():
     """Test the specific failure cases from the evaluation"""
@@ -143,7 +149,7 @@ def test_specific_failures():
     print("=" * 80)
     
     for i, case in enumerate(failure_cases, 1):
-        print(f"\n📝 Failure Case {i}: {case['description']}")
+        print(f"\n📝 Test Case {i}: {case['description']}")
         print("-" * 60)
         analyze_failure_case(case["statement"], case["expected_truth"], case["expected_topic"])
         print()
@@ -153,7 +159,13 @@ def main():
     print("🔍 Failure Analysis Tool")
     print("=" * 80)
     
-    test_specific_failures()
+    # Check if evaluation results exist
+    if os.path.exists("evaluation_results.json"):
+        print("📊 Loading and analyzing all failures from evaluation results...")
+        load_and_analyze_failures()
+    else:
+        print("📊 No evaluation results found, running test cases...")
+        test_specific_failures()
     
     print("✅ Analysis complete!")
 
