@@ -52,7 +52,13 @@ TASKS:
 The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless explicitly confirmed in the context.
 
 Respond with ONLY two numbers separated by a comma: topic_id,truth_value
-Examples: 30,1 (topic 30, true) or 45,0 (topic 45, false)"""
+    Examples: 
+
+        YOUR ANSWER: "30,1"         corresponding to (topic 30, true)
+        YOUR ANSWER: "45,0"         corresponding to (topic 45, false)
+        
+        
+    NEVER SAY ANYTHING BUT TWO NUMBERS SEPERATED BY A COMMA -- THE TOPIC, AND THE TRUTH BOOL."""
 
     try:
         response = ollama.chat(
