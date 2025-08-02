@@ -7,8 +7,32 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 EMBEDDINGS_FILE = "model-1/embeddings.pkl"
+LOCAL_MODEL_PATH = "model-1/local_sentence_model/"
+MODEL_NAME = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 500
 OVERLAP = 50
+
+def setup_local_model():
+    """Download and cache the sentence transformer model locally for offline use"""
+    if not os.path.exists(LOCAL_MODEL_PATH):
+        print(f"Downloading model {MODEL_NAME} for local caching...")
+        # Download the model
+        model = SentenceTransformer(MODEL_NAME)
+        # Save it locally
+        os.makedirs(LOCAL_MODEL_PATH, exist_ok=True)
+        model.save(LOCAL_MODEL_PATH)
+        print(f"Model cached locally at {LOCAL_MODEL_PATH}")
+    else:
+        print(f"Using cached local model at {LOCAL_MODEL_PATH}")
+
+def load_local_model():
+    """Load the locally cached sentence transformer model"""
+    if not os.path.exists(LOCAL_MODEL_PATH):
+        print("Local model not found. Setting up...")
+        setup_local_model()
+    
+    print(f"Loading local model from {LOCAL_MODEL_PATH}")
+    return SentenceTransformer(LOCAL_MODEL_PATH)
 
 def load_all_documents() -> List[Tuple[str, str]]:
     """Load all markdown documents from topics directory"""
@@ -41,7 +65,9 @@ def chunk_document(content: str, chunk_size: int = CHUNK_SIZE, overlap: int = OV
 
 def create_embeddings():
     """Generate embeddings for all document chunks AND topic names"""
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    # Setup and use local model
+    setup_local_model()
+    model = load_local_model()
     
     documents = load_all_documents()
     all_chunks = []
@@ -67,7 +93,7 @@ def create_embeddings():
         'embeddings': embeddings,
         'chunks': all_chunks,
         'metadata': chunk_metadata,
-        'model_name': 'all-MiniLM-L6-v2',
+        'model_path': LOCAL_MODEL_PATH,  # Store local path instead of model name
         'topic_names': topic_names,
         'topic_embeddings': topic_embeddings,
         'topics_mapping': topics
@@ -89,7 +115,12 @@ def load_embeddings():
 def search_relevant_content(statement: str, top_k: int = 1, max_chars: int = 1500) -> str:
     """Search for minimal relevant content for truth classification"""
     data = load_embeddings()
-    model = SentenceTransformer(data['model_name'])
+    # Use local model path if available, fallback to model name for old embeddings
+    if 'model_path' in data:
+        model = SentenceTransformer(data['model_path'])
+    else:
+        # Fallback for old embeddings files
+        model = load_local_model()
     
     query_embedding = model.encode([statement])
     
@@ -114,7 +145,12 @@ def search_relevant_content(statement: str, top_k: int = 1, max_chars: int = 150
 def get_top_k_topics_with_context(statement: str, k: int = 3) -> list:
     """Get top K most likely topics with their relevant context chunks (OPTIMIZED)"""
     data = load_embeddings()
-    model = SentenceTransformer(data['model_name'])
+    # Use local model path if available, fallback to model name for old embeddings
+    if 'model_path' in data:
+        model = SentenceTransformer(data['model_path'])
+    else:
+        # Fallback for old embeddings files
+        model = load_local_model()
     
     # OPTIMIZATION: Use pre-computed topic embeddings instead of recomputing
     topic_names = data['topic_names']
