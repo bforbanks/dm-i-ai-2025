@@ -23,5 +23,5 @@ if __name__ == '__main__':
     seed_value = 12345
     pygame.init()
     initialize_game_state("http://example.com/api/predict", seed_value)
-    game_loop(verbose=True, model=MODEL()) # For pygame window
+    game_loop(verbose=False, model=MODEL()) # For pygame window
     pygame.quit()
