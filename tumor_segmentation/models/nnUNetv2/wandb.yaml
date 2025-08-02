@@ -1,0 +1,17 @@
+trainer:
+  logger:
+    class_path: lightning.pytorch.loggers.WandbLogger
+    init_args:
+      project: "tumor-segmentation"
+      name: "nnunet-v2-totalsegmentator"  # Specific name for nnU-Net v2
+      save_dir: "wandb_logs"
+      log_model: "all"
+  callbacks+:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        dirpath: "checkpoints"
+        filename: "nnunet-v2-{epoch:02d}-{val_dice:.4f}"
+        monitor: "val_dice"
+        mode: "max"
+        save_top_k: 1
+        verbose: true 

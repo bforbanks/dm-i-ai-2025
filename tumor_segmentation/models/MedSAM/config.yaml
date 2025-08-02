@@ -1,0 +1,20 @@
+# Data configuration - Adjusted for MedSAM (larger model)
+data:
+  val_split: 0.2
+  batch_size: 4  # Smaller batch size for larger model
+  num_workers: 0
+  image_size: 256
+
+model:
+  class_path: models.MedSAM.model.MedSAM
+  init_args:
+    img_size: 256  # Match the data loader image size
+    pretrained_weights_path: "checkpoints/medsam_vit_b.pth"
+    lr: 1e-3  # Higher learning rate for better training
+
+# Add visualization callback
+trainer:
+  callbacks+:
+    - class_path: callbacks.visualization_callback.TumorVisualizationCallback
+      init_args:
+        log_every_n_epochs: 3 

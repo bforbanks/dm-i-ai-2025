@@ -1,0 +1,108 @@
+# lightning.pytorch==2.5.2
+seed_everything: 0
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 32
+  logger:
+    class_path: lightning.pytorch.loggers.WandbLogger
+    init_args:
+      name: ViTUNet
+      save_dir: .
+      version: null
+      offline: false
+      dir: null
+      id: null
+      anonymous: null
+      project: tumor-segmentation
+      log_model: true
+      experiment: null
+      prefix: ''
+      checkpoint_name: null
+      entity: null
+      notes: null
+      tags: null
+      config: null
+      config_exclude_keys: null
+      config_include_keys: null
+      allow_val_change: null
+      group: null
+      job_type: null
+      mode: null
+      force: null
+      reinit: null
+      resume: null
+      resume_from: null
+      fork_from: null
+      save_code: null
+      tensorboard: null
+      sync_tensorboard: null
+      monitor_gym: null
+      settings: null
+  callbacks:
+  - class_path: lightning.pytorch.callbacks.ModelSummary
+    init_args:
+      max_depth: -1
+  - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: epoch
+      log_momentum: false
+      log_weight_decay: false
+  fast_dev_run: false
+  max_epochs: 1000
+  min_epochs: null
+  max_steps: -1
+  min_steps: null
+  max_time: 00:02:00:00
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: null
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: null
+  log_every_n_steps: null
+  enable_checkpointing: null
+  enable_progress_bar: null
+  enable_model_summary: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: null
+  gradient_clip_algorithm: null
+  deterministic: null
+  benchmark: null
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+  model_registry: null
+model:
+  class_path: models.ViTUNet
+  init_args:
+    in_channels: 3
+    num_classes: 1
+    lr: 0.0001
+    weight_decay: 1.0e-05
+    img_size: 256
+    vit_patch_size: 16
+    vit_embed_dim: 768
+    vit_depth: 12
+    vit_num_heads: 12
+    pretrained_weights_path: checkpoints/medsam_vit_b.pth
+data:
+  data_dir: data
+  batch_size: 16
+  num_workers: 0
+  image_size: 256
+  val_split: 0.2
+  random_state: 42
+optimizer: null
+lr_scheduler: null
+ckpt_path: null

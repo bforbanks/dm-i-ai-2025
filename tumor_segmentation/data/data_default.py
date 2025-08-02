@@ -89,7 +89,7 @@ def get_transforms(is_training: bool = True, image_size: int = 256):
     Returns:
         Albumentations transform pipeline
     """
-    if False:
+    if is_training:
         return A.Compose(
             [
                 A.Resize(image_size, image_size),

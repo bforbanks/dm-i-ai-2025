@@ -1,0 +1,14 @@
+uvicorn
+fastapi
+pydantic
+pydantic-settings
+loguru
+openai
+torch
+torchvision
+transformers
+lightning
+albumentations
+opencv-python
+numpy
+scikit-image

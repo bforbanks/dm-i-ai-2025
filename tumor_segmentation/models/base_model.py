@@ -88,16 +88,19 @@ class BaseModel(pl.LightningModule):
             pred_flat = pred_sample.view(-1)
             target_flat = target_sample.view(-1)
 
-            # Calculate intersection and union
+            # Calculate intersection and sum of cardinalities
+            # intersection = TP, pred_sum = TP + FP, target_sum = TP + FN
             intersection = (pred_flat * target_flat).sum()
-            union = pred_flat.sum() + target_flat.sum()
+            pred_sum = pred_flat.sum()
+            target_sum = target_flat.sum()
+            cardinality_sum = pred_sum + target_sum  # 2TP + FP + FN
 
             # Handle edge case where both masks are empty (perfect match)
-            if union == 0:
+            if cardinality_sum == 0:
                 dice_sample = torch.tensor(1.0, device=pred.device, dtype=pred.dtype)
             else:
-                # Calculate Dice score: 2 * intersection / union
-                dice_sample = (2.0 * intersection + smooth) / (union + smooth)
+                # Calculate Dice score: 2 * TP / (2TP + FP + FN)
+                dice_sample = (2.0 * intersection + smooth) / (cardinality_sum + smooth)
 
             dice_scores.append(dice_sample)
 
@@ -256,14 +259,15 @@ class BaseModel(pl.LightningModule):
         Postprocess model output to final segmentation mask.
 
         Args:
-            output: Model output tensor (1, 1, H, W)
+            output: Model output tensor (1, 1, H, W) (already sigmoid applied)
             original_shape: Original image shape (H, W)
 
         Returns:
             Binary segmentation mask (H, W) with values 0-255
         """
-        # Apply sigmoid to get probabilities
-        prob = torch.sigmoid(output)
+        # NOTE: Output is already sigmoid-applied from the model
+        # making thresholding ineffective and training unstable
+        prob = output
 
         # Convert to numpy and remove batch/channel dimensions
         prob_np = prob.squeeze().cpu().numpy()  # (H, W)
