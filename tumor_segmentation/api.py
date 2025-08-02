@@ -1,23 +1,34 @@
 from pathlib import Path
 import sys
-
-# Add project root to path FIRST (parent of tumor_segmentation directory)
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+import os
 import uvicorn
 import time
 import datetime
 import numpy as np
+from dotenv import load_dotenv
 from fastapi import FastAPI
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Add project root to path FIRST (parent of tumor_segmentation directory)
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from dtos import TumorPredictRequestDto, TumorPredictResponseDto
 from utils import validate_segmentation, encode_request, decode_request
 from models import SimpleUNet
 
-HOST = "0.0.0.0"
-PORT = 9052
+# Load configuration from environment variables
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", "9052"))
 
 # Load the PyTorch Lightning model from checkpoint (class method)
-checkpoint_path = "C:/Users/oscar/OneDrive/School/DTU/DM_AI/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=77-val_dice=0.6177.ckpt"
+checkpoint_path = os.getenv(
+    "CHECKPOINT_PATH",
+)
+if not checkpoint_path:
+    raise ValueError("CHECKPOINT_PATH environment variable is not set")
+
 model = SimpleUNet.load_from_checkpoint(
     checkpoint_path, map_location="cpu"
 )  # Force CPU loading
