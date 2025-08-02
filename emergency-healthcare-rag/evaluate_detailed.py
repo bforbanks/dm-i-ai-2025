@@ -18,13 +18,27 @@ with open('data/topics.json', 'r') as f:
     topics_data = json.load(f)
     id_to_topic = {v: k for k, v in topics_data.items()}
 
-def get_detailed_semantic_analysis(statement: str, true_topic_id: int = None):
-    """Get detailed semantic search analysis including file sources"""
+def get_detailed_semantic_analysis_with_timing(statement: str, true_topic_id: int = None):
+    """Get detailed semantic search analysis including file sources and timing breakdown"""
     # Import model-1 search functions
     search_module = importlib.import_module("model-1.search")
     
-    # Get ALL topics ranked for complete evaluation analysis  
+    # Time the embedding process specifically
+    from sentence_transformers import SentenceTransformer
+    
+    # Load data and model
+    data = search_module.load_embeddings()
+    model = SentenceTransformer(data['model_name'])
+    
+    # Time just the embedding
+    embedding_start = time.time()
+    statement_embedding = model.encode([statement])
+    embedding_time = time.time() - embedding_start
+    
+    # Time the full search process (including embedding above)
+    search_start = time.time()
     all_topics = search_module.get_top_k_topics_with_context(statement, k=115)
+    total_search_time = time.time() - search_start
     
     # Also get the targeted context to see what chunks are fed to LLM
     if all_topics:
@@ -32,7 +46,6 @@ def get_detailed_semantic_analysis(statement: str, true_topic_id: int = None):
         context = search_module.get_targeted_context_for_topic(statement, chosen_topic_id, max_chars=1500)
         
         # Extract file sources from chunks
-        data = search_module.load_embeddings()
         chunk_files = set()
         for topic in all_topics[:1]:  # Just for the chosen topic
             for chunk in topic['best_chunks']:
@@ -44,9 +57,9 @@ def get_detailed_semantic_analysis(statement: str, true_topic_id: int = None):
                         chunk_files.add(Path(file_path).name)
                         break
         
-        return all_topics, list(chunk_files), context[:300] + "..." if len(context) > 300 else context
+        return all_topics, list(chunk_files), context[:300] + "..." if len(context) > 300 else context, embedding_time, total_search_time
     
-    return [], [], ""
+    return [], [], "", embedding_time, total_search_time
 
 def get_topics_to_display(all_topics, true_topic_id, pred_topic_id):
     """Get the topics to display, ensuring true topic is included even if not in top 5"""
@@ -94,6 +107,13 @@ def evaluate_detailed(max_examples: int = 20):
     total_examples = len(statement_files)
     correct_truth = 0
     correct_topic = 0
+    both_correct = 0  # Track examples where BOTH are correct
+    
+    # Timing accumulation
+    total_embedding_time = 0
+    total_semantic_time = 0
+    total_model_time = 0
+    individual_timings = []
     
     for i, statement_file in enumerate(statement_files):
         # Extract ID from filename (statement_0000.txt -> 0000)
@@ -112,25 +132,42 @@ def evaluate_detailed(max_examples: int = 20):
             # Get detailed semantic analysis with timing breakdown
             print(f"🔍 PERFORMANCE TIMING:")
             
-            # Time semantic search separately
-            semantic_start = time.time()
-            all_topics, source_files, context_preview = get_detailed_semantic_analysis(statement, true_topic)
-            semantic_time = time.time() - semantic_start
+            # Get semantic analysis with detailed timing
+            all_topics, source_files, context_preview, embedding_time, search_time = get_detailed_semantic_analysis_with_timing(statement, true_topic)
             
-            # Time model prediction with further breakdown
+            # Time model prediction
             pred_start = time.time()
             pred_truth, pred_topic = predict(statement)
             pred_time = time.time() - pred_start
             
-            print(f"   Semantic Search: {semantic_time:.2f}s")
+            # Calculate search time without embedding (search operations)
+            search_only_time = search_time - embedding_time
+            
+            print(f"   Statement Embedding: {embedding_time:.2f}s")
+            print(f"   Semantic Search: {search_only_time:.2f}s")
             print(f"   Model Prediction: {pred_time:.2f}s")
-            print(f"   Total: {semantic_time + pred_time:.2f}s")
+            print(f"   Total: {search_time + pred_time:.2f}s")
             print()
+            
+            # Store timing data
+            timing_data = {
+                'statement_id': statement_id,
+                'embedding_time': embedding_time,
+                'search_time': search_only_time,
+                'model_time': pred_time,
+                'total_time': search_time + pred_time
+            }
+            individual_timings.append(timing_data)
+            
+            # Accumulate for averages
+            total_embedding_time += embedding_time
+            total_semantic_time += search_only_time
+            total_model_time += pred_time
             
             # Show results with VERY CLEAR correctness indicators
             truth_correct = pred_truth == true_truth
             topic_correct = pred_topic == true_topic
-            both_correct = truth_correct and topic_correct
+            example_both_correct = truth_correct and topic_correct
             
             print(f"🎯 PREDICTIONS:")
             print(f"   Truth: {pred_truth} {'✅ CORRECT' if truth_correct else '❌ WRONG'} (should be: {true_truth})")
@@ -139,7 +176,7 @@ def evaluate_detailed(max_examples: int = 20):
             print()
             
             # CLEAR OVERALL STATUS
-            if both_correct:
+            if example_both_correct:
                 print("🏆 RESULT: ✅ BOTH TRUTH AND TOPIC CORRECT! 🏆")
             elif truth_correct:
                 print("🔶 RESULT: ✅ TRUTH CORRECT, ❌ TOPIC WRONG")
@@ -193,10 +230,12 @@ def evaluate_detailed(max_examples: int = 20):
             # Timing section removed since we now show it earlier
             
             # Update accuracy counters
-            if pred_truth == true_truth:
+            if truth_correct:
                 correct_truth += 1
-            if pred_topic == true_topic:
+            if topic_correct:
                 correct_topic += 1
+            if example_both_correct:
+                both_correct += 1
                 
         except Exception as e:
             print(f"ERROR processing {statement_id}: {e}")
@@ -206,13 +245,25 @@ def evaluate_detailed(max_examples: int = 20):
         print()
     
     # Final statistics with CLEAR emphasis
-    both_correct_count = min(correct_truth, correct_topic)
-    
     print(f"📊 FINAL RESULTS ({total_examples} examples)")
     print("=" * 60)
-    print(f"🏆 BOTH CORRECT:     {both_correct_count}/{total_examples} ({100*both_correct_count/total_examples:.1f}%)")
+    print(f"🏆 BOTH CORRECT:     {both_correct}/{total_examples} ({100*both_correct/total_examples:.1f}%)")
     print(f"✅ Truth Accuracy:   {correct_truth}/{total_examples} ({100*correct_truth/total_examples:.1f}%)")
     print(f"🎯 Topic Accuracy:   {correct_topic}/{total_examples} ({100*correct_topic/total_examples:.1f}%)")
+    print()
+    
+    # Average timing statistics
+    if total_examples > 0:
+        avg_embedding = total_embedding_time / total_examples
+        avg_search = total_semantic_time / total_examples
+        avg_model = total_model_time / total_examples
+        avg_total = (total_embedding_time + total_semantic_time + total_model_time) / total_examples
+        
+        print(f"⏱️  AVERAGE TIMING:")
+        print(f"   Statement Embedding: {avg_embedding:.2f}s")
+        print(f"   Semantic Search: {avg_search:.2f}s")
+        print(f"   Model Prediction: {avg_model:.2f}s")
+        print(f"   Total Average: {avg_total:.2f}s")
     
     print("=" * 80)
 
