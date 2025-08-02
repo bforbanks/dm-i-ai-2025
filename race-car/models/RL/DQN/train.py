@@ -1,7 +1,9 @@
 import torch
 
 from deepQ import DQNAgent
-from model import DQN
+from DQNModel import DQN
+from src.game.core import initialize_game_state, game_loop
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dtype = torch.float32
@@ -36,8 +38,8 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             
             agent.memory.append((state, action, reward, next_state, done))
 
-
-            agent.train()
+            if episode % 10 == 0:
+                agent.train()
 
             state = next_state
     
