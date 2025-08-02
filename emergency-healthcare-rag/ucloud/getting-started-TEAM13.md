@@ -63,12 +63,12 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 7. In the new terminal tab, download the model:
    ```bash
    cd /work/TEAM13
-   /work/TEAM13/ollama/bin/ollama pull llama3.1:12b
+   /work/TEAM13/ollama/bin/ollama pull llama3.1:8b
    ```
 
 8. Test Ollama in the terminal:
    ```bash
-   /work/TEAM13/ollama/bin/ollama run llama3.1:12b
+   /work/TEAM13/ollama/bin/ollama run llama3.1:8b
    ```
    (Press `Ctrl+D` to exit chat)
 
@@ -163,6 +163,6 @@ To restart nginx or GPU terminal applications:
 
 - **Repository**: https://github.com/bforbanks/dm-i-ai-2025/tree/emergency-healthcare-rag
 - **Team Drive**: `/work/TEAM13`
-- **Model**: `llama3.1:12b` (for better medical reasoning)
+- **Model**: `llama3.1:8b` (for better medical reasoning)
 - **Active Model**: `combined-model-2` (hybrid search + improved LLM)
 - **No screen sessions**: Use separate terminal tabs instead 

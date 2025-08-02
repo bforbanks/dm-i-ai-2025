@@ -7,7 +7,7 @@ def load_topics_mapping():
     with open('data/topics.json', 'r') as f:
         return json.load(f)
 
-def classify_truth_and_topic_combined(statement: str, candidate_topics: List[Dict], context: str, model: str = 'llama3.1:12b') -> Tuple[int, int]:
+def classify_truth_and_topic_combined(statement: str, candidate_topics: List[Dict], context: str, model: str = 'llama3.1:8b') -> Tuple[int, int]:
     """
     Choose topic from candidates AND determine truth in single LLM call
     """
