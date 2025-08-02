@@ -6,15 +6,28 @@ logging.getLogger("transformers.models.bert.modeling_bert").setLevel(logging.ERR
 logging.getLogger("torch.nn.modules.module").setLevel(logging.ERROR)
 
 import os
+import sys
 import json
 import time
 from pathlib import Path
+
+# Add parent directory to path to import utils and model
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+
 from utils import load_statement_sample
-from model import predict
 import importlib
+import importlib.util
+
+# Import the main model.py (not model-1/model.py)
+model_spec = importlib.util.spec_from_file_location("main_model", os.path.join(parent_dir, "model.py"))
+main_model = importlib.util.module_from_spec(model_spec)
+model_spec.loader.exec_module(main_model)
+predict = main_model.predict
 
 # Load topic mappings
-with open('data/topics.json', 'r') as f:
+topics_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'topics.json')
+with open(topics_file, 'r') as f:
     topics_data = json.load(f)
     id_to_topic = {v: k for k, v in topics_data.items()}
 
