@@ -1,9 +1,10 @@
 import torch
 
-from deepQ import DQNAgent
-from DQNModel import DQN
+from models.rl.dqn.deepQ import DQNAgent
+from models.rl.dqn.DQNModel import DQN
 from src.game.core import initialize_game_state, game_loop
 
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dtype = torch.float32
@@ -24,10 +25,9 @@ dtype = torch.float32
 
 agent = DQNAgent(input_dim=21, output_dim=5, device=device, dtype=dtype)
 
-#TODO: Implement env
 
 def train(agent: DQNAgent, env, episodes: int = 1000):
-    for episode in range(episodes):
+    for episode in tqdm(range(episodes), desc="Training Episodes"):
         state = env.reset()
         done = False
         total_reward = 0

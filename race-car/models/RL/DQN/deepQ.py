@@ -25,7 +25,7 @@ from typing import Callable, Optional
 #     # 'NOTHING''
 
 
-from model import DQN
+from models.rl.dqn.DQNModel import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -89,7 +89,7 @@ class DQNAgent:
             return q_values.argmax(dim=1).item()
 
 
-    def train(self):
+    def learn(self):
         if len(self.memory) < self.batch_size:
             return  # Avoid training on too little data
 
