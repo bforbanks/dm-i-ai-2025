@@ -13,8 +13,11 @@ OVERLAP = 50
 def load_all_documents() -> List[Tuple[str, str]]:
     """Load all markdown documents from topics directory"""
     documents = []
-    topics_dir = Path("data/topics")
-    
+    # Change this path to use different topic sources:
+    #   "data/topics"           - original full articles
+    #   "data/condensed_topics" - cleaned versions
+    topics_dir = Path("data/condensed_topics")
+
     for topic_dir in topics_dir.iterdir():
         if topic_dir.is_dir():
             for md_file in topic_dir.glob("*.md"):
