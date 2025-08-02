@@ -32,16 +32,21 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
         done = False
         total_reward = 0
 
+        tick = 0
         while not done:
+            tick += 1
+            if tick > 3601: # Temporary tick limit to catch potential bugs
+                raise RuntimeError("Tick limit exceeded")
+            
             action = agent.select_action(torch.tensor(state, dtype=dtype, device=device))
-            next_state, reward, done = env.step(action) # TODO: This does maybe not work as intended
+            next_state, reward, done = env.step(action)
             
             agent.memory.append((state, action, reward, next_state, done))
 
-            if episode % 10 == 0:
-                agent.train()
+            if len(agent.memory) > agent.batch_size and tick % 4 == 0:
+                agent.learn()
 
             state = next_state
-    
+        if episode % 100 == 0:
+            agent.save(f"dqn_agent_ep{episode}")
     agent.save("dqn_agent")  # Save the model after training
-    
