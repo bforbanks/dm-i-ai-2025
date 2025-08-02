@@ -2,7 +2,7 @@ import importlib
 from typing import Tuple
 
 # Model selection  
-ACTIVE_MODEL = "combined-model-1"  # Updated to combined-model-1
+ACTIVE_MODEL = "combined-model-2"  # Updated to combined-model-2
 
 ### CALL THE CUSTOM MODEL VIA THIS FUNCTION ###
 def predict(statement: str) -> Tuple[int, int]:

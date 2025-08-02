@@ -2,6 +2,15 @@
 emergency-healthcare-rag/data/test
 emergency-healthcare-rag/data/validation
 
+# Local model files and embeddings (generated on cloud)
+emergency-healthcare-rag/combined-model-1/local_sentence_model/
+emergency-healthcare-rag/combined-model-1/embeddings.pkl
+emergency-healthcare-rag/combined-model-1/embeddings_condensed.pkl
+emergency-healthcare-rag/combined-model-2/local_sentence_model/
+emergency-healthcare-rag/combined-model-2/embeddings.pkl
+emergency-healthcare-rag/combined-model-2/embeddings_condensed.pkl
+emergency-healthcare-rag/combined-model-2/evaluation_results.json
+
 # Emily-specific files
 .idea
 .vscode

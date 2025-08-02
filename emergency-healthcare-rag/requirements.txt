@@ -7,3 +7,4 @@ openai
 ollama
 sentence-transformers
 numpy
+rank-bm25

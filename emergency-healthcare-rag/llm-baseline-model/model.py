@@ -44,7 +44,7 @@ def predict(statement: str) -> tuple[bool, str]:
     
     # Get LLM response
     response = ollama.chat(
-        model='gemma3:12b',
+        model='gemma3n:e4b',
         messages=[{
             'role': 'user',
             'content': prompt
