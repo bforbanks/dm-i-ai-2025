@@ -1,4 +1,5 @@
-class Playground:
+from models.BaseModel import BaseModel
+class Playground(BaseModel):   
     def __init__(self):
         self.lanes = {1: None, 2: None, 3: None, 4: None, 5: None}
         self.sensor_options = [
@@ -22,5 +23,9 @@ class Playground:
     def update_position(self, sensors):
         for sensor in self.sensor_options:
             if sensors[sensor] is not None:
+                pass
+
+    def return_action(self, state):
+        pass
 
 

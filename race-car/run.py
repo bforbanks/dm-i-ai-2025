@@ -1,13 +1,20 @@
 import pygame
 import random
+import importlib
 from src.game.core import initialize_game_state, game_loop
-from models.baseline import BaselineModel as MODEL
 
 '''
 Set seed_value to None for random seed.
 Within game_loop, change get_action() to your custom models prediction for local testing and training.
 '''
 
+# Just change this string to use different models! (remember capitalization)
+model_name = "RL.DQN.DQNModel"  # "baseline", "RL.DQN.DQNModel", "playground", etc.
+
+# Dynamic import
+module = importlib.import_module(f'models.{model_name}')
+class_name = model_name.split('.')[-1]  # Get last part and capitalize
+MODEL = getattr(module, class_name)
 
 
 

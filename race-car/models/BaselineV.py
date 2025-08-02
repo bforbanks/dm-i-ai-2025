@@ -1,4 +1,6 @@
-class BaselineModel:
+from models.BaseModel import BaseModel
+
+class BaselineV(BaseModel):
     def return_action(self, state = None):
         actions = []
         if state is None:

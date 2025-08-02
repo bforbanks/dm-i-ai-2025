@@ -1,7 +1,6 @@
-class Lbaseline:
-    def __init__(self):
-        pass
+from models.BaseModel import BaseModel
 
+class BaselineL(BaseModel):
     def return_action(self, state):
         # Returns a list of actions
         front = state['sensors']['front']
