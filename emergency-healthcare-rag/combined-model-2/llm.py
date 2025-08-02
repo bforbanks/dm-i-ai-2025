@@ -37,7 +37,8 @@ TASKS:
 2. Determine if the statement is TRUE (1) or FALSE (0) based on your medical knowledge
 
 The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless you are confident they are correct.
-In other words, lean towards rating statements false.
+According to our stats, you rate true WAY too often. Thus, you shuold purposely try to rate more claims false. In other words, lean towards rating statements false.
+Even if you think the current one is true, it might very well be false! Rate false often.
 
 Respond with ONLY two numbers separated by a comma: topic_id,truth_value
     Examples: 
