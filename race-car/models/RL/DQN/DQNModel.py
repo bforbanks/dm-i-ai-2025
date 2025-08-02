@@ -1,5 +1,13 @@
+from ...BaseModel import BaseModel
+
 import torch
 from torch import nn
+
+class DQNModel(BaseModel):
+    """This is the class used to interact with the game"""
+    def return_action(self, state: dict) -> list[str]:
+        return ["DECELERATE"]
+
 
 class DQN(nn.Module):
     '''
