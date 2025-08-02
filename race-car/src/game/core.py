@@ -8,6 +8,8 @@ from ..elements.road import Road
 from ..elements.sensor import Sensor
 from ..mathematics.vector import Vector
 import json
+from typing import List
+
 
 # Define constants
 SCREEN_WIDTH = 1600
@@ -60,7 +62,11 @@ def intersects(rect1, rect2):
     return rect1.colliderect(rect2)
 
 # Game logic
-def handle_action(action: str):
+def handle_action(actions: str | List):
+    if isinstance(actions, list):
+        action = actions.pop(0) if actions else "NOTHING"
+    else: action = actions
+    
     if action == "ACCELERATE":
         STATE.ego.speed_up()
     elif action == "DECELERATE":
@@ -278,7 +284,7 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
 
         # Handle action - get_action() is a method for using arrow keys to steer - implement own logic here!
         if model:
-            action = model.return_action(state_to_state_dict(STATE))
+            action = model.return_action(state_to_state_dict(STATE))[0]
         else: 
             action = get_action()
 
