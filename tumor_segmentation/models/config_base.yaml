@@ -9,8 +9,8 @@ data:
 
 # Trainer configuration - Common for all models
 trainer:
-  max_epochs: 1000
-  max_time: "00:02:00:00"  # Maximum training time of 30 minutes
+  max_epochs: 10000
+  max_time: "00:12:00:00"  # Maximum training time of 30 minutes
   accelerator: auto
   devices: auto
   precision: 32

@@ -15,9 +15,11 @@ class BaseModel(pl.LightningModule):
     - Support for both patient and control data
     """
 
-    def __init__(self, lr=1e-3, weight_decay=1e-5, **kwargs):
+    def __init__(self, lr=1e-3, weight_decay=1e-5, bce_loss=0.5, **kwargs):
         super().__init__()
         self.save_hyperparameters()
+
+        self.bce_loss = bce_loss
 
         # Initialize loss function - we'll use the _calculate_dice_loss method
         self.smooth = 1e-6
@@ -34,11 +36,16 @@ class BaseModel(pl.LightningModule):
         # Convert predictions to binary for Dice score calculation
         pred_binary = (pred > 0.5).float()
 
+        # Calculate BCE loss
+        bce_loss = torch.nn.functional.binary_cross_entropy(pred, target)
+
         # Calculate Dice score using custom implementation (matches utils.py)
         dice_score = self._calculate_dice_score(pred_binary, target)
 
         # Calculate loss using raw sigmoid predictions
-        loss = self._calculate_dice_loss(pred, target)
+        loss = self.bce_loss * bce_loss + (
+            1 - self.bce_loss
+        ) * self._calculate_dice_loss(pred, target)
 
         # Log metrics
         batch_size = target.size(0)
@@ -225,7 +232,7 @@ class BaseModel(pl.LightningModule):
             img: Input image (H, W, C) where C can be 1 or 3
 
         Returns:
-            Preprocessed tensor (1, C, H, W)
+            Preprocessed tensor (1, 1, H, W) - PyTorch standard format (single channel)
         """
         # Handle different input formats
         if len(img.shape) == 3 and img.shape[2] == 1:
@@ -244,11 +251,8 @@ class BaseModel(pl.LightningModule):
         # Resize to model input size (assuming 256x256)
         img_resized = cv2.resize(img_2d, (256, 256), interpolation=cv2.INTER_LINEAR)
 
-        # Convert to RGB format for model (expects 3 channels)
-        img_rgb = np.stack([img_resized, img_resized, img_resized], axis=0)  # (3, H, W)
-
-        # Add batch dimension and convert to tensor
-        img_tensor = torch.from_numpy(img_rgb).unsqueeze(0)  # (1, 3, H, W)
+        # Convert to PyTorch standard format: (H, W) -> (1, H, W) -> (1, 1, H, W)
+        img_tensor = torch.from_numpy(img_resized).unsqueeze(0).unsqueeze(0)
 
         return img_tensor
 
@@ -263,7 +267,7 @@ class BaseModel(pl.LightningModule):
             original_shape: Original image shape (H, W)
 
         Returns:
-            Binary segmentation mask (H, W) with values 0-255
+            Binary segmentation mask (H, W, 3) with values 0-255 (RGB format with identical channels)
         """
         # NOTE: Output is already sigmoid-applied from the model
         # making thresholding ineffective and training unstable
@@ -283,4 +287,10 @@ class BaseModel(pl.LightningModule):
                 interpolation=cv2.INTER_NEAREST,
             )
 
-        return binary_mask
+        # Invert colors (black becomes white, white becomes black)
+        # binary_mask = cv2.bitwise_not(binary_mask)
+
+        # Convert to RGB format with identical channels (H, W, 3) for validation compatibility
+        binary_mask_rgb = np.stack([binary_mask, binary_mask, binary_mask], axis=-1)
+
+        return binary_mask_rgb

@@ -8,10 +8,10 @@ import numpy as np
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models import BaselineModel
-from data_module import TumorSegmentationDataModule
+from models import SimpleUNet
+from data.data_default import TumorSegmentationDataModule
 from utils import plot_prediction, dice_score
 import cv2
 
@@ -22,7 +22,10 @@ def plot_baseline_predictions():
     print("Loading BaselineModel and data...")
 
     # Create model
-    model = BaselineModel(threshold=50.0)
+    model = SimpleUNet.load_from_checkpoint(
+        "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=20-val_dice=0.3963.ckpt",
+        map_location="cpu",  # Force CPU loading to avoid device mismatch
+    )
     model.eval()
 
     # Create data module
@@ -116,13 +119,17 @@ def plot_baseline_predictions():
         predictions_np = predictions.cpu().numpy()
 
         # Get single sample (remove batch dimension)
-        img = images_np[0]  # [3, H, W]
+        img = images_np[0]  # [1, H, W] - single channel grayscale
         mask = masks_np[0]  # [1, H, W]
         pred = predictions_np[0]  # [1, H, W]
 
         # Convert to format expected by plot_prediction: [H, W, 3]
-        # Transpose from [3, H, W] to [H, W, 3]
-        img_hwc = np.transpose(img, (1, 2, 0)).astype(np.uint8)
+        # Extract single channel and convert to proper range
+        img_2d = img[0]  # [H, W] - extract single channel
+        img_2d = (img_2d * 255).astype(np.uint8)  # Convert from [0,1] to [0,255]
+        img_hwc = np.stack(
+            [img_2d, img_2d, img_2d], axis=2
+        )  # [H, W, 3] - replicate to RGB
 
         # Convert mask from [1, H, W] to [H, W, 3]
         # The mask values are in [0, 1] range, convert to binary first

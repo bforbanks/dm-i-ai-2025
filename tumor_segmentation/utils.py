@@ -49,16 +49,6 @@ def decode_request(request) -> np.ndarray:
     encoded_img: str = request.img
     np_img = np.fromstring(base64.b64decode(encoded_img), np.uint8)
     a = cv2.imdecode(np_img, cv2.IMREAD_ANYCOLOR)
-
-    # Convert to grayscale if needed and ensure (H, W, 1) shape
-    if a.ndim == 3:
-        # If RGB, convert to grayscale but keep channel dimension
-        a = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
-
-    # Ensure channel dimension exists: (H, W) -> (H, W, 1)
-    if a.ndim == 2:
-        a = np.expand_dims(a, axis=2)
-
     return a
 
 
