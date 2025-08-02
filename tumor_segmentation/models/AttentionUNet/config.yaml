@@ -1,0 +1,8 @@
+model:
+  class_path: models.AttentionUNet.model.AttentionUNet
+  init_args:
+    bce_loss_weight: 0.5
+    lr: 1e-3
+    weight_decay: 1e-3
+    use_self_attention: true
+    use_attention_gates: true
