@@ -54,32 +54,24 @@ def test_llm_parsing():
             for topic in candidate_topics
         ])
         
-        prompt = f"""You are a medical expert specializing in emergency healthcare. Analyze this medical statement and provide two determinations:
+        prompt = f"""You are a medical expert. Analyze this statement and provide two determinations.
 
 STATEMENT: {statement}
 
-RELEVANT MEDICAL CONTEXT:
+MEDICAL CONTEXT (from the top semantic search result):
 {context}
 
-TOPIC CANDIDATES (choose the most relevant):
+TOPIC CANDIDATES (higher ones are more relevant by semantic search, but search can be wrong):
 {candidates_text}
 
 TASKS:
-1. Choose which topic (0-114) the statement best relates to from the candidates above
-2. Determine if the statement is TRUE (1) or FALSE (0) based on the medical context
+1. Choose the most relevant topic from the candidates above
+2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
 
-IMPORTANT GUIDELINES:
-- Consider medical terminology, treatment protocols, and clinical guidelines
-- Pay attention to specific medical conditions, medications, and procedures
-- Base your truth determination on the provided medical context
-- Choose the topic that most closely matches the medical content of the statement
-- For medical statements, prioritize accuracy over speed
-- Consider diagnostic criteria, treatment protocols, and clinical guidelines
-- Look for specific medical terminology and procedures mentioned
-- Be skeptical of medical claims - verify against the provided context
+The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless explicitly confirmed in the context.
 
 Respond with ONLY two numbers separated by a comma: topic_id,truth_value
-Example: 30,1"""
+Examples: 30,1 (topic 30, true) or 45,0 (topic 45, false)"""
 
         print("📤 Sending prompt to LLM...")
         response = ollama.chat(

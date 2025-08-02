@@ -52,24 +52,25 @@ def analyze_failure_case(statement: str, expected_truth: int, expected_topic: in
         for topic in candidate_topics
     ])
     
-    # Create a more explicit prompt
-    prompt = f"""You are a medical expert. Analyze this statement and provide ONLY two numbers: topic_id,truth_value
+    # Create a simplified prompt
+    prompt = f"""You are a medical expert. Analyze this statement and provide two determinations.
 
 STATEMENT: {statement}
 
-MEDICAL CONTEXT:
+MEDICAL CONTEXT (from the top semantic search result):
 {context}
 
-AVAILABLE TOPICS (choose the most relevant):
+TOPIC CANDIDATES (higher ones are more relevant by semantic search, but search can be wrong):
 {candidates_text}
 
-INSTRUCTIONS:
-1. Choose the topic ID (0-114) that best matches the medical content
+TASKS:
+1. Choose the most relevant topic from the candidates above
 2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
-3. Respond with ONLY: topic_id,truth_value
-4. Example: 4,1
 
-IMPORTANT: Be very careful about truth determination. Many medical statements are FALSE even if they sound plausible."""
+The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless explicitly confirmed in the context.
+
+Respond with ONLY two numbers separated by a comma: topic_id,truth_value
+Examples: 30,1 (topic 30, true) or 45,0 (topic 45, false)"""
 
     try:
         print("📤 Sending prompt to LLM...")
