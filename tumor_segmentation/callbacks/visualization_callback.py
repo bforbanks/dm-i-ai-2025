@@ -419,9 +419,7 @@ class TumorVisualizationCallback(pl.Callback):
             print(f"Saved tumor visualization for epoch {trainer.current_epoch + 1} to {filepath.absolute()}")
             
             # Check if file was actually created
-            if filepath.exists():
-                print(f"✅ Visualization file created successfully: {filepath}")
-            else:
+            if not filepath.exists():
                 print(f"❌ Visualization file was not created: {filepath}")
             
         except Exception as e:
