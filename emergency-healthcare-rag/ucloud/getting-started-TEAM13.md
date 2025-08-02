@@ -63,12 +63,12 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 7. In the new terminal tab, download the model:
    ```bash
    cd /work/TEAM13
-   /work/TEAM13/ollama/bin/ollama pull llama3.1:8b
+   /work/TEAM13/ollama/bin/ollama pull gemma3:27b
    ```
 
 8. Test Ollama in the terminal:
    ```bash
-   /work/TEAM13/ollama/bin/ollama run llama3.1:8b
+   /work/TEAM13/ollama/bin/ollama run gemma3:27b
    ```
    (Press `Ctrl+D` to exit chat)
 
@@ -159,10 +159,46 @@ To restart nginx or GPU terminal applications:
 2. Double-click a finished job
 3. Click "Run application again" 
 
-## 8. TEAM13 Specific Notes
+## 8. Model-Agnostic Configuration
+
+The system is designed to work with any Ollama model. You can easily switch between models:
+
+### List Available Models:
+```bash
+cd /work/TEAM13/dm-i-ai-2025/emergency-healthcare-rag
+python combined-model-2/model_switcher.py
+```
+
+### Switch to a Different Model:
+```bash
+# Switch to DeepSeek R1 32B (excellent for reasoning)
+python combined-model-2/model_switcher.py deepseek-r1:32b
+
+# Switch to Llama 3.1 70B (maximum performance)
+python combined-model-2/model_switcher.py llama3.1:70b
+
+# Switch to Gemma 3 12B (good balance)
+python combined-model-2/model_switcher.py gemma3:12b
+```
+
+### Download the New Model:
+```bash
+# After switching, download the new model
+/work/TEAM13/ollama/bin/ollama pull <model_name>
+```
+
+### Set Model via Environment Variable:
+```bash
+# Set model directly via environment variable
+export LLM_MODEL=deepseek-r1:32b
+python combined-model-2/evaluate.py
+```
+
+## 9. TEAM13 Specific Notes
 
 - **Repository**: https://github.com/bforbanks/dm-i-ai-2025/tree/emergency-healthcare-rag
 - **Team Drive**: `/work/TEAM13`
-- **Model**: `llama3.1:8b` (for better medical reasoning)
+- **Default Model**: `gemma3:27b` (current, most capable model for single GPU)
 - **Active Model**: `combined-model-2` (hybrid search + improved LLM)
+- **Model-Agnostic**: Easy switching between different LLM models
 - **No screen sessions**: Use separate terminal tabs instead 
