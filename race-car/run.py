@@ -9,7 +9,7 @@ Within game_loop, change get_action() to your custom models prediction for local
 '''
 
 # Just change this string to use different models! (remember capitalization)
-model_name = "RL.DQN.DQNModel"  # "baseline", "RL.DQN.DQNModel", "playground", etc.
+model_name = "PredictionModel"  # "baseline", "RL.DQN.DQNModel", "playground", etc.
 
 # Dynamic import
 module = importlib.import_module(f'models.{model_name}')
