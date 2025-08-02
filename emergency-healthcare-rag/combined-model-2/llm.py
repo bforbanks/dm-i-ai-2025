@@ -8,7 +8,11 @@ import json
 import os
 import ollama
 from typing import Tuple, List, Dict
-from .config import get_llm_model, get_model_info
+
+try:
+    from .config import get_llm_model, get_model_info
+except ImportError:
+    from config import get_llm_model, get_model_info
 
 def load_topics_mapping():
     with open('data/topics.json', 'r') as f:
