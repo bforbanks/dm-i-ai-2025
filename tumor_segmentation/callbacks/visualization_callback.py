@@ -54,9 +54,6 @@ class TumorVisualizationCallback(pl.Callback):
     def _find_sample_image(self, trainer):
         """Load specific tumor and control images directly from the data directories"""
         try:
-            print(f"Loading specific images: tumor='{self.tumor_image_name}', control='{self.control_image_name}'")
-            print(f"Additional tumors: {self.additional_tumor_names}")
-            print(f"Additional controls: {self.additional_control_names}")
             
             # Get data directory from the trainer's datamodule
             datamodule = trainer.datamodule
@@ -65,16 +62,12 @@ class TumorVisualizationCallback(pl.Callback):
             # Load main tumor image and mask
             if self.tumor_image_name:
                 self.sample_image, self.sample_mask = self._load_patient_image(data_dir, self.tumor_image_name)
-                print(f"✅ Loaded main tumor image '{self.tumor_image_name}'")
-                print(f"Tumor image shape: {self.sample_image.shape}")
-                print(f"Tumor mask shape: {self.sample_mask.shape}")
+
             
             # Load main control image and mask
             if self.control_image_name:
                 self.control_image, self.control_mask = self._load_control_image(data_dir, self.control_image_name)
-                print(f"✅ Loaded main control image '{self.control_image_name}'")
-                print(f"Control image shape: {self.control_image.shape}")
-                print(f"Control mask shape: {self.control_mask.shape}")
+
             
             # Load additional tumor images
             for tumor_name in self.additional_tumor_names:
@@ -82,7 +75,6 @@ class TumorVisualizationCallback(pl.Callback):
                     image, mask = self._load_patient_image(data_dir, tumor_name)
                     self.additional_tumor_images.append(image)
                     self.additional_tumor_masks.append(mask)
-                    print(f"✅ Loaded additional tumor image '{tumor_name}'")
                 except Exception as e:
                     print(f"❌ Could not load additional tumor image '{tumor_name}': {e}")
             
@@ -92,12 +84,10 @@ class TumorVisualizationCallback(pl.Callback):
                     image, mask = self._load_control_image(data_dir, control_name)
                     self.additional_control_images.append(image)
                     self.additional_control_masks.append(mask)
-                    print(f"✅ Loaded additional control image '{control_name}'")
                 except Exception as e:
                     print(f"❌ Could not load additional control image '{control_name}': {e}")
             
-            print(f"Loaded {len(self.additional_tumor_images)}/{len(self.additional_tumor_names)} additional tumors")
-            print(f"Loaded {len(self.additional_control_images)}/{len(self.additional_control_names)} additional controls")
+
             
         except Exception as e:
             print(f"Could not load sample images: {e}")
@@ -170,19 +160,15 @@ class TumorVisualizationCallback(pl.Callback):
             # Create dummy mask (you can modify this to load actual mask)
             self.sample_mask = torch.zeros(1, 1, 256, 256)
             
-            print(f"Loaded sample image from {self.sample_image_path}")
             
         except Exception as e:
             print(f"Could not load sample image: {e}")
     
     def on_train_epoch_end(self, trainer, pl_module):
         """Log visualization every N epochs"""
-        print(f"Visualization callback: Epoch {trainer.current_epoch + 1}, log_every_n_epochs={self.log_every_n_epochs}")
         if (trainer.current_epoch + 1) % self.log_every_n_epochs == 0:
-            print(f"Should create visualization for epoch {trainer.current_epoch + 1}")
             if (self.sample_image is not None and self.sample_mask is not None and 
                 self.control_image is not None and self.control_mask is not None):
-                print("Sample images found, creating visualization...")
                 self._log_visualization(trainer, pl_module)
             else:
                 print("Warning: Sample images not available for visualization")
@@ -416,7 +402,6 @@ class TumorVisualizationCallback(pl.Callback):
             plt.savefig(filepath, dpi=150, bbox_inches='tight')
             plt.close()
             
-            print(f"Saved tumor visualization for epoch {trainer.current_epoch + 1} to {filepath.absolute()}")
             
             # Check if file was actually created
             if not filepath.exists():
