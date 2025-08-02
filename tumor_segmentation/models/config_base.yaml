@@ -6,7 +6,7 @@ data:
   val_split: 0.2
   batch_size: 16
   num_workers: 0
-  patient_control_ratio: 0.75  # 0.5 = 50/50 balance, 0.7 = 70% patients, 0.3 = 30% patients
+  patient_control_ratio: 0.95
 
 # Trainer configuration - Common for all models
 trainer:

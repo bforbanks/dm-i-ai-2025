@@ -10,8 +10,8 @@ trainer:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         dirpath: "checkpoints"
-        filename: "medsam-vit-b-{epoch:02d}-{val_dice:.4f}"
-        monitor: "val_dice"
+        filename: "medsam-vit-b-{epoch:02d}-{val_dice_patients:.4f}"
+        monitor: "val_dice_patients"
         mode: "max"
         save_top_k: 1
         verbose: true 
