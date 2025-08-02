@@ -101,17 +101,17 @@ def get_augmentations_transforms(image_size: int = 256):
                     ),
                     A.RandomGamma(gamma_limit=(85, 115), p=1.0),
                 ],
-                p=0.4,
+                p=0.8,
             ),
             # Very subtle blur only (minimal for medical images)
-            A.GaussianBlur(blur_limit=(3, 3), p=0.1),
+            A.GaussianBlur(blur_limit=(3, 3), p=0.8),
             # Conservative geometric transforms
             A.ShiftScaleRotate(
                 shift_limit=0.03,  # Reduced: 3% shift
                 scale_limit=0.05,  # Reduced: 5% zoom
                 rotate_limit=3,  # Reduced: max ±3 degrees
                 border_mode=cv2.BORDER_REFLECT,  # reflect border for natural padding
-                p=0.25,
+                p=0.8,
             ),
             # Remove the aggressive distortions that cause weird artifacts
             # GridDistortion and ElasticTransform removed for medical image quality
@@ -245,11 +245,16 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         )
 
         # Calculate target sizes based on the desired ratio
-        total_target_size = min(available_patients / self.patient_control_ratio, available_controls / (1 - self.patient_control_ratio))
+        total_target_size = min(
+            available_patients / self.patient_control_ratio,
+            available_controls / (1 - self.patient_control_ratio),
+        )
         target_patients = int(total_target_size * self.patient_control_ratio)
         target_controls = int(total_target_size * (1 - self.patient_control_ratio))
 
-        print(f"Target distribution: {target_patients} patients ({self.patient_control_ratio*100:.1f}%), {target_controls} controls ({(1-self.patient_control_ratio)*100:.1f}%)")
+        print(
+            f"Target distribution: {target_patients} patients ({self.patient_control_ratio * 100:.1f}%), {target_controls} controls ({(1 - self.patient_control_ratio) * 100:.1f}%)"
+        )
 
         # Randomly sample to achieve target distribution
         if available_patients > target_patients:
