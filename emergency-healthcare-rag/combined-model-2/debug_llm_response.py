@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Add current directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
-from llm import classify_truth_and_topic_combined
+from llm import classify_truth_and_topic_combined, generate_classification_prompt
 from search import get_top_k_topics_with_context, get_targeted_context_for_topic
 from config import get_llm_model, get_model_info
 
@@ -54,24 +54,7 @@ def test_llm_parsing():
             for topic in candidate_topics
         ])
         
-        prompt = f"""You are a medical expert. Analyze this statement and provide two determinations.
-
-STATEMENT: {statement}
-
-MEDICAL CONTEXT (from the top semantic search result):
-{context}
-
-TOPIC CANDIDATES (higher ones are more relevant by semantic search, but search can be wrong):
-{candidates_text}
-
-TASKS:
-1. Choose the most relevant topic from the candidates above
-2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
-
-The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless explicitly confirmed in the context.
-
-Respond with ONLY two numbers separated by a comma: topic_id,truth_value
-Examples: 30,1 (topic 30, true) or 45,0 (topic 45, false)"""
+        prompt = generate_classification_prompt(statement, candidate_topics, context)
 
         print("📤 Sending prompt to LLM...")
         response = ollama.chat(

@@ -18,6 +18,29 @@ def load_topics_mapping():
     with open('data/topics.json', 'r') as f:
         return json.load(f)
 
+def generate_classification_prompt(statement: str, candidate_topics: List[Dict], context: str) -> str:
+    """Generate the classification prompt"""
+    candidates_text = "\n".join([
+        f"{topic['topic_id']}: {topic['topic_name']}" 
+        for topic in candidate_topics
+    ])
+    
+    return f"""You are a medical expert. Analyze this statement and provide two determinations.
+
+STATEMENT: {statement}
+
+TOPIC CANDIDATES (ranked by relevance - prefer higher ranked ones):
+{candidates_text}
+
+TASKS:
+1. Choose the most relevant topic from the candidates above (prefer higher ranked ones)
+2. Determine if the statement is TRUE (1) or FALSE (0) based on your medical knowledge
+
+The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless you are confident they are correct.
+
+Respond with ONLY two numbers separated by a comma: topic_id,truth_value
+Examples: 30,1 (topic 30, true) or 45,0 (topic 45, false)"""
+
 def classify_truth_and_topic_combined(statement: str, candidate_topics: List[Dict], context: str, model: str = None) -> Tuple[int, int]:
     """
     Choose topic from candidates AND determine truth in single LLM call
@@ -30,35 +53,8 @@ def classify_truth_and_topic_combined(statement: str, candidate_topics: List[Dic
     model_info = get_model_info(model)
     print(f"Using LLM model: {model_info['name']} ({model_info['description']})")
     
-    candidates_text = "\n".join([
-        f"{topic['topic_id']}: {topic['topic_name']}" 
-        for topic in candidate_topics
-    ])
-    
-    prompt = f"""You are a medical expert. Analyze this statement and provide two determinations.
-
-STATEMENT: {statement}
-
-MEDICAL CONTEXT (from the top semantic search result):
-{context}
-
-TOPIC CANDIDATES (higher ones are more relevant by semantic search, but search can be wrong):
-{candidates_text}
-
-TASKS:
-1. Choose the most relevant topic from the candidates above
-2. Determine if the statement is TRUE (1) or FALSE (0) based on the context
-
-The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless explicitly confirmed in the context.
-
-Respond with ONLY two numbers separated by a comma: topic_id,truth_value
-    Examples: 
-
-        YOUR ANSWER: "30,1"         corresponding to (topic 30, true)
-        YOUR ANSWER: "45,0"         corresponding to (topic 45, false)
-        
-        
-    NEVER SAY ANYTHING BUT TWO NUMBERS SEPERATED BY A COMMA -- THE TOPIC, AND THE TRUTH BOOL."""
+    # Generate prompt
+    prompt = generate_classification_prompt(statement, candidate_topics, context)
 
     try:
         response = ollama.chat(
