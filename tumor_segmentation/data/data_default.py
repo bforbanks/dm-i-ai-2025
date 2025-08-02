@@ -77,7 +77,76 @@ class TumorSegmentationDataset(Dataset):
         return image, mask
 
 
-def get_transforms(is_training: bool = True, image_size: int = 256):
+def get_augmentations_transforms(image_size: int = 256):
+    """
+    Get comprehensive training augmentations for tumor segmentation.
+
+    These augmentations help the model become more robust to:
+    - Lighting variations (brightness, contrast, gamma)
+    - Noise and blur
+    - Geometric variations (rotation, scaling, shifting)
+    - Grid distortion and elastic deformation
+    - Small occlusions (cutout)
+
+    All transforms are applied consistently to both image and mask.
+    """
+    return A.Compose(
+        [
+            A.Resize(image_size, image_size),
+            A.OneOf(
+                [
+                    A.RandomBrightnessContrast(
+                        brightness_limit=0.2, contrast_limit=0.2, p=1.0
+                    ),
+                    A.RandomGamma(gamma_limit=(80, 120), p=1.0),
+                ],
+                p=0.4,
+            ),
+            A.OneOf(
+                [
+                    A.GaussNoise(var_limit=(10.0, 50.0), p=1.0),
+                    A.GaussianBlur(blur_limit=(3, 5), p=1.0),
+                ],
+                p=0.3,
+            ),
+            A.ShiftScaleRotate(
+                shift_limit=0.05,  # 5% shift
+                scale_limit=0.1,  # 10% zoom
+                rotate_limit=5,  # max ±5 degrees
+                border_mode=0,  # constant padding
+                p=0.3,
+            ),
+            A.OneOf(
+                [
+                    A.GridDistortion(num_steps=5, distort_limit=0.05, p=1.0),
+                    A.ElasticTransform(alpha=1.0, sigma=50.0, alpha_affine=10.0, p=1.0),
+                ],
+                p=0.2,
+            ),
+            # Convert to float32 and normalize to [0-1] range for neural networks
+            # Single channel (grayscale) normalization
+            A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
+            ToTensorV2(),
+        ]
+    )
+
+
+def get_standard_transforms(image_size: int = 256):
+    """
+    Get validation transforms (no augmentation, only preprocessing).
+    """
+    return A.Compose(
+        [
+            A.Resize(image_size, image_size),
+            # Convert to float32 and normalize to [0-1] range for neural networks
+            # Single channel (grayscale) normalization
+            A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
+            ToTensorV2(),
+        ]
+    )
+
+
+def get_transforms(augmentation: bool = True, image_size: int = 256):
     """
     Get data augmentation transforms.
 
@@ -88,41 +157,10 @@ def get_transforms(is_training: bool = True, image_size: int = 256):
     Returns:
         Albumentations transform pipeline
     """
-    if False:
-        return A.Compose(
-            [
-                A.Resize(image_size, image_size),
-                A.HorizontalFlip(p=0.5),
-                A.VerticalFlip(p=0.3),
-                A.RandomRotate90(p=0.3),
-                A.OneOf(
-                    [
-                        A.RandomBrightnessContrast(p=0.5),
-                        A.RandomGamma(p=0.5),
-                    ],
-                    p=0.3,
-                ),
-                A.OneOf(
-                    [
-                        A.GaussNoise(p=0.5),
-                        A.GaussianBlur(p=0.5),
-                    ],
-                    p=0.2,
-                ),
-                A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ToTensorV2(),
-            ]
-        )
+    if augmentation:
+        return get_augmentations_transforms(image_size)
     else:
-        return A.Compose(
-            [
-                A.Resize(image_size, image_size),
-                # Convert to float32 and normalize to [0-1] range for neural networks
-                # Single channel (grayscale) normalization
-                A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),
-                ToTensorV2(),
-            ]
-        )
+        return get_standard_transforms(image_size)
 
 
 class TumorSegmentationDataModule(pl.LightningDataModule):
@@ -144,6 +182,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         image_size: int = 256,
         val_split: float = 0.2,
         random_state: int = 42,
+        augmentation: bool = True,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -154,7 +193,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         self.image_size = image_size
         self.val_split = val_split
         self.random_state = random_state
-
+        self.augmentation = augmentation
         # Data paths
         self.train_dataset = None
         self.val_dataset = None
@@ -180,14 +219,16 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
             train_imgs,
             train_masks,
             train_controls,
-            transform=get_transforms(is_training=True, image_size=self.image_size),
+            transform=get_transforms(
+                augmentation=self.augmentation, image_size=self.image_size
+            ),
         )
 
         self.val_dataset = TumorSegmentationDataset(
             val_imgs,
             val_masks,
             val_controls,
-            transform=get_transforms(is_training=False, image_size=self.image_size),
+            transform=get_transforms(augmentation=False, image_size=self.image_size),
         )
 
         print(f"Train set: {len(self.train_dataset)} samples")
