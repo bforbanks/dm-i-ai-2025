@@ -41,7 +41,12 @@ def get_detailed_semantic_analysis_with_timing(statement: str, true_topic_id: in
     
     # Load data and model
     data = search_module.load_embeddings()
-    model = SentenceTransformer(data['model_name'])
+    # Use local model path if available, fallback for old embeddings
+    if 'model_path' in data:
+        model = SentenceTransformer(data['model_path'])
+    else:
+        # Fallback for old embeddings files
+        model = search_module.load_local_model()
     
     # Time just the embedding
     embedding_start = time.time()

@@ -43,11 +43,14 @@ Retrieval-Augmented Generation system using semantic search and local LLM.
 ## Setup
 
 ```bash
-# Generate embeddings (one-time setup)
-python model-1/generate_embeddings.py
+# Setup local model and generate embeddings (one-time setup)
+python model-1/setup_local_embeddings.py
 
 # Test the model
 python example.py
+
+# Or test with detailed evaluation
+python model-1/evaluate_detailed.py 5
 ```
 
 ## Approach Benefits
