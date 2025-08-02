@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Evaluation script for combined-model-2
-Loads data from train directory and measures accuracy and performance
+Measures accuracy and timing for truth and topic classification
 """
 
 import sys
@@ -13,14 +13,10 @@ from typing import List, Dict, Tuple
 
 # Add current directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
-
-# Import the main model which should use combined-model-2
 from model import predict
 
-def load_train_data(n_samples: int = 10) -> List[Dict]:
-    """
-    Load the first n samples from train data starting from statement_0000
-    """
+def load_train_data(n_samples: int = 50) -> List[Dict]:  # Changed from 5 to 50
+    """Load first n samples from train data"""
     statements_dir = Path("data/train/statements")
     answers_dir = Path("data/train/answers")
     
@@ -29,157 +25,120 @@ def load_train_data(n_samples: int = 10) -> List[Dict]:
         statement_file = statements_dir / f"statement_{i:04d}.txt"
         answer_file = answers_dir / f"statement_{i:04d}.json"
         
-        if not statement_file.exists():
-            print(f"Warning: Statement file {statement_file.name} not found, stopping")
-            break
+        if statement_file.exists() and answer_file.exists():
+            with open(statement_file, 'r') as f:
+                statement = f.read().strip()
             
-        if not answer_file.exists():
-            print(f"Warning: Answer file {answer_file.name} not found, skipping")
-            continue
+            with open(answer_file, 'r') as f:
+                answer_data = json.load(f)
             
-        # Load statement
-        with open(statement_file, 'r', encoding='utf-8') as f:
-            statement = f.read().strip()
-            
-        # Load answer
-        with open(answer_file, 'r', encoding='utf-8') as f:
-            answer = json.load(f)
-            
-        samples.append({
-            'id': f"statement_{i:04d}",
-            'statement': statement,
-            'expected_truth': answer['statement_is_true'],
-            'expected_topic': answer['statement_topic']
-        })
+            samples.append({
+                'statement': statement,
+                'expected_truth': answer_data['statement_is_true'],
+                'expected_topic': answer_data['statement_topic'],
+                'sample_id': i
+            })
     
     return samples
 
-def evaluate_model(samples: List[Dict]) -> Dict:
-    """
-    Evaluate the model on the given samples
-    """
-    print(f"🧪 Evaluating Combined Model 2 on {len(samples)} samples...\n")
+def evaluate_sample(sample: Dict, sample_num: int, total_samples: int) -> Dict:
+    """Evaluate a single sample"""
+    statement = sample['statement']
+    expected_truth = sample['expected_truth']
+    expected_topic = sample['expected_topic']
     
-    results = []
-    total_time = 0
-    correct_truth = 0
-    correct_topic = 0
+    print(f"Sample {sample_num}/{total_samples}: {statement[:50]}...")
     
-    for i, sample in enumerate(samples, 1):
-        print(f"Sample {i}/{len(samples)}: {sample['statement'][:60]}...")
-        
-        # Time the prediction
-        start_time = time.time()
-        try:
-            predicted_truth, predicted_topic = predict(sample['statement'])
-            end_time = time.time()
-            inference_time = end_time - start_time
-            
-            # Check accuracy
-            truth_correct = predicted_truth == sample['expected_truth']
-            topic_correct = predicted_topic == sample['expected_topic']
-            
-            if truth_correct:
-                correct_truth += 1
-            if topic_correct:
-                correct_topic += 1
-                
-            total_time += inference_time
-            
-            result = {
-                'id': sample['id'],
-                'statement': sample['statement'],
-                'expected_truth': sample['expected_truth'],
-                'expected_topic': sample['expected_topic'],
-                'predicted_truth': predicted_truth,
-                'predicted_topic': predicted_topic,
-                'truth_correct': truth_correct,
-                'topic_correct': topic_correct,
-                'inference_time': inference_time
-            }
-            
-            results.append(result)
-            
-            # Print result
-            truth_status = "✅" if truth_correct else "❌"
-            topic_status = "✅" if topic_correct else "❌"
-            print(f"  {truth_status} Truth: {predicted_truth} (expected {sample['expected_truth']})")
-            print(f"  {topic_status} Topic: {predicted_topic} (expected {sample['expected_topic']})")
-            print(f"  ⏱️  Time: {inference_time:.2f}s")
-            print()
-            
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
-            print()
-            continue
+    # Time the prediction
+    start_time = time.time()
+    predicted_truth, predicted_topic = predict(statement)
+    end_time = time.time()
     
-    # Calculate metrics
-    total_samples = len(results)
-    if total_samples == 0:
-        return {
-            'total_samples': 0,
-            'truth_accuracy': 0,
-            'topic_accuracy': 0,
-            'overall_accuracy': 0,
-            'avg_time': 0,
-            'total_time': 0
-        }
+    # Calculate accuracy
+    truth_correct = predicted_truth == expected_truth
+    topic_correct = predicted_topic == expected_topic
     
-    truth_accuracy = correct_truth / total_samples
-    topic_accuracy = correct_topic / total_samples
-    overall_accuracy = (correct_truth + correct_topic) / (total_samples * 2)
-    avg_time = total_time / total_samples
+    # Print results
+    truth_symbol = "✅" if truth_correct else "❌"
+    topic_symbol = "✅" if topic_correct else "❌"
+    
+    print(f"  {truth_symbol} Truth: {predicted_truth} (expected {expected_truth})")
+    print(f"  {topic_symbol} Topic: {predicted_topic} (expected {expected_topic})")
+    print(f"  ⏱️  Time: {end_time - start_time:.2f}s")
+    print()
     
     return {
-        'total_samples': total_samples,
-        'truth_accuracy': truth_accuracy,
-        'topic_accuracy': topic_accuracy,
-        'overall_accuracy': overall_accuracy,
-        'avg_time': avg_time,
-        'total_time': total_time,
-        'results': results
+        'sample_id': sample['sample_id'],
+        'statement': statement,
+        'expected_truth': expected_truth,
+        'expected_topic': expected_topic,
+        'predicted_truth': predicted_truth,
+        'predicted_topic': predicted_topic,
+        'truth_correct': truth_correct,
+        'topic_correct': topic_correct,
+        'time_taken': end_time - start_time
     }
 
-def print_summary(metrics: Dict):
-    """
-    Print a comprehensive summary of the evaluation results
-    """
-    print("=" * 80)
-    print("📊 EVALUATION SUMMARY")
-    print("=" * 80)
-    print(f"Total Samples: {metrics['total_samples']}")
-    print(f"Truth Accuracy: {metrics['truth_accuracy']:.1%} ({metrics['truth_accuracy']*metrics['total_samples']:.0f}/{metrics['total_samples']})")
-    print(f"Topic Accuracy: {metrics['topic_accuracy']:.1%} ({metrics['topic_accuracy']*metrics['total_samples']:.0f}/{metrics['total_samples']})")
-    print(f"Overall Accuracy: {metrics['overall_accuracy']:.1%} ({(metrics['truth_accuracy'] + metrics['topic_accuracy'])*metrics['total_samples']:.0f}/{metrics['total_samples']*2})")
-    print(f"Average Time per Sample: {metrics['avg_time']:.2f}s")
-    print(f"Total Time: {metrics['total_time']:.2f}s")
-    print(f"Score / 20: {(metrics['truth_accuracy'] + metrics['topic_accuracy'])*metrics['total_samples']:.1f}/20")
-    print("=" * 80)
-
 def main():
-    """
-    Main evaluation function
-    """
-    # Load first 10 samples from train data
-    samples = load_train_data(n_samples=10)
+    """Main evaluation function"""
+    print("📚 Loading train data...")
+    samples = load_train_data(n_samples=50)  # Changed from 5 to 50
     
     if not samples:
         print("❌ No samples loaded. Check if train data exists.")
         return
     
-    print(f"📚 Loaded {len(samples)} samples from train data")
-    print()
+    print(f"📚 Loaded {len(samples)} samples from train data\n")
     
-    # Evaluate the model
-    metrics = evaluate_model(samples)
+    print("🧪 Evaluating Combined Model 2 on 50 samples...\n")  # Updated message
+    
+    results = []
+    total_time = 0
+    
+    for i, sample in enumerate(samples, 1):
+        result = evaluate_sample(sample, i, len(samples))
+        results.append(result)
+        total_time += result['time_taken']
+    
+    # Calculate summary statistics
+    truth_correct = sum(1 for r in results if r['truth_correct'])
+    topic_correct = sum(1 for r in results if r['topic_correct'])
+    total_correct = truth_correct + topic_correct
+    
+    truth_accuracy = (truth_correct / len(results)) * 100
+    topic_accuracy = (topic_correct / len(results)) * 100
+    overall_accuracy = (total_correct / (len(results) * 2)) * 100
+    avg_time = total_time / len(results)
     
     # Print summary
-    print_summary(metrics)
+    print("=" * 80)
+    print("📊 EVALUATION SUMMARY")
+    print("=" * 80)
+    print(f"Total Samples: {len(results)}")
+    print(f"Truth Accuracy: {truth_accuracy:.1f}% ({truth_correct}/{len(results)})")
+    print(f"Topic Accuracy: {topic_accuracy:.1f}% ({topic_correct}/{len(results)})")
+    print(f"Overall Accuracy: {overall_accuracy:.1f}% ({total_correct}/{len(results) * 2})")
+    print(f"Average Time per Sample: {avg_time:.2f}s")
+    print(f"Total Time: {total_time:.2f}s")
+    print(f"Score / {len(results) * 2}: {total_correct}/{len(results) * 2}")
+    print("=" * 80)
     
     # Save detailed results
     output_file = "evaluation_results.json"
     with open(output_file, 'w') as f:
-        json.dump(metrics, f, indent=2)
+        json.dump({
+            'summary': {
+                'total_samples': len(results),
+                'truth_accuracy': truth_accuracy,
+                'topic_accuracy': topic_accuracy,
+                'overall_accuracy': overall_accuracy,
+                'avg_time_per_sample': avg_time,
+                'total_time': total_time,
+                'score': f"{total_correct}/{len(results) * 2}"
+            },
+            'detailed_results': results
+        }, f, indent=2)
+    
     print(f"📄 Detailed results saved to {output_file}")
 
 if __name__ == "__main__":

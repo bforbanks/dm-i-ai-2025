@@ -11,10 +11,17 @@ class Config:
     """Configuration class for combined-model-2"""
     
     # LLM Model Configuration
-    DEFAULT_LLM_MODEL = "gemma3:27b"
+    DEFAULT_LLM_MODEL = "gemma3:27b"  # Changed back to gemma3:27b for cloud testing
     
     # Available models for easy switching
     AVAILABLE_MODELS = {
+        "gemma3n:e4b": {
+            "name": "Gemma 3N E4B",
+            "description": "Fast local testing model",
+            "parameters": "4B",
+            "context_window": "8K",
+            "reasoning": "Good"
+        },
         "gemma3:27b": {
             "name": "Gemma 3 27B",
             "description": "Current, most capable model for single GPU",
@@ -40,14 +47,14 @@ class Config:
             "name": "Llama 3.1 8B",
             "description": "Good reasoning for smaller size",
             "parameters": "8B",
-            "context_window": "8K",
+            "context_window": "128K",
             "reasoning": "Good"
         },
         "llama3.1:70b": {
             "name": "Llama 3.1 70B",
             "description": "Maximum reasoning capability",
             "parameters": "70B",
-            "context_window": "8K", 
+            "context_window": "128K", 
             "reasoning": "Excellent"
         }
     }
@@ -58,13 +65,11 @@ class Config:
         return os.getenv('LLM_MODEL', cls.DEFAULT_LLM_MODEL)
     
     @classmethod
-    def get_model_info(cls, model_name: str = None) -> Dict[str, Any]:
+    def get_model_info(cls, model_name: str) -> Dict[str, Any]:
         """Get information about a specific model"""
-        if model_name is None:
-            model_name = cls.get_llm_model()
         return cls.AVAILABLE_MODELS.get(model_name, {
             "name": model_name,
-            "description": "Custom model",
+            "description": "Unknown model",
             "parameters": "Unknown",
             "context_window": "Unknown",
             "reasoning": "Unknown"
@@ -95,6 +100,6 @@ def list_models() -> Dict[str, Dict[str, Any]]:
     """List available models"""
     return Config.list_available_models()
 
-def get_model_info(model_name: str = None) -> Dict[str, Any]:
+def get_model_info(model_name: str) -> Dict[str, Any]:
     """Get information about a model"""
     return Config.get_model_info(model_name) 
