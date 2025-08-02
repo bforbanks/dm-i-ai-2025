@@ -93,36 +93,28 @@ def get_augmentations_transforms(image_size: int = 256):
     return A.Compose(
         [
             A.Resize(image_size, image_size),
+            # Brightness and contrast variations (common in medical imaging)
             A.OneOf(
                 [
                     A.RandomBrightnessContrast(
-                        brightness_limit=0.2, contrast_limit=0.2, p=1.0
+                        brightness_limit=0.15, contrast_limit=0.15, p=1.0
                     ),
-                    A.RandomGamma(gamma_limit=(80, 120), p=1.0),
+                    A.RandomGamma(gamma_limit=(85, 115), p=1.0),
                 ],
                 p=0.4,
             ),
-            A.OneOf(
-                [
-                    A.GaussNoise(var_limit=(10.0, 50.0), p=1.0),
-                    A.GaussianBlur(blur_limit=(3, 5), p=1.0),
-                ],
-                p=0.3,
-            ),
+            # Very subtle blur only (minimal for medical images)
+            A.GaussianBlur(blur_limit=(3, 3), p=0.1),
+            # Conservative geometric transforms
             A.ShiftScaleRotate(
-                shift_limit=0.05,  # 5% shift
-                scale_limit=0.1,  # 10% zoom
-                rotate_limit=5,  # max ±5 degrees
-                border_mode=0,  # constant padding
-                p=0.3,
+                shift_limit=0.03,  # Reduced: 3% shift
+                scale_limit=0.05,  # Reduced: 5% zoom
+                rotate_limit=3,  # Reduced: max ±3 degrees
+                border_mode=cv2.BORDER_REFLECT,  # reflect border for natural padding
+                p=0.25,
             ),
-            A.OneOf(
-                [
-                    A.GridDistortion(num_steps=5, distort_limit=0.05, p=1.0),
-                    A.ElasticTransform(alpha=1.0, sigma=50.0, alpha_affine=10.0, p=1.0),
-                ],
-                p=0.2,
-            ),
+            # Remove the aggressive distortions that cause weird artifacts
+            # GridDistortion and ElasticTransform removed for medical image quality
             # Convert to float32 and normalize to [0-1] range for neural networks
             # Single channel (grayscale) normalization
             A.Normalize(mean=[0.0], std=[1.0], max_pixel_value=255.0),

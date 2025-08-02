@@ -17,7 +17,7 @@ HOST = "0.0.0.0"
 PORT = 9052
 
 # Load the PyTorch Lightning model from checkpoint (class method)
-checkpoint_path = "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=20-val_dice=0.3963.ckpt"
+checkpoint_path = "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=21-val_dice=0.6153.ckpt"
 model = SimpleUNet.load_from_checkpoint(
     checkpoint_path, map_location="cpu"
 )  # Force CPU loading

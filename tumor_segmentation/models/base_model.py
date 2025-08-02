@@ -15,11 +15,11 @@ class BaseModel(pl.LightningModule):
     - Support for both patient and control data
     """
 
-    def __init__(self, lr=1e-3, weight_decay=1e-5, bce_loss=0.5, **kwargs):
+    def __init__(self, lr=1e-3, weight_decay=1e-5, bce_loss_weight=0.5, **kwargs):
         super().__init__()
-        self.save_hyperparameters()
 
-        self.bce_loss = bce_loss
+        self.bce_loss_weight = bce_loss_weight
+        self.save_hyperparameters()
 
         # Initialize loss function - we'll use the _calculate_dice_loss method
         self.smooth = 1e-6
@@ -42,9 +42,11 @@ class BaseModel(pl.LightningModule):
         # Calculate Dice score using custom implementation (matches utils.py)
         dice_score = self._calculate_dice_score(pred_binary, target)
 
+        # print("bce_loss", self.bce_loss)
+
         # Calculate loss using raw sigmoid predictions
-        loss = self.bce_loss * bce_loss + (
-            1 - self.bce_loss
+        loss = bce_loss * self.bce_loss_weight + (
+            1 - self.bce_loss_weight
         ) * self._calculate_dice_loss(pred, target)
 
         # Log metrics

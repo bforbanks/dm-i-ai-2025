@@ -15,9 +15,11 @@ class SimpleUNet(BaseModel):
         num_classes: int = 1,
         lr=1e-3,
         weight_decay=1e-5,
-        bce_loss=0.5,
+        bce_loss_weight=0.5,
     ):
-        super().__init__(lr=lr, weight_decay=weight_decay, bce_loss=bce_loss)
+        super().__init__(
+            lr=lr, weight_decay=weight_decay, bce_loss_weight=bce_loss_weight
+        )
 
         # Encoder
         self.enc1 = self._make_layer(in_channels, 32)
