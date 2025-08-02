@@ -3,7 +3,8 @@ from .search import get_top_k_topics_with_context, get_targeted_context_for_topi
 from .llm import classify_truth_only, classify_topic_and_truth_combined
 
 # HYPERPARAMETER: Number of topic candidates to consider
-TOPIC_CANDIDATES_K = 3  # Set to 1 for pure semantic, >1 for LLM selection
+TOPIC_CANDIDATES_K = 1  # Set to 1 for pure semantic, >1 for LLM selection
+# K=1 should be much faster - test this first on UCloud!
 
 ### CALL THE CUSTOM MODEL VIA THIS FUNCTION ###
 def predict(statement: str) -> Tuple[int, int]:
