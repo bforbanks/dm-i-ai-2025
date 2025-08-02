@@ -4,6 +4,7 @@
 Clean Lightning CLI Setup - Models inherit directly from BaseModel
 
 python trainer.py fit --config models/config_base.yaml --config models/SimpleUNet/config.yaml --config models/SimpleUNet/wandb.yaml
+python trainer.py fit --config models/config_base.yaml --config models/SimpleUNet/config.yaml --config models/SimpleUNet/wandb.yaml
 """
 
 import warnings

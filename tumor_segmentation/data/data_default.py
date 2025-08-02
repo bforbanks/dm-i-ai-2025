@@ -175,6 +175,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         val_split: float = 0.2,
         random_state: int = 42,
         augmentation: bool = True,
+        patient_control_ratio: float = 0.5,  # 0.5 = 50/50, 0.7 = 70% patients, 0.3 = 30% controls
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -186,6 +187,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         self.val_split = val_split
         self.random_state = random_state
         self.augmentation = augmentation
+        self.patient_control_ratio = patient_control_ratio
         # Data paths
         self.train_dataset = None
         self.val_dataset = None
@@ -242,17 +244,18 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
             f"Original data: {available_patients} patients, {available_controls} controls"
         )
 
-        # Balance the dataset by limiting to the smaller class size
-        # This prevents class imbalance in both training and validation
-        balanced_size = min(available_patients, available_controls)
+        # Calculate target sizes based on the desired ratio
+        total_target_size = min(available_patients / self.patient_control_ratio, available_controls / (1 - self.patient_control_ratio))
+        target_patients = int(total_target_size * self.patient_control_ratio)
+        target_controls = int(total_target_size * (1 - self.patient_control_ratio))
 
-        print(f"Balancing dataset to {balanced_size} samples per class to prevent bias")
+        print(f"Target distribution: {target_patients} patients ({self.patient_control_ratio*100:.1f}%), {target_controls} controls ({(1-self.patient_control_ratio)*100:.1f}%)")
 
-        # Randomly sample to balance classes
-        if available_patients > balanced_size:
+        # Randomly sample to achieve target distribution
+        if available_patients > target_patients:
             # Too many patients, sample subset
             patient_indices = np.random.RandomState(self.random_state).choice(
-                available_patients, balanced_size, replace=False
+                available_patients, target_patients, replace=False
             )
             balanced_patient_images = [patient_images[i] for i in patient_indices]
             balanced_patient_masks = [patient_masks[i] for i in patient_indices]
@@ -260,10 +263,10 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
             balanced_patient_images = patient_images
             balanced_patient_masks = patient_masks
 
-        if available_controls > balanced_size:
+        if available_controls > target_controls:
             # Too many controls, sample subset
             control_indices = np.random.RandomState(self.random_state).choice(
-                available_controls, balanced_size, replace=False
+                available_controls, target_controls, replace=False
             )
             balanced_control_images = [control_images[i] for i in control_indices]
         else:

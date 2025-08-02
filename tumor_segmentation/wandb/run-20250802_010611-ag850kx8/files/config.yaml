@@ -1,0 +1,402 @@
+_instantiator:
+    value: lightning.pytorch.cli.instantiate_module
+_wandb:
+    value:
+        cli_version: 0.21.0
+        e:
+            r9i5m02l49b4y1adirwv8w8iktkx826p:
+                args:
+                    - fit
+                    - --config
+                    - models/config_base.yaml
+                    - --config
+                    - models/ViTUNet/config.yaml
+                    - --config
+                    - models/ViTUNet/wandb.yaml
+                codePath: tumor_segmentation\trainer.py
+                codePathLocal: trainer.py
+                cpu_count: 12
+                cpu_count_logical: 24
+                cudaVersion: "12.9"
+                disk:
+                    /:
+                        total: "999405121536"
+                        used: "622864363520"
+                email: s224177@dtu.dk
+                executable: C:\Users\oscar\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe
+                git:
+                    commit: b0bd84a93ef9e96a84ed34e198efc9f1ee3d9f58
+                    remote: https://github.com/bforbanks/dm-i-ai-2025.git
+                gpu: NVIDIA GeForce RTX 4080
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 9728
+                      memoryTotal: "17171480576"
+                      name: NVIDIA GeForce RTX 4080
+                      uuid: GPU-6358a987-3db7-5b53-dbf3-b4dfac2c688a
+                host: BumblebeeV3
+                memory:
+                    total: "33520017408"
+                os: Windows-10-10.0.26100-SP0
+                program: C:\Users\oscar\OneDrive\School\DTU\DM_AI\dm-i-ai-2025\tumor_segmentation\trainer.py
+                python: CPython 3.11.9
+                root: .
+                startedAt: "2025-08-01T23:06:11.882284Z"
+                writerId: r9i5m02l49b4y1adirwv8w8iktkx826p
+        m:
+            - "1": trainer/global_step
+              "6":
+                - 3
+              "7": []
+            - "2": '*'
+              "5": 1
+              "6":
+                - 1
+              "7": []
+        python_version: 3.11.9
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 53
+                - 80
+                - 106
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 53
+                - 80
+                - 106
+            "3":
+                - 7
+                - 13
+                - 62
+                - 66
+            "4": 3.11.9
+            "5": 0.21.0
+            "6": 4.54.1
+            "8":
+                - 3
+            "12": 0.21.0
+            "13": windows-amd64
+batch_size:
+    value: 16
+data_dir:
+    value: data
+image_size:
+    value: 256
+img_size:
+    value: 256
+in_channels:
+    value: 3
+lr:
+    value: 0.0001
+model/non_trainable_parameters:
+    value: 0
+model/total_parameters:
+    value: 88592481
+model/trainable_parameters:
+    value: 88592481
+num_classes:
+    value: 1
+num_workers:
+    value: 0
+params/:
+    value: 88592481
+params/dec1:
+    value: 27840
+params/dec1.0:
+    value: 18464
+params/dec1.1:
+    value: 64
+params/dec1.3:
+    value: 9248
+params/dec1.4:
+    value: 64
+params/dec2:
+    value: 110976
+params/dec2.0:
+    value: 73792
+params/dec2.1:
+    value: 128
+params/dec2.3:
+    value: 36928
+params/dec2.4:
+    value: 128
+params/dec3:
+    value: 443136
+params/dec3.0:
+    value: 295040
+params/dec3.1:
+    value: 256
+params/dec3.3:
+    value: 147584
+params/dec3.4:
+    value: 256
+params/dec4:
+    value: 1771008
+params/dec4.0:
+    value: 1179904
+params/dec4.1:
+    value: 512
+params/dec4.3:
+    value: 590080
+params/dec4.4:
+    value: 512
+params/encoder_adapter:
+    value: 394752
+params/encoder_adapter.0:
+    value: 393728
+params/encoder_adapter.1:
+    value: 1024
+params/final_conv:
+    value: 33
+params/image_encoder:
+    value: 85844736
+params/image_encoder.blocks:
+    value: 85054464
+params/image_encoder.blocks.0:
+    value: 7087872
+params/image_encoder.blocks.0.attn:
+    value: 2362368
+params/image_encoder.blocks.0.attn.proj:
+    value: 590592
+params/image_encoder.blocks.0.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.0.mlp:
+    value: 4722432
+params/image_encoder.blocks.0.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.0.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.0.norm1:
+    value: 1536
+params/image_encoder.blocks.0.norm2:
+    value: 1536
+params/image_encoder.blocks.1:
+    value: 7087872
+params/image_encoder.blocks.1.attn:
+    value: 2362368
+params/image_encoder.blocks.1.attn.proj:
+    value: 590592
+params/image_encoder.blocks.1.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.1.mlp:
+    value: 4722432
+params/image_encoder.blocks.1.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.1.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.1.norm1:
+    value: 1536
+params/image_encoder.blocks.1.norm2:
+    value: 1536
+params/image_encoder.blocks.2:
+    value: 7087872
+params/image_encoder.blocks.2.attn:
+    value: 2362368
+params/image_encoder.blocks.2.attn.proj:
+    value: 590592
+params/image_encoder.blocks.2.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.2.mlp:
+    value: 4722432
+params/image_encoder.blocks.2.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.2.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.2.norm1:
+    value: 1536
+params/image_encoder.blocks.2.norm2:
+    value: 1536
+params/image_encoder.blocks.3:
+    value: 7087872
+params/image_encoder.blocks.3.attn:
+    value: 2362368
+params/image_encoder.blocks.3.attn.proj:
+    value: 590592
+params/image_encoder.blocks.3.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.3.mlp:
+    value: 4722432
+params/image_encoder.blocks.3.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.3.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.3.norm1:
+    value: 1536
+params/image_encoder.blocks.3.norm2:
+    value: 1536
+params/image_encoder.blocks.4:
+    value: 7087872
+params/image_encoder.blocks.4.attn:
+    value: 2362368
+params/image_encoder.blocks.4.attn.proj:
+    value: 590592
+params/image_encoder.blocks.4.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.4.mlp:
+    value: 4722432
+params/image_encoder.blocks.4.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.4.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.4.norm1:
+    value: 1536
+params/image_encoder.blocks.4.norm2:
+    value: 1536
+params/image_encoder.blocks.5:
+    value: 7087872
+params/image_encoder.blocks.5.attn:
+    value: 2362368
+params/image_encoder.blocks.5.attn.proj:
+    value: 590592
+params/image_encoder.blocks.5.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.5.mlp:
+    value: 4722432
+params/image_encoder.blocks.5.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.5.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.5.norm1:
+    value: 1536
+params/image_encoder.blocks.5.norm2:
+    value: 1536
+params/image_encoder.blocks.6:
+    value: 7087872
+params/image_encoder.blocks.6.attn:
+    value: 2362368
+params/image_encoder.blocks.6.attn.proj:
+    value: 590592
+params/image_encoder.blocks.6.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.6.mlp:
+    value: 4722432
+params/image_encoder.blocks.6.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.6.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.6.norm1:
+    value: 1536
+params/image_encoder.blocks.6.norm2:
+    value: 1536
+params/image_encoder.blocks.7:
+    value: 7087872
+params/image_encoder.blocks.7.attn:
+    value: 2362368
+params/image_encoder.blocks.7.attn.proj:
+    value: 590592
+params/image_encoder.blocks.7.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.7.mlp:
+    value: 4722432
+params/image_encoder.blocks.7.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.7.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.7.norm1:
+    value: 1536
+params/image_encoder.blocks.7.norm2:
+    value: 1536
+params/image_encoder.blocks.8:
+    value: 7087872
+params/image_encoder.blocks.8.attn:
+    value: 2362368
+params/image_encoder.blocks.8.attn.proj:
+    value: 590592
+params/image_encoder.blocks.8.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.8.mlp:
+    value: 4722432
+params/image_encoder.blocks.8.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.8.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.8.norm1:
+    value: 1536
+params/image_encoder.blocks.8.norm2:
+    value: 1536
+params/image_encoder.blocks.9:
+    value: 7087872
+params/image_encoder.blocks.9.attn:
+    value: 2362368
+params/image_encoder.blocks.9.attn.proj:
+    value: 590592
+params/image_encoder.blocks.9.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.9.mlp:
+    value: 4722432
+params/image_encoder.blocks.9.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.9.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.9.norm1:
+    value: 1536
+params/image_encoder.blocks.9.norm2:
+    value: 1536
+params/image_encoder.blocks.10:
+    value: 7087872
+params/image_encoder.blocks.10.attn:
+    value: 2362368
+params/image_encoder.blocks.10.attn.proj:
+    value: 590592
+params/image_encoder.blocks.10.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.10.mlp:
+    value: 4722432
+params/image_encoder.blocks.10.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.10.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.10.norm1:
+    value: 1536
+params/image_encoder.blocks.10.norm2:
+    value: 1536
+params/image_encoder.blocks.11:
+    value: 7087872
+params/image_encoder.blocks.11.attn:
+    value: 2362368
+params/image_encoder.blocks.11.attn.proj:
+    value: 590592
+params/image_encoder.blocks.11.attn.qkv:
+    value: 1771776
+params/image_encoder.blocks.11.mlp:
+    value: 4722432
+params/image_encoder.blocks.11.mlp.fc1:
+    value: 2362368
+params/image_encoder.blocks.11.mlp.fc2:
+    value: 2360064
+params/image_encoder.blocks.11.norm1:
+    value: 1536
+params/image_encoder.blocks.11.norm2:
+    value: 1536
+params/image_encoder.norm:
+    value: 1536
+params/image_encoder.patch_embed:
+    value: 590592
+params/image_encoder.patch_embed.proj:
+    value: 590592
+pretrained_weights_path:
+    value: checkpoints/medsam_vit_b.pth
+random_state:
+    value: 42
+val_split:
+    value: 0.2
+vit_depth:
+    value: 12
+vit_embed_dim:
+    value: 768
+vit_num_heads:
+    value: 12
+vit_patch_size:
+    value: 16
+weight_decay:
+    value: 1e-05
