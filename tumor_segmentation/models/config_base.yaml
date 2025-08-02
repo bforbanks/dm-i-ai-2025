@@ -6,6 +6,7 @@ data:
   val_split: 0.2
   batch_size: 16
   num_workers: 0
+  patient_control_ratio: 0.75  # 0.5 = 50/50 balance, 0.7 = 70% patients, 0.3 = 30% patients
 
 # Trainer configuration - Common for all models
 trainer:
@@ -27,3 +28,10 @@ trainer:
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: "epoch"
+    - class_path: callbacks.visualization_callback.TumorVisualizationCallback
+      init_args:
+        log_every_n_epochs: 1
+        tumor_image_name: "patient_019"
+        control_image_name: "control_275"
+        additional_tumor_names: ["patient_042", "patient_067"]
+        additional_control_names: ["control_123", "control_090"]

@@ -39,8 +39,11 @@ class BaseModel(pl.LightningModule):
         # Calculate BCE loss
         bce_loss = torch.nn.functional.binary_cross_entropy(pred, target)
 
-        # Calculate Dice score using custom implementation (matches utils.py)
+        # Calculate overall Dice score using custom implementation (matches utils.py)
         dice_score = self._calculate_dice_score(pred_binary, target)
+
+        # Calculate Dice score for patient images only (non-control images)
+        patient_dice_score = self._calculate_patient_dice_score(pred_binary, target)
 
         # Calculate loss using raw sigmoid predictions
         loss = self.bce_loss * bce_loss + (
@@ -61,6 +64,16 @@ class BaseModel(pl.LightningModule):
         self.log(
             f"{prefix}_dice",
             dice_score,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            batch_size=batch_size,
+        )
+
+        # Log patient-only Dice score
+        self.log(
+            f"{prefix}_dice_patients",
+            patient_dice_score,
             on_step=False,
             on_epoch=True,
             prog_bar=True,
@@ -126,6 +139,55 @@ class BaseModel(pl.LightningModule):
         """
         dice_scores = self._calculate_dice_per_sample(pred_binary, target, smooth=0)
         return torch.stack(dice_scores).mean()
+
+    def _calculate_patient_dice_score(self, pred_binary, target):
+        """
+        Calculate Dice score using binary predictions for patient images only (non-control images).
+
+        Args:
+            pred_binary: Binary predictions [B, 1, H, W] (values 0 or 1)
+            target: Binary targets [B, 1, H, W] (values 0 or 1)
+
+        Returns:
+            Mean Dice score as tensor for patient images only
+        """
+        batch_size = pred_binary.size(0)
+        patient_dice_scores = []
+
+        # Calculate dice score for each sample in the batch
+        for i in range(batch_size):
+            # Get single sample [1, H, W]
+            pred_sample = pred_binary[i]  # [1, H, W]
+            target_sample = target[i]  # [1, H, W]
+
+            # Check if this is a patient image (has tumors in ground truth)
+            target_sum = target_sample.sum()
+            
+            # Only include patient images (those with tumors in ground truth)
+            if target_sum > 0:
+                # Flatten predictions and targets for this sample
+                pred_flat = pred_sample.view(-1)
+                target_flat = target_sample.view(-1)
+
+                # Calculate intersection and sum of cardinalities
+                intersection = (pred_flat * target_flat).sum()
+                pred_sum = pred_flat.sum()
+                cardinality_sum = pred_sum + target_sum  # 2TP + FP + FN
+
+                # Calculate Dice score: 2 * TP / (2TP + FP + FN)
+                if cardinality_sum > 0:
+                    dice_sample = (2.0 * intersection) / cardinality_sum
+                else:
+                    dice_sample = torch.tensor(0.0, device=pred_binary.device, dtype=pred_binary.dtype)
+                
+                patient_dice_scores.append(dice_sample)
+
+        # Return mean Dice score for patient images only
+        if len(patient_dice_scores) > 0:
+            return torch.stack(patient_dice_scores).mean()
+        else:
+            # If no patient images in batch, return 0
+            return torch.tensor(0.0, device=pred_binary.device, dtype=pred_binary.dtype)
 
     def _calculate_dice_loss(self, pred, target):
         """

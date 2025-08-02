@@ -1,9 +1,3 @@
 model:
   class_path: models.SimpleUNet.model.SimpleUNet
   init_args: {}
-
-trainer:
-  callbacks+:
-    - class_path: callbacks.visualization_callback.TumorVisualizationCallback
-      init_args:
-        log_every_n_epochs: 3 

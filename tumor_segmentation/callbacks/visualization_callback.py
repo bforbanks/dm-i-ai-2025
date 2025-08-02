@@ -1,10 +1,12 @@
 import torch
 import lightning.pytorch as pl
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import cv2
 from pathlib import Path
 import wandb
+from utils import dice_score
 
 
 class TumorVisualizationCallback(pl.Callback):
@@ -13,12 +15,30 @@ class TumorVisualizationCallback(pl.Callback):
     Shows the same sample image, prediction, and ground truth for consistency.
     """
     
-    def __init__(self, sample_image_path=None, log_every_n_epochs=10):
+    def __init__(self, sample_image_path=None, log_every_n_epochs=10, 
+                 tumor_image_name=None, control_image_name=None,
+                 additional_tumor_names=None, additional_control_names=None):
         super().__init__()
         self.log_every_n_epochs = log_every_n_epochs
         self.sample_image_path = sample_image_path
         self.sample_image = None
         self.sample_mask = None
+        self.control_image = None
+        self.control_mask = None
+        
+        # Store the specified image names for selection
+        self.tumor_image_name = tumor_image_name
+        self.control_image_name = control_image_name
+        
+        # Store additional image names for compact visualization
+        self.additional_tumor_names = additional_tumor_names or []
+        self.additional_control_names = additional_control_names or []
+        
+        # Store additional images and masks
+        self.additional_tumor_images = []
+        self.additional_tumor_masks = []
+        self.additional_control_images = []
+        self.additional_control_masks = []
         
     def on_train_start(self, trainer, pl_module):
         """Load sample image and mask on training start"""
@@ -32,45 +52,104 @@ class TumorVisualizationCallback(pl.Callback):
             print("Warning: Could not find sample image for visualization")
     
     def _find_sample_image(self, trainer):
-        """Try to find a sample tumor image from the dataset"""
+        """Load specific tumor and control images directly from the data directories"""
         try:
-            print("Trying to find sample image from validation set...")
+            print(f"Loading specific images: tumor='{self.tumor_image_name}', control='{self.control_image_name}'")
+            print(f"Additional tumors: {self.additional_tumor_names}")
+            print(f"Additional controls: {self.additional_control_names}")
             
-            # Get a batch from the validation dataloader
-            val_dataloader = trainer.val_dataloaders
-            batch = next(iter(val_dataloader))
-            images, masks = batch
+            # Get data directory from the trainer's datamodule
+            datamodule = trainer.datamodule
+            data_dir = Path(datamodule.data_dir)
             
-            print(f"Found batch with {images.shape[0]} images, shape: {images.shape}")
-            print(f"Masks shape: {masks.shape}")
+            # Load main tumor image and mask
+            if self.tumor_image_name:
+                self.sample_image, self.sample_mask = self._load_patient_image(data_dir, self.tumor_image_name)
+                print(f"✅ Loaded main tumor image '{self.tumor_image_name}'")
+                print(f"Tumor image shape: {self.sample_image.shape}")
+                print(f"Tumor mask shape: {self.sample_mask.shape}")
             
-            # Find an image with a tumor (non-zero mask)
-            for i in range(images.shape[0]):
-                mask = masks[i]
-                mask_sum = mask.sum().item()
-                print(f"Image {i}: mask sum = {mask_sum}")
-                
-                if mask_sum > 0:  # Has tumor
-                    # Save this as our sample
-                    self.sample_image = images[i].unsqueeze(0)  # Add batch dimension
-                    self.sample_mask = masks[i].unsqueeze(0)    # Add batch dimension
-                    print(f"✅ Using sample image {i} from validation set for visualization")
-                    print(f"Sample image shape: {self.sample_image.shape}")
-                    print(f"Sample mask shape: {self.sample_mask.shape}")
-                    return
+            # Load main control image and mask
+            if self.control_image_name:
+                self.control_image, self.control_mask = self._load_control_image(data_dir, self.control_image_name)
+                print(f"✅ Loaded main control image '{self.control_image_name}'")
+                print(f"Control image shape: {self.control_image.shape}")
+                print(f"Control mask shape: {self.control_mask.shape}")
             
-            # If no tumor images found, use the first image anyway
-            print("No tumor images found, using first image for visualization")
-            self.sample_image = images[0].unsqueeze(0)
-            self.sample_mask = masks[0].unsqueeze(0)
-            print(f"Using first image for visualization")
-            print(f"Sample image shape: {self.sample_image.shape}")
-            print(f"Sample mask shape: {self.sample_mask.shape}")
-                
+            # Load additional tumor images
+            for tumor_name in self.additional_tumor_names:
+                try:
+                    image, mask = self._load_patient_image(data_dir, tumor_name)
+                    self.additional_tumor_images.append(image)
+                    self.additional_tumor_masks.append(mask)
+                    print(f"✅ Loaded additional tumor image '{tumor_name}'")
+                except Exception as e:
+                    print(f"❌ Could not load additional tumor image '{tumor_name}': {e}")
+            
+            # Load additional control images
+            for control_name in self.additional_control_names:
+                try:
+                    image, mask = self._load_control_image(data_dir, control_name)
+                    self.additional_control_images.append(image)
+                    self.additional_control_masks.append(mask)
+                    print(f"✅ Loaded additional control image '{control_name}'")
+                except Exception as e:
+                    print(f"❌ Could not load additional control image '{control_name}': {e}")
+            
+            print(f"Loaded {len(self.additional_tumor_images)}/{len(self.additional_tumor_names)} additional tumors")
+            print(f"Loaded {len(self.additional_control_images)}/{len(self.additional_control_names)} additional controls")
+            
         except Exception as e:
-            print(f"Could not find sample image automatically: {e}")
+            print(f"Could not load sample images: {e}")
             import traceback
             traceback.print_exc()
+    
+    def _load_patient_image(self, data_dir, patient_name):
+        """Load a patient image and its corresponding mask"""
+        # Patient image path
+        img_path = data_dir / "patients" / "imgs" / f"{patient_name}.png"
+        
+        # Patient mask path (convert patient_XXX to segmentation_XXX)
+        mask_name = patient_name.replace("patient_", "segmentation_")
+        mask_path = data_dir / "patients" / "labels" / f"{mask_name}.png"
+        
+        if not img_path.exists():
+            raise FileNotFoundError(f"Patient image not found: {img_path}")
+        if not mask_path.exists():
+            raise FileNotFoundError(f"Patient mask not found: {mask_path}")
+        
+        # Load and preprocess image
+        image = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
+        image = cv2.resize(image, (256, 256))
+        image = image.astype(np.float32) / 255.0
+        image_tensor = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
+        
+        # Load and preprocess mask
+        mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
+        mask = cv2.resize(mask, (256, 256))
+        mask = (mask > 0).astype(np.float32)  # Binary mask
+        mask_tensor = torch.from_numpy(mask).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
+        
+        return image_tensor, mask_tensor
+    
+    def _load_control_image(self, data_dir, control_name):
+        """Load a control image (no mask needed)"""
+        # Control image path
+        img_path = data_dir / "controls" / "imgs" / f"{control_name}.png"
+        
+        if not img_path.exists():
+            raise FileNotFoundError(f"Control image not found: {img_path}")
+        
+        # Load and preprocess image
+        image = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
+        image = cv2.resize(image, (256, 256))
+        image = image.astype(np.float32) / 255.0
+        image_tensor = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
+        
+        # Create empty mask for control (no tumors)
+        mask_tensor = torch.zeros(1, 1, 256, 256)
+        
+        return image_tensor, mask_tensor
     
     def _load_sample_data(self):
         """Load sample image and mask from file"""
@@ -101,54 +180,227 @@ class TumorVisualizationCallback(pl.Callback):
         print(f"Visualization callback: Epoch {trainer.current_epoch + 1}, log_every_n_epochs={self.log_every_n_epochs}")
         if (trainer.current_epoch + 1) % self.log_every_n_epochs == 0:
             print(f"Should create visualization for epoch {trainer.current_epoch + 1}")
-            if self.sample_image is not None:
-                print("Sample image found, creating visualization...")
+            if (self.sample_image is not None and self.sample_mask is not None and 
+                self.control_image is not None and self.control_mask is not None):
+                print("Sample images found, creating visualization...")
                 self._log_visualization(trainer, pl_module)
             else:
-                print("Warning: No sample image available for visualization")
+                print("Warning: Sample images not available for visualization")
+                print(f"  Tumor image: {self.sample_image is not None}")
+                print(f"  Tumor mask: {self.sample_mask is not None}")
+                print(f"  Control image: {self.control_image is not None}")
+                print(f"  Control mask: {self.control_mask is not None}")
         else:
             print(f"Not creating visualization (epoch {trainer.current_epoch + 1} % {self.log_every_n_epochs} != 0)")
     
     def _log_visualization(self, trainer, pl_module):
-        """Create and log visualization"""
+        """Create and log visualization with multiple tumor and control images"""
         try:
-            # Move sample to same device as model
+            # Move samples to same device as model
             device = next(pl_module.parameters()).device
-            sample_image = self.sample_image.to(device)
-            sample_mask = self.sample_mask.to(device)
             
-            # Get prediction
+            # Process main tumor and control images (with safety checks)
+            if self.sample_image is None or self.sample_mask is None:
+                print("Warning: Main tumor image or mask is None, skipping visualization")
+                return
+            if self.control_image is None or self.control_mask is None:
+                print("Warning: Main control image or mask is None, skipping visualization")
+                return
+                
+            tumor_image = self.sample_image.to(device)
+            tumor_mask = self.sample_mask.to(device)
+            control_image = self.control_image.to(device)
+            control_mask = self.control_mask.to(device)
+            
+            # Process additional images (only if they exist)
+            additional_tumor_images = []
+            additional_tumor_masks = []
+            for img, mask in zip(self.additional_tumor_images, self.additional_tumor_masks):
+                if img is not None and mask is not None:
+                    additional_tumor_images.append(img.to(device))
+                    additional_tumor_masks.append(mask.to(device))
+            
+            additional_control_images = []
+            additional_control_masks = []
+            for img, mask in zip(self.additional_control_images, self.additional_control_masks):
+                if img is not None and mask is not None:
+                    additional_control_images.append(img.to(device))
+                    additional_control_masks.append(mask.to(device))
+            
+            # Get predictions for all images
             pl_module.eval()
             with torch.no_grad():
-                prediction = pl_module(sample_image)
+                tumor_prediction = pl_module(tumor_image)
+                control_prediction = pl_module(control_image)
+                
+                # Get predictions for additional images
+                additional_tumor_predictions = [pl_module(img) for img in additional_tumor_images]
+                additional_control_predictions = [pl_module(img) for img in additional_control_images]
             pl_module.train()
             
-            # Convert to numpy for visualization
-            image_np = sample_image.squeeze(0).permute(1, 2, 0).cpu().numpy()
-            mask_np = sample_mask.squeeze().cpu().numpy()
-            pred_np = prediction.squeeze().cpu().numpy()
+            # Convert main tumor data to numpy for visualization
+            tumor_image_np = tumor_image.squeeze(0).permute(1, 2, 0).cpu().numpy()
+            tumor_mask_np = tumor_mask.squeeze().cpu().numpy()
+            tumor_pred_np = tumor_prediction.squeeze().cpu().numpy()
+            tumor_pred_binary = (tumor_pred_np > 0.5).astype(np.float32)
             
-            # Create visualization
-            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+            # Convert main control data to numpy for visualization
+            control_image_np = control_image.squeeze(0).permute(1, 2, 0).cpu().numpy()
+            control_mask_np = control_mask.squeeze().cpu().numpy()
+            control_pred_np = control_prediction.squeeze().cpu().numpy()
+            control_pred_binary = (control_pred_np > 0.5).astype(np.float32)
             
-            # Original image
-            axes[0].imshow(image_np)
-            axes[0].set_title('Input Image')
-            axes[0].axis('off')
+            # Convert additional data to numpy
+            additional_tumor_data = []
+            for i, (img, mask, pred) in enumerate(zip(additional_tumor_images, additional_tumor_masks, additional_tumor_predictions)):
+                mask_np = mask.squeeze().cpu().numpy()
+                pred_np = pred.squeeze().cpu().numpy()
+                pred_binary = (pred_np > 0.5).astype(np.float32)
+                additional_tumor_data.append((mask_np, pred_binary))
+            
+            additional_control_data = []
+            for i, (img, mask, pred) in enumerate(zip(additional_control_images, additional_control_masks, additional_control_predictions)):
+                mask_np = mask.squeeze().cpu().numpy()
+                pred_np = pred.squeeze().cpu().numpy()
+                pred_binary = (pred_np > 0.5).astype(np.float32)
+                additional_control_data.append((mask_np, pred_binary))
+            
+            # Calculate total columns needed (4 for main + additional images)
+            total_tumor_cols = 4 + len(additional_tumor_data)
+            total_control_cols = 4 + len(additional_control_data)
+            max_cols = max(total_tumor_cols, total_control_cols)
+            
+            # Create visualization with dynamic columns
+            fig, axes = plt.subplots(2, max_cols, figsize=(max_cols * 3, 8))
+            
+            # Row 1: Tumor Images
+            # Main tumor image - full 4-column view
+            if tumor_image_np.shape[-1] == 3:  # If RGB, convert to grayscale
+                tumor_image_gray = np.mean(tumor_image_np, axis=2)
+            else:
+                tumor_image_gray = tumor_image_np.squeeze()
+            
+            axes[0, 0].imshow(tumor_image_gray, cmap='gray')
+            axes[0, 0].set_title('Tumor - PET MIP')
+            axes[0, 0].axis('off')
             
             # Ground truth mask
-            axes[1].imshow(image_np)
-            axes[1].imshow(mask_np, alpha=0.5, cmap='Reds')
-            axes[1].set_title('Ground Truth')
-            axes[1].axis('off')
+            axes[0, 1].imshow(tumor_mask_np, cmap='gray', vmin=0, vmax=1)
+            axes[0, 1].set_title('Tumor - True Segmentation')
+            axes[0, 1].axis('off')
             
-            # Prediction
-            axes[2].imshow(image_np)
-            axes[2].imshow(pred_np, alpha=0.5, cmap='Blues')
-            axes[2].set_title(f'Prediction (Epoch {trainer.current_epoch + 1})')
-            axes[2].axis('off')
+            # Predicted segmentation
+            axes[0, 2].imshow(tumor_pred_binary, cmap='gray', vmin=0, vmax=1)
+            axes[0, 2].set_title('Tumor - Predicted Segmentation')
+            axes[0, 2].axis('off')
             
-            plt.tight_layout()
+            # Overlay showing TP, FP, FN (like utils.py)
+            TP = ((tumor_pred_binary > 0) & (tumor_mask_np > 0))
+            FP = ((tumor_pred_binary > 0) & (tumor_mask_np == 0))
+            FN = ((tumor_pred_binary == 0) & (tumor_mask_np > 0))
+            
+            # Create RGB overlay: FP=red, TP=green, FN=blue
+            overlay = np.zeros((*tumor_pred_binary.shape, 3), dtype=np.uint8)
+            overlay[TP] = [0, 255, 0]  # Green for TP
+            overlay[FP] = [255, 0, 0]  # Red for FP
+            overlay[FN] = [0, 0, 255]  # Blue for FN
+            
+            tumor_dice = dice_score(tumor_mask_np, tumor_pred_binary)
+            axes[0, 3].imshow(overlay)
+            axes[0, 3].set_title(f'Tumor - Dice = {tumor_dice:.3f}')
+            axes[0, 3].axis('off')
+            
+            # Add legend for tumor row
+            green_patch = mpatches.Patch(color='green', label='TP')
+            red_patch = mpatches.Patch(color='red', label='FP')
+            blue_patch = mpatches.Patch(color='blue', label='FN')
+            axes[0, 3].legend(handles=[green_patch, red_patch, blue_patch], loc='lower right', fontsize=8)
+            
+            # Additional tumor images - only colored overlays
+            for i, (mask_np, pred_binary) in enumerate(additional_tumor_data):
+                col_idx = 4 + i
+                if col_idx < max_cols:
+                    # Create overlay for additional tumor
+                    TP = ((pred_binary > 0) & (mask_np > 0))
+                    FP = ((pred_binary > 0) & (mask_np == 0))
+                    FN = ((pred_binary == 0) & (mask_np > 0))
+                    
+                    overlay = np.zeros((*pred_binary.shape, 3), dtype=np.uint8)
+                    overlay[TP] = [0, 255, 0]  # Green for TP
+                    overlay[FP] = [255, 0, 0]  # Red for FP
+                    overlay[FN] = [0, 0, 255]  # Blue for FN
+                    
+                    dice = dice_score(mask_np, pred_binary)
+                    axes[0, col_idx].imshow(overlay)
+                    axes[0, col_idx].set_title(f'Tumor {i+2} - Dice = {dice:.3f}')
+                    axes[0, col_idx].axis('off')
+            
+            # Row 2: Control Images
+            # Main control image - full 4-column view
+            if control_image_np.shape[-1] == 3:  # If RGB, convert to grayscale
+                control_image_gray = np.mean(control_image_np, axis=2)
+            else:
+                control_image_gray = control_image_np.squeeze()
+            
+            axes[1, 0].imshow(control_image_gray, cmap='gray')
+            axes[1, 0].set_title('Control - PET MIP')
+            axes[1, 0].axis('off')
+            
+            # Control ground truth mask
+            axes[1, 1].imshow(control_mask_np, cmap='gray', vmin=0, vmax=1)
+            axes[1, 1].set_title('Control - True Segmentation')
+            axes[1, 1].axis('off')
+            
+            # Control predicted segmentation
+            axes[1, 2].imshow(control_pred_binary, cmap='gray', vmin=0, vmax=1)
+            axes[1, 2].set_title('Control - Predicted Segmentation')
+            axes[1, 2].axis('off')
+            
+            # Control overlay showing TP, FP, FN
+            control_TP = ((control_pred_binary > 0) & (control_mask_np > 0))
+            control_FP = ((control_pred_binary > 0) & (control_mask_np == 0))
+            control_FN = ((control_pred_binary == 0) & (control_mask_np > 0))
+            
+            # Create RGB overlay for control
+            control_overlay = np.zeros((*control_pred_binary.shape, 3), dtype=np.uint8)
+            control_overlay[control_TP] = [0, 255, 0]  # Green for TP
+            control_overlay[control_FP] = [255, 0, 0]  # Red for FP
+            control_overlay[control_FN] = [0, 0, 255]  # Blue for FN
+            
+            control_dice = dice_score(control_mask_np, control_pred_binary)
+            axes[1, 3].imshow(control_overlay)
+            axes[1, 3].set_title(f'Control - Dice = {control_dice:.3f}')
+            axes[1, 3].axis('off')
+            
+            # Add legend for control row
+            axes[1, 3].legend(handles=[green_patch, red_patch, blue_patch], loc='lower right', fontsize=8)
+            
+            # Additional control images - only colored overlays
+            for i, (mask_np, pred_binary) in enumerate(additional_control_data):
+                col_idx = 4 + i
+                if col_idx < max_cols:
+                    # Create overlay for additional control
+                    TP = ((pred_binary > 0) & (mask_np > 0))
+                    FP = ((pred_binary > 0) & (mask_np == 0))
+                    FN = ((pred_binary == 0) & (mask_np > 0))
+                    
+                    overlay = np.zeros((*pred_binary.shape, 3), dtype=np.uint8)
+                    overlay[TP] = [0, 255, 0]  # Green for TP
+                    overlay[FP] = [255, 0, 0]  # Red for FP
+                    overlay[FN] = [0, 0, 255]  # Blue for FN
+                    
+                    dice = dice_score(mask_np, pred_binary)
+                    axes[1, col_idx].imshow(overlay)
+                    axes[1, col_idx].set_title(f'Control {i+2} - Dice = {dice:.3f}')
+                    axes[1, col_idx].axis('off')
+            
+            # Hide unused subplots
+            for row in range(2):
+                for col in range(max_cols):
+                    if (row == 0 and col >= total_tumor_cols) or (row == 1 and col >= total_control_cols):
+                        axes[row, col].set_visible(False)
+            
+            plt.tight_layout(h_pad=2, w_pad=0, pad=1.5)
             
             # Log to wandb if available
             if trainer.logger and hasattr(trainer.logger, 'experiment'):
