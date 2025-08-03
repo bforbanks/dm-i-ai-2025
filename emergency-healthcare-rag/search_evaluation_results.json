@@ -1,11 +1,11 @@
 {
   "total_samples": 200,
-  "topic_accuracy": 0.865,
-  "topic_in_top_3": 0.96,
+  "topic_accuracy": 0.86,
+  "topic_in_top_3": 0.97,
   "topic_in_top_5": 0.985,
   "topic_in_top_10": 0.995,
-  "avg_search_time": 0.25376482486724855,
-  "avg_context_length": 3593.655,
+  "avg_search_time": 0.09052259564399719,
+  "avg_context_length": 3603.85,
   "results": [
     {
       "sample_id": 0,
@@ -16,7 +16,7 @@
       "predicted_topic_name": "Acute Coronary Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 2.924044132232666,
+      "search_time": 0.5747110843658447,
       "context_length": 366
     },
     {
@@ -28,7 +28,7 @@
       "predicted_topic_name": "Testicular Torsion",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21418356895446777,
+      "search_time": 0.11110687255859375,
       "context_length": 4003
     },
     {
@@ -40,7 +40,7 @@
       "predicted_topic_name": "Embolism",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22904610633850098,
+      "search_time": 0.10899686813354492,
       "context_length": 4003
     },
     {
@@ -52,7 +52,7 @@
       "predicted_topic_name": "CT Other",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.20246553421020508,
+      "search_time": 0.10820698738098145,
       "context_length": 4003
     },
     {
@@ -64,7 +64,7 @@
       "predicted_topic_name": "Compartment Syndrome",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.21372056007385254,
+      "search_time": 0.10082101821899414,
       "context_length": 4003
     },
     {
@@ -72,11 +72,11 @@
       "statement": "Right-sided heart catheterization diagnostic criteria for pulmonary hypertension at high altitude requires a mean pulmonary artery pressure greater than 25 mmHg or systolic PAP greater than 40 mmHg.",
       "expected_topic": 65,
       "expected_topic_name": "Pulmonary Hypertension",
-      "predicted_topic": 40,
-      "predicted_topic_name": "Hypertensive Emergency",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.20411992073059082,
+      "predicted_topic": 65,
+      "predicted_topic_name": "Pulmonary Hypertension",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.11074185371398926,
       "context_length": 2512
     },
     {
@@ -88,7 +88,7 @@
       "predicted_topic_name": "Stroke (Ischemic_Hemorrhagic)",
       "topic_correct": false,
       "topic_rank": 10,
-      "search_time": 0.21389055252075195,
+      "search_time": 0.10627317428588867,
       "context_length": 4003
     },
     {
@@ -100,7 +100,7 @@
       "predicted_topic_name": "Toxicology Screen",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25135278701782227,
+      "search_time": 0.06385087966918945,
       "context_length": 1750
     },
     {
@@ -112,7 +112,7 @@
       "predicted_topic_name": "Complete Blood Count (CBC) with differential",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21556472778320312,
+      "search_time": 0.11473202705383301,
       "context_length": 4003
     },
     {
@@ -124,7 +124,7 @@
       "predicted_topic_name": "Overdose_Poisoning",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21962189674377441,
+      "search_time": 0.10832881927490234,
       "context_length": 4003
     },
     {
@@ -135,8 +135,8 @@
       "predicted_topic": 110,
       "predicted_topic_name": "Ultrasound Doppler (extremities)",
       "topic_correct": false,
-      "topic_rank": 5,
-      "search_time": 0.25173306465148926,
+      "topic_rank": 3,
+      "search_time": 0.11853504180908203,
       "context_length": 3548
     },
     {
@@ -148,7 +148,7 @@
       "predicted_topic_name": "Toxicology Screen",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.21634793281555176,
+      "search_time": 0.10030317306518555,
       "context_length": 4003
     },
     {
@@ -160,7 +160,7 @@
       "predicted_topic_name": "Hyponatremia_Hypernatremia",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.18534278869628906,
+      "search_time": 0.06781435012817383,
       "context_length": 4003
     },
     {
@@ -172,7 +172,7 @@
       "predicted_topic_name": "Troponin I_T",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.21401166915893555,
+      "search_time": 0.06801986694335938,
       "context_length": 3331
     },
     {
@@ -184,7 +184,7 @@
       "predicted_topic_name": "Takotsubo Cardiomyopathy",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.20090579986572266,
+      "search_time": 0.10291290283203125,
       "context_length": 4003
     },
     {
@@ -196,7 +196,7 @@
       "predicted_topic_name": "Perforated Viscus",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2488870620727539,
+      "search_time": 0.10912203788757324,
       "context_length": 2634
     },
     {
@@ -208,7 +208,7 @@
       "predicted_topic_name": "Creatine Phosphokinase",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.19266843795776367,
+      "search_time": 0.10642027854919434,
       "context_length": 4003
     },
     {
@@ -220,7 +220,7 @@
       "predicted_topic_name": "Pulse Oximetry_Arterial Saturation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2049717903137207,
+      "search_time": 0.061758995056152344,
       "context_length": 1111
     },
     {
@@ -232,7 +232,7 @@
       "predicted_topic_name": "Hemoglobin A1C",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23614025115966797,
+      "search_time": 0.11608219146728516,
       "context_length": 4003
     },
     {
@@ -244,7 +244,7 @@
       "predicted_topic_name": "Cardiac Arrest",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.18473005294799805,
+      "search_time": 0.06681489944458008,
       "context_length": 730
     },
     {
@@ -256,7 +256,7 @@
       "predicted_topic_name": "Ovarian Torsion",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22525572776794434,
+      "search_time": 0.06358504295349121,
       "context_length": 2865
     },
     {
@@ -268,7 +268,7 @@
       "predicted_topic_name": "Unstable Angina",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.20752930641174316,
+      "search_time": 0.11500191688537598,
       "context_length": 1485
     },
     {
@@ -280,8 +280,8 @@
       "predicted_topic_name": "COPD Exacerbation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23183703422546387,
-      "context_length": 3370
+      "search_time": 0.11710906028747559,
+      "context_length": 4003
     },
     {
       "sample_id": 23,
@@ -292,7 +292,7 @@
       "predicted_topic_name": "B-type Natriuretic Peptide (BNP)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2080073356628418,
+      "search_time": 0.10609817504882812,
       "context_length": 4003
     },
     {
@@ -300,11 +300,11 @@
       "statement": "Computed tomography pulmonary angiography demonstrates superior accuracy compared to ventilation-perfusion scanning for diagnosing pulmonary embolism, particularly in patients with underlying chronic lung disease.",
       "expected_topic": 27,
       "expected_topic_name": "Chest Pain (non-cardiac)",
-      "predicted_topic": 33,
-      "predicted_topic_name": "Embolism",
+      "predicted_topic": 63,
+      "predicted_topic_name": "Pulmonary Embolism",
       "topic_correct": false,
       "topic_rank": -1,
-      "search_time": 0.19644498825073242,
+      "search_time": 0.06582498550415039,
       "context_length": 4003
     },
     {
@@ -316,7 +316,7 @@
       "predicted_topic_name": "Cardiomyopathy",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2268388271331787,
+      "search_time": 0.10901093482971191,
       "context_length": 4003
     },
     {
@@ -328,7 +328,7 @@
       "predicted_topic_name": "Anaphylaxis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22604680061340332,
+      "search_time": 0.1108860969543457,
       "context_length": 4003
     },
     {
@@ -340,7 +340,7 @@
       "predicted_topic_name": "Blood Cultures",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.19300508499145508,
+      "search_time": 0.09632301330566406,
       "context_length": 1541
     },
     {
@@ -352,7 +352,7 @@
       "predicted_topic_name": "Lung Cancer",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21036338806152344,
+      "search_time": 0.1099698543548584,
       "context_length": 4003
     },
     {
@@ -364,7 +364,7 @@
       "predicted_topic_name": "Burns",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22013211250305176,
+      "search_time": 0.06999611854553223,
       "context_length": 4003
     },
     {
@@ -376,7 +376,7 @@
       "predicted_topic_name": "Lipase",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24120092391967773,
+      "search_time": 0.1093599796295166,
       "context_length": 4003
     },
     {
@@ -388,7 +388,7 @@
       "predicted_topic_name": "Pericarditis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2551579475402832,
+      "search_time": 0.07536673545837402,
       "context_length": 4003
     },
     {
@@ -400,7 +400,7 @@
       "predicted_topic_name": "Pneumomediastinum",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24199891090393066,
+      "search_time": 0.09230518341064453,
       "context_length": 1974
     },
     {
@@ -412,7 +412,7 @@
       "predicted_topic_name": "Acute Appendicitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25815749168395996,
+      "search_time": 0.07077598571777344,
       "context_length": 4003
     },
     {
@@ -424,7 +424,7 @@
       "predicted_topic_name": "B-type Natriuretic Peptide (BNP)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23687028884887695,
+      "search_time": 0.07492899894714355,
       "context_length": 4003
     },
     {
@@ -436,7 +436,7 @@
       "predicted_topic_name": "Traumatic Brain Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24675536155700684,
+      "search_time": 0.09761714935302734,
       "context_length": 4003
     },
     {
@@ -448,7 +448,7 @@
       "predicted_topic_name": "Urinalysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25289011001586914,
+      "search_time": 0.10855722427368164,
       "context_length": 4003
     },
     {
@@ -460,19 +460,19 @@
       "predicted_topic_name": "Pulmonary Hypertension",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21027851104736328,
-      "context_length": 2690
+      "search_time": 0.0951852798461914,
+      "context_length": 3572
     },
     {
       "sample_id": 38,
       "statement": "Pure-tone audiometry findings in acute acoustic trauma consistently show high-frequency hearing loss with a characteristic notch between 2 and 6 kHz and recovery at 8 kHz, distinguishing it from presbycusis which shows greater loss at 8 kHz than at 3, 4, or 6 kHz.",
       "expected_topic": 16,
       "expected_topic_name": "Blunt Trauma",
-      "predicted_topic": 55,
-      "predicted_topic_name": "Penetrating Trauma",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.25153017044067383,
+      "predicted_topic": 16,
+      "predicted_topic_name": "Blunt Trauma",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.13906002044677734,
       "context_length": 4003
     },
     {
@@ -484,7 +484,7 @@
       "predicted_topic_name": "Echocardiogram",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2526819705963135,
+      "search_time": 0.05919170379638672,
       "context_length": 4003
     },
     {
@@ -495,8 +495,8 @@
       "predicted_topic": 84,
       "predicted_topic_name": "Angiography (invasive)",
       "topic_correct": false,
-      "topic_rank": 4,
-      "search_time": 0.2355349063873291,
+      "topic_rank": 2,
+      "search_time": 0.06467390060424805,
       "context_length": 3181
     },
     {
@@ -508,7 +508,7 @@
       "predicted_topic_name": "Complete Blood Count (CBC) with differential",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2406003475189209,
+      "search_time": 0.07317304611206055,
       "context_length": 4003
     },
     {
@@ -520,7 +520,7 @@
       "predicted_topic_name": "Empyema",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2459392547607422,
+      "search_time": 0.0730431079864502,
       "context_length": 3254
     },
     {
@@ -532,7 +532,7 @@
       "predicted_topic_name": "Empyema",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2244553565979004,
+      "search_time": 0.07781291007995605,
       "context_length": 4003
     },
     {
@@ -544,7 +544,7 @@
       "predicted_topic_name": "Acute Myocardial Infarction (STEMI_NSTEMI)",
       "topic_correct": false,
       "topic_rank": 4,
-      "search_time": 0.22223711013793945,
+      "search_time": 0.06609511375427246,
       "context_length": 4003
     },
     {
@@ -556,7 +556,7 @@
       "predicted_topic_name": "Pneumonia (bacterial_viral_atypical)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2513604164123535,
+      "search_time": 0.06649327278137207,
       "context_length": 4003
     },
     {
@@ -568,7 +568,7 @@
       "predicted_topic_name": "Cardiomyopathy",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.274533748626709,
+      "search_time": 0.12410998344421387,
       "context_length": 4003
     },
     {
@@ -576,11 +576,11 @@
       "statement": "Patients with fulminant Wilson disease and acute liver failure receive Status 1A priority on liver transplant waitlists due to their highest mortality risk without transplantation.",
       "expected_topic": 50,
       "expected_topic_name": "Multi-organ Failure",
-      "predicted_topic": 6,
-      "predicted_topic_name": "Acute Liver Failure",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.19959211349487305,
+      "predicted_topic": 50,
+      "predicted_topic_name": "Multi-organ Failure",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.06718802452087402,
       "context_length": 4003
     },
     {
@@ -592,7 +592,7 @@
       "predicted_topic_name": "Acute Abdomen",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22673487663269043,
+      "search_time": 0.10430693626403809,
       "context_length": 4003
     },
     {
@@ -604,7 +604,7 @@
       "predicted_topic_name": "Endocarditis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21195483207702637,
+      "search_time": 0.06988406181335449,
       "context_length": 4003
     },
     {
@@ -616,7 +616,7 @@
       "predicted_topic_name": "Multi-organ Failure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2477741241455078,
+      "search_time": 0.0690758228302002,
       "context_length": 4003
     },
     {
@@ -628,7 +628,7 @@
       "predicted_topic_name": "Placental Abruption",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2541210651397705,
+      "search_time": 0.06603813171386719,
       "context_length": 4003
     },
     {
@@ -640,7 +640,7 @@
       "predicted_topic_name": "12-lead ECG",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2752110958099365,
+      "search_time": 0.07330489158630371,
       "context_length": 4003
     },
     {
@@ -652,7 +652,7 @@
       "predicted_topic_name": "Bronchoscopy with BAL",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24061846733093262,
+      "search_time": 0.06544685363769531,
       "context_length": 2613
     },
     {
@@ -664,7 +664,7 @@
       "predicted_topic_name": "Acute Abdomen",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2881178855895996,
+      "search_time": 0.11067080497741699,
       "context_length": 4003
     },
     {
@@ -676,7 +676,7 @@
       "predicted_topic_name": "Stress Test (exercise or pharmacologic)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24249935150146484,
+      "search_time": 0.06863999366760254,
       "context_length": 4003
     },
     {
@@ -688,7 +688,7 @@
       "predicted_topic_name": "Pulse Oximetry_Arterial Saturation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24395990371704102,
+      "search_time": 0.06374502182006836,
       "context_length": 4003
     },
     {
@@ -700,7 +700,7 @@
       "predicted_topic_name": "Myocarditis",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.23755502700805664,
+      "search_time": 0.07032012939453125,
       "context_length": 1454
     },
     {
@@ -712,7 +712,7 @@
       "predicted_topic_name": "Ventricular Tachycardia",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2533116340637207,
+      "search_time": 0.06731295585632324,
       "context_length": 4003
     },
     {
@@ -724,7 +724,7 @@
       "predicted_topic_name": "Cervical Spine Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21223855018615723,
+      "search_time": 0.10261988639831543,
       "context_length": 2469
     },
     {
@@ -736,7 +736,7 @@
       "predicted_topic_name": "Lactate",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2372574806213379,
+      "search_time": 0.07093191146850586,
       "context_length": 4003
     },
     {
@@ -748,7 +748,7 @@
       "predicted_topic_name": "Pneumonia (bacterial_viral_atypical)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2325279712677002,
+      "search_time": 0.07391190528869629,
       "context_length": 4003
     },
     {
@@ -760,7 +760,7 @@
       "predicted_topic_name": "Embolism",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.24881887435913086,
+      "search_time": 0.10923123359680176,
       "context_length": 4003
     },
     {
@@ -772,7 +772,7 @@
       "predicted_topic_name": "Asthma Exacerbation",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.3085618019104004,
+      "search_time": 0.1071767807006836,
       "context_length": 4003
     },
     {
@@ -784,7 +784,7 @@
       "predicted_topic_name": "Hypertensive Emergency",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2259814739227295,
+      "search_time": 0.06155800819396973,
       "context_length": 1130
     },
     {
@@ -796,7 +796,7 @@
       "predicted_topic_name": "Aortic Dissection",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25055456161499023,
+      "search_time": 0.07551693916320801,
       "context_length": 4003
     },
     {
@@ -808,7 +808,7 @@
       "predicted_topic_name": "Acute Cholecystitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22906088829040527,
+      "search_time": 0.10328388214111328,
       "context_length": 4003
     },
     {
@@ -820,7 +820,7 @@
       "predicted_topic_name": "Pulmonary Fibrosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2603144645690918,
+      "search_time": 0.08488607406616211,
       "context_length": 4003
     },
     {
@@ -832,7 +832,7 @@
       "predicted_topic_name": "Respiratory Failure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2517399787902832,
+      "search_time": 0.0674140453338623,
       "context_length": 4003
     },
     {
@@ -844,7 +844,7 @@
       "predicted_topic_name": "Ruptured AAA",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.286787748336792,
+      "search_time": 0.11117911338806152,
       "context_length": 4003
     },
     {
@@ -856,7 +856,7 @@
       "predicted_topic_name": "Angiography (invasive)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21822714805603027,
+      "search_time": 0.10215902328491211,
       "context_length": 4003
     },
     {
@@ -868,7 +868,7 @@
       "predicted_topic_name": "B-type Natriuretic Peptide (BNP)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25240302085876465,
+      "search_time": 0.07130694389343262,
       "context_length": 4003
     },
     {
@@ -876,12 +876,12 @@
       "statement": "Mean pulmonary artery pressures in patients with high altitude pulmonary hypertension can normalize within 2 years of returning to lower altitudes, though pressures may increase again with return to high elevation.",
       "expected_topic": 65,
       "expected_topic_name": "Pulmonary Hypertension",
-      "predicted_topic": 65,
-      "predicted_topic_name": "Pulmonary Hypertension",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.24093413352966309,
-      "context_length": 3606
+      "predicted_topic": 40,
+      "predicted_topic_name": "Hypertensive Emergency",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.05987095832824707,
+      "context_length": 2673
     },
     {
       "sample_id": 73,
@@ -892,7 +892,7 @@
       "predicted_topic_name": "Pulmonary Fibrosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24425148963928223,
+      "search_time": 0.06934785842895508,
       "context_length": 4003
     },
     {
@@ -904,7 +904,7 @@
       "predicted_topic_name": "Hypertensive Emergency",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25634074211120605,
+      "search_time": 0.0722818374633789,
       "context_length": 2279
     },
     {
@@ -916,7 +916,7 @@
       "predicted_topic_name": "Acute Respiratory Distress Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24637746810913086,
+      "search_time": 0.0745091438293457,
       "context_length": 4003
     },
     {
@@ -928,7 +928,7 @@
       "predicted_topic_name": "Right Heart Failure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2487635612487793,
+      "search_time": 0.06625103950500488,
       "context_length": 3971
     },
     {
@@ -940,7 +940,7 @@
       "predicted_topic_name": "Lactate",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2541356086730957,
+      "search_time": 0.1183631420135498,
       "context_length": 4003
     },
     {
@@ -952,7 +952,7 @@
       "predicted_topic_name": "Pulmonary Hypertension",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2347719669342041,
+      "search_time": 0.1000521183013916,
       "context_length": 2690
     },
     {
@@ -960,11 +960,11 @@
       "statement": "Age-adjusted D-dimer cut-offs for patients older than 50 years use the formula of age in years multiplied by 10 ng/mL, such that a 75-year-old patient would have an age-adjusted D-dimer threshold of 750 ng/mL instead of the standard 500 ng/mL.",
       "expected_topic": 63,
       "expected_topic_name": "Pulmonary Embolism",
-      "predicted_topic": 63,
-      "predicted_topic_name": "Pulmonary Embolism",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.2667198181152344,
+      "predicted_topic": 33,
+      "predicted_topic_name": "Embolism",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.1143350601196289,
       "context_length": 4003
     },
     {
@@ -976,8 +976,8 @@
       "predicted_topic_name": "Hypertensive Emergency",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.20745635032653809,
-      "context_length": 994
+      "search_time": 0.09229397773742676,
+      "context_length": 1876
     },
     {
       "sample_id": 81,
@@ -988,7 +988,7 @@
       "predicted_topic_name": "MRI",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23011350631713867,
+      "search_time": 0.07643485069274902,
       "context_length": 4003
     },
     {
@@ -1000,7 +1000,7 @@
       "predicted_topic_name": "Cervical Spine Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23619556427001953,
+      "search_time": 0.061409950256347656,
       "context_length": 4003
     },
     {
@@ -1012,7 +1012,7 @@
       "predicted_topic_name": "Shock (various types)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23484206199645996,
+      "search_time": 0.06566691398620605,
       "context_length": 4003
     },
     {
@@ -1024,7 +1024,7 @@
       "predicted_topic_name": "Bowel Obstruction",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22197818756103516,
+      "search_time": 0.07611203193664551,
       "context_length": 4003
     },
     {
@@ -1036,7 +1036,7 @@
       "predicted_topic_name": "12-lead ECG",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24423718452453613,
+      "search_time": 0.06463170051574707,
       "context_length": 4003
     },
     {
@@ -1048,7 +1048,7 @@
       "predicted_topic_name": "Rhabdomyolysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24085521697998047,
+      "search_time": 0.06499671936035156,
       "context_length": 4003
     },
     {
@@ -1060,7 +1060,7 @@
       "predicted_topic_name": "Ectopic Pregnancy",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23402833938598633,
+      "search_time": 0.07690024375915527,
       "context_length": 4003
     },
     {
@@ -1072,7 +1072,7 @@
       "predicted_topic_name": "Acute Abdomen",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2082679271697998,
+      "search_time": 0.06793332099914551,
       "context_length": 3707
     },
     {
@@ -1084,7 +1084,7 @@
       "predicted_topic_name": "Aortic Stenosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2156679630279541,
+      "search_time": 0.07185101509094238,
       "context_length": 4003
     },
     {
@@ -1096,7 +1096,7 @@
       "predicted_topic_name": "Acute Cholecystitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22889494895935059,
+      "search_time": 0.06684184074401855,
       "context_length": 4003
     },
     {
@@ -1108,7 +1108,7 @@
       "predicted_topic_name": "Heart Failure (Acute_Chronic)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25192832946777344,
+      "search_time": 0.08759403228759766,
       "context_length": 4003
     },
     {
@@ -1120,7 +1120,7 @@
       "predicted_topic_name": "Blood Cultures",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23696112632751465,
+      "search_time": 0.07803606986999512,
       "context_length": 657
     },
     {
@@ -1132,7 +1132,7 @@
       "predicted_topic_name": "Acute Kidney Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2278130054473877,
+      "search_time": 0.11214709281921387,
       "context_length": 4003
     },
     {
@@ -1144,7 +1144,7 @@
       "predicted_topic_name": "Hemoglobin A1C",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.253664493560791,
+      "search_time": 0.08132505416870117,
       "context_length": 2578
     },
     {
@@ -1156,7 +1156,7 @@
       "predicted_topic_name": "Lumbar Puncture_CSF Analysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2658696174621582,
+      "search_time": 0.09099793434143066,
       "context_length": 4003
     },
     {
@@ -1168,7 +1168,7 @@
       "predicted_topic_name": "Syncope",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24297547340393066,
+      "search_time": 0.08749008178710938,
       "context_length": 4003
     },
     {
@@ -1180,7 +1180,7 @@
       "predicted_topic_name": "Cervical Spine Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2384650707244873,
+      "search_time": 0.06686592102050781,
       "context_length": 2641
     },
     {
@@ -1192,7 +1192,7 @@
       "predicted_topic_name": "Acute Liver Failure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.26607179641723633,
+      "search_time": 0.0875391960144043,
       "context_length": 3978
     },
     {
@@ -1200,11 +1200,11 @@
       "statement": "Acute cholangitis classically presents with Charcot's triad consisting of right upper quadrant pain, fever, and jaundice, occurring when a stone occludes the biliary or hepatic ducts resulting in dilation and bacterial superinfection.",
       "expected_topic": 67,
       "expected_topic_name": "Respiratory Failure",
-      "predicted_topic": 67,
-      "predicted_topic_name": "Respiratory Failure",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.24333524703979492,
+      "predicted_topic": 1,
+      "predicted_topic_name": "Acute Abdomen",
+      "topic_correct": false,
+      "topic_rank": 3,
+      "search_time": 0.08741497993469238,
       "context_length": 4003
     },
     {
@@ -1216,7 +1216,7 @@
       "predicted_topic_name": "Hemothorax",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23434758186340332,
+      "search_time": 0.06500506401062012,
       "context_length": 1360
     },
     {
@@ -1228,7 +1228,7 @@
       "predicted_topic_name": "Atrial Fibrillation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22621440887451172,
+      "search_time": 0.07548809051513672,
       "context_length": 2851
     },
     {
@@ -1240,7 +1240,7 @@
       "predicted_topic_name": "Pulse Oximetry_Arterial Saturation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22512316703796387,
+      "search_time": 0.07509899139404297,
       "context_length": 4003
     },
     {
@@ -1252,7 +1252,7 @@
       "predicted_topic_name": "Compartment Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2503631114959717,
+      "search_time": 0.07166194915771484,
       "context_length": 4003
     },
     {
@@ -1264,7 +1264,7 @@
       "predicted_topic_name": "12-lead ECG",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.26134467124938965,
+      "search_time": 0.08327198028564453,
       "context_length": 4003
     },
     {
@@ -1276,7 +1276,7 @@
       "predicted_topic_name": "Chest X-ray",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23726224899291992,
+      "search_time": 0.07340312004089355,
       "context_length": 4003
     },
     {
@@ -1288,7 +1288,7 @@
       "predicted_topic_name": "Ruptured AAA",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.29505038261413574,
+      "search_time": 0.099517822265625,
       "context_length": 4003
     },
     {
@@ -1300,7 +1300,7 @@
       "predicted_topic_name": "Meningitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25371861457824707,
+      "search_time": 0.06814169883728027,
       "context_length": 4003
     },
     {
@@ -1312,7 +1312,7 @@
       "predicted_topic_name": "Atrial Fibrillation",
       "topic_correct": false,
       "topic_rank": 4,
-      "search_time": 0.20753121376037598,
+      "search_time": 0.07939267158508301,
       "context_length": 4003
     },
     {
@@ -1324,20 +1324,20 @@
       "predicted_topic_name": "Pneumomediastinum",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.26200222969055176,
+      "search_time": 0.07581281661987305,
       "context_length": 2437
     },
     {
       "sample_id": 110,
-      "statement": "MDMA toxicity management requires immediate core temperature measurement, as hyperthermia above 105\u00c2\u00b0F (40.5\u00c2\u00b0C) represents a life-threatening emergency requiring both rapid sedation with benzodiazepines and external cooling with whole-body ice-water immersion.",
+      "statement": "MDMA toxicity management requires immediate core temperature measurement, as hyperthermia above 105\u00b0F (40.5\u00b0C) represents a life-threatening emergency requiring both rapid sedation with benzodiazepines and external cooling with whole-body ice-water immersion.",
       "expected_topic": 53,
       "expected_topic_name": "Overdose_Poisoning",
-      "predicted_topic": 53,
-      "predicted_topic_name": "Overdose_Poisoning",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.2541463375091553,
-      "context_length": 4003
+      "predicted_topic": 44,
+      "predicted_topic_name": "Hypothermia_Hyperthermia",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.08671689033508301,
+      "context_length": 3478
     },
     {
       "sample_id": 111,
@@ -1348,7 +1348,7 @@
       "predicted_topic_name": "Hypertensive Emergency",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2031388282775879,
+      "search_time": 0.10558319091796875,
       "context_length": 3572
     },
     {
@@ -1360,7 +1360,7 @@
       "predicted_topic_name": "Stress Test (exercise or pharmacologic)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2527327537536621,
+      "search_time": 0.07682085037231445,
       "context_length": 4003
     },
     {
@@ -1372,19 +1372,19 @@
       "predicted_topic_name": "Pulmonary Hypertension",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.21355891227722168,
-      "context_length": 2512
+      "search_time": 0.08462810516357422,
+      "context_length": 3154
     },
     {
       "sample_id": 114,
       "statement": "The classic presentation of acute cholangitis includes Charcot's triad of right upper quadrant pain, fever, and jaundice, which occurs when a stone occludes the biliary or hepatic ducts leading to dilation and bacterial superinfection.",
       "expected_topic": 1,
       "expected_topic_name": "Acute Abdomen",
-      "predicted_topic": 1,
-      "predicted_topic_name": "Acute Abdomen",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.25089430809020996,
+      "predicted_topic": 67,
+      "predicted_topic_name": "Respiratory Failure",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.07210922241210938,
       "context_length": 4003
     },
     {
@@ -1396,7 +1396,7 @@
       "predicted_topic_name": "Sleep Apnea",
       "topic_correct": false,
       "topic_rank": 5,
-      "search_time": 0.23174810409545898,
+      "search_time": 0.07647085189819336,
       "context_length": 3472
     },
     {
@@ -1408,7 +1408,7 @@
       "predicted_topic_name": "Abdominal Trauma",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24528002738952637,
+      "search_time": 0.07855796813964844,
       "context_length": 3691
     },
     {
@@ -1420,19 +1420,19 @@
       "predicted_topic_name": "Takotsubo Cardiomyopathy",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2174534797668457,
+      "search_time": 0.06801176071166992,
       "context_length": 4003
     },
     {
       "sample_id": 118,
-      "statement": "Hematocrit calculation uses the formula Hct = RBC \u00c3\u2014 MCV/10 and has normal reference intervals of 45% to 60% in adult men and 40% to 52% in adult women, representing the percentage volume of red blood cells in whole blood.",
+      "statement": "Hematocrit calculation uses the formula Hct = RBC \u00d7 MCV/10 and has normal reference intervals of 45% to 60% in adult men and 40% to 52% in adult women, representing the percentage volume of red blood cells in whole blood.",
       "expected_topic": 96,
       "expected_topic_name": "Complete Blood Count (CBC) with differential",
       "predicted_topic": 96,
       "predicted_topic_name": "Complete Blood Count (CBC) with differential",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25390172004699707,
+      "search_time": 0.08804011344909668,
       "context_length": 4003
     },
     {
@@ -1444,7 +1444,7 @@
       "predicted_topic_name": "Bronchoscopy with BAL",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2177269458770752,
+      "search_time": 0.08828091621398926,
       "context_length": 3930
     },
     {
@@ -1456,7 +1456,7 @@
       "predicted_topic_name": "Traumatic Brain Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2483835220336914,
+      "search_time": 0.07784199714660645,
       "context_length": 3531
     },
     {
@@ -1468,7 +1468,7 @@
       "predicted_topic_name": "Traumatic Brain Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21497082710266113,
+      "search_time": 0.07722115516662598,
       "context_length": 4003
     },
     {
@@ -1480,7 +1480,7 @@
       "predicted_topic_name": "Hemoglobin A1C",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22338151931762695,
+      "search_time": 0.06359434127807617,
       "context_length": 4003
     },
     {
@@ -1492,7 +1492,7 @@
       "predicted_topic_name": "Pleural Effusion",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2332925796508789,
+      "search_time": 0.07593107223510742,
       "context_length": 2164
     },
     {
@@ -1504,7 +1504,7 @@
       "predicted_topic_name": "Cardiac Contusion",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.23886513710021973,
+      "search_time": 0.0892648696899414,
       "context_length": 1523
     },
     {
@@ -1516,7 +1516,7 @@
       "predicted_topic_name": "Ultrasound FAST exam",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2605609893798828,
+      "search_time": 0.11641693115234375,
       "context_length": 4003
     },
     {
@@ -1524,12 +1524,12 @@
       "statement": "The World Society of Abdominal Compartment Syndrome defines intra-abdominal hypertension grades as: Grade I (12-15 mmHg), Grade II (16-20 mmHg), Grade III (21-25 mmHg), and Grade IV (>25 mmHg).",
       "expected_topic": 28,
       "expected_topic_name": "Compartment Syndrome",
-      "predicted_topic": 41,
-      "predicted_topic_name": "Hyperventilation Syndrome",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.25087475776672363,
-      "context_length": 2591
+      "predicted_topic": 28,
+      "predicted_topic_name": "Compartment Syndrome",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.07225322723388672,
+      "context_length": 2586
     },
     {
       "sample_id": 127,
@@ -1540,7 +1540,7 @@
       "predicted_topic_name": "Meningitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2447667121887207,
+      "search_time": 0.06592893600463867,
       "context_length": 4003
     },
     {
@@ -1552,7 +1552,7 @@
       "predicted_topic_name": "Ultrasound Other",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2532074451446533,
+      "search_time": 0.08263611793518066,
       "context_length": 4003
     },
     {
@@ -1564,7 +1564,7 @@
       "predicted_topic_name": "Pulmonary Embolism",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2438676357269287,
+      "search_time": 0.08763813972473145,
       "context_length": 4003
     },
     {
@@ -1576,7 +1576,7 @@
       "predicted_topic_name": "Compartment Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24073529243469238,
+      "search_time": 0.09183716773986816,
       "context_length": 4003
     },
     {
@@ -1588,7 +1588,7 @@
       "predicted_topic_name": "Pneumothorax",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2520301342010498,
+      "search_time": 0.08714699745178223,
       "context_length": 4003
     },
     {
@@ -1600,7 +1600,7 @@
       "predicted_topic_name": "Meningitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2514944076538086,
+      "search_time": 0.09512615203857422,
       "context_length": 4003
     },
     {
@@ -1612,7 +1612,7 @@
       "predicted_topic_name": "Acute Respiratory Distress Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2653777599334717,
+      "search_time": 0.10892796516418457,
       "context_length": 4003
     },
     {
@@ -1624,7 +1624,7 @@
       "predicted_topic_name": "Meningitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22672820091247559,
+      "search_time": 0.08360409736633301,
       "context_length": 4003
     },
     {
@@ -1636,7 +1636,7 @@
       "predicted_topic_name": "Asthma Exacerbation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23150324821472168,
+      "search_time": 0.08258199691772461,
       "context_length": 4003
     },
     {
@@ -1648,7 +1648,7 @@
       "predicted_topic_name": "Rhabdomyolysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22824549674987793,
+      "search_time": 0.0875089168548584,
       "context_length": 4003
     },
     {
@@ -1660,7 +1660,7 @@
       "predicted_topic_name": "Upper Airway Obstruction",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.21717405319213867,
+      "search_time": 0.08888483047485352,
       "context_length": 4003
     },
     {
@@ -1672,7 +1672,7 @@
       "predicted_topic_name": "Acute Coronary Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22950363159179688,
+      "search_time": 0.08273816108703613,
       "context_length": 1481
     },
     {
@@ -1684,7 +1684,7 @@
       "predicted_topic_name": "Pneumothorax",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.297701358795166,
+      "search_time": 0.15292000770568848,
       "context_length": 4003
     },
     {
@@ -1692,11 +1692,11 @@
       "statement": "The costocervical trunk arises from the second part of the subclavian artery, while the dorsal scapular artery originates from the third part, with the subclavian artery becoming the axillary artery after crossing the first rib.",
       "expected_topic": 84,
       "expected_topic_name": "Angiography (invasive)",
-      "predicted_topic": 90,
-      "predicted_topic_name": "CT Angiogram",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.24584317207336426,
+      "predicted_topic": 84,
+      "predicted_topic_name": "Angiography (invasive)",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.09305787086486816,
       "context_length": 4003
     },
     {
@@ -1708,7 +1708,7 @@
       "predicted_topic_name": "Central Venous Pressure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2221546173095703,
+      "search_time": 0.08632397651672363,
       "context_length": 4003
     },
     {
@@ -1720,7 +1720,7 @@
       "predicted_topic_name": "Syncope",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2618591785430908,
+      "search_time": 0.08832097053527832,
       "context_length": 4003
     },
     {
@@ -1732,7 +1732,7 @@
       "predicted_topic_name": "Troponin I_T",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25961875915527344,
+      "search_time": 0.09588003158569336,
       "context_length": 4003
     },
     {
@@ -1744,7 +1744,7 @@
       "predicted_topic_name": "Stress Test (exercise or pharmacologic)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25048232078552246,
+      "search_time": 0.0917658805847168,
       "context_length": 4003
     },
     {
@@ -1756,7 +1756,7 @@
       "predicted_topic_name": "Cervical Spine Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24709272384643555,
+      "search_time": 0.08776021003723145,
       "context_length": 4003
     },
     {
@@ -1768,7 +1768,7 @@
       "predicted_topic_name": "Pulmonary Embolism",
       "topic_correct": false,
       "topic_rank": 2,
-      "search_time": 0.25380873680114746,
+      "search_time": 0.08824706077575684,
       "context_length": 4003
     },
     {
@@ -1780,7 +1780,7 @@
       "predicted_topic_name": "Shock (various types)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2756021022796631,
+      "search_time": 0.1079857349395752,
       "context_length": 2550
     },
     {
@@ -1792,7 +1792,7 @@
       "predicted_topic_name": "Urinalysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2739684581756592,
+      "search_time": 0.09379386901855469,
       "context_length": 4003
     },
     {
@@ -1804,7 +1804,7 @@
       "predicted_topic_name": "Lumbar Puncture_CSF Analysis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24882125854492188,
+      "search_time": 0.09310102462768555,
       "context_length": 4003
     },
     {
@@ -1816,7 +1816,7 @@
       "predicted_topic_name": "Pulse Oximetry_Arterial Saturation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22804045677185059,
+      "search_time": 0.084320068359375,
       "context_length": 4003
     },
     {
@@ -1828,7 +1828,7 @@
       "predicted_topic_name": "Unstable Angina",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24214839935302734,
+      "search_time": 0.0888211727142334,
       "context_length": 3625
     },
     {
@@ -1840,7 +1840,7 @@
       "predicted_topic_name": "Pneumonia (bacterial_viral_atypical)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24518084526062012,
+      "search_time": 0.08991098403930664,
       "context_length": 4003
     },
     {
@@ -1848,12 +1848,12 @@
       "statement": "The ratio of contrast volume to calculated creatinine clearance should be kept below 2 to minimize contrast-induced nephropathy risk, with markedly increased CIN risk when this ratio exceeds 3.",
       "expected_topic": 90,
       "expected_topic_name": "CT Angiogram",
-      "predicted_topic": 90,
-      "predicted_topic_name": "CT Angiogram",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.22937941551208496,
-      "context_length": 3644
+      "predicted_topic": 84,
+      "predicted_topic_name": "Angiography (invasive)",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.08907103538513184,
+      "context_length": 4003
     },
     {
       "sample_id": 154,
@@ -1864,7 +1864,7 @@
       "predicted_topic_name": "Atrial Fibrillation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2382335662841797,
+      "search_time": 0.08057236671447754,
       "context_length": 4003
     },
     {
@@ -1876,19 +1876,19 @@
       "predicted_topic_name": "Unstable Angina",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2117137908935547,
+      "search_time": 0.08680486679077148,
       "context_length": 3625
     },
     {
       "sample_id": 156,
-      "statement": "The International Federation of Clinical Chemistry and Laboratory Medicine (IFCC) reference method for HbA1c measurement targets the glycated N-terminal valine of the hemoglobin \u00ce\u00b2-chain and typically yields values that are 1.5% to 2% lower than NGSP values.",
+      "statement": "The International Federation of Clinical Chemistry and Laboratory Medicine (IFCC) reference method for HbA1c measurement targets the glycated N-terminal valine of the hemoglobin \u03b2-chain and typically yields values that are 1.5% to 2% lower than NGSP values.",
       "expected_topic": 99,
       "expected_topic_name": "Hemoglobin A1C",
       "predicted_topic": 99,
       "predicted_topic_name": "Hemoglobin A1C",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2618131637573242,
+      "search_time": 0.0933837890625,
       "context_length": 4003
     },
     {
@@ -1896,11 +1896,11 @@
       "statement": "The Joint Trauma System guidelines recommend high-dose oral or transtympanic steroid injections for patients with threshold shifts exceeding 30 dB in 2 consecutive frequencies, with weekly audiometric evaluations and up to 5 total injections if recovery is demonstrated.",
       "expected_topic": 55,
       "expected_topic_name": "Penetrating Trauma",
-      "predicted_topic": 55,
-      "predicted_topic_name": "Penetrating Trauma",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.2505683898925781,
+      "predicted_topic": 16,
+      "predicted_topic_name": "Blunt Trauma",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.09439587593078613,
       "context_length": 4003
     },
     {
@@ -1912,7 +1912,7 @@
       "predicted_topic_name": "Diabetic Ketoacidosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2946171760559082,
+      "search_time": 0.14662981033325195,
       "context_length": 4003
     },
     {
@@ -1924,7 +1924,7 @@
       "predicted_topic_name": "Delirium",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23974823951721191,
+      "search_time": 0.08600115776062012,
       "context_length": 4003
     },
     {
@@ -1936,7 +1936,7 @@
       "predicted_topic_name": "Lung Cancer",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2587559223175049,
+      "search_time": 0.08325600624084473,
       "context_length": 4003
     },
     {
@@ -1948,7 +1948,7 @@
       "predicted_topic_name": "Aortic Dissection",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23454594612121582,
+      "search_time": 0.08887600898742676,
       "context_length": 3399
     },
     {
@@ -1960,7 +1960,7 @@
       "predicted_topic_name": "Hemothorax",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22938895225524902,
+      "search_time": 0.0894460678100586,
       "context_length": 4003
     },
     {
@@ -1972,19 +1972,19 @@
       "predicted_topic_name": "Aortic Stenosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23686003684997559,
+      "search_time": 0.07940912246704102,
       "context_length": 4003
     },
     {
       "sample_id": 164,
-      "statement": "In acalculous cholecystitis, a HIDA scan with cholecystokinin stimulation showing an ejection fraction of \u00e2\u2030\u00a435% is considered diagnostic, and percutaneous cholecystostomy tubes can typically be removed after 3 weeks without requiring patency confirmation.",
+      "statement": "In acalculous cholecystitis, a HIDA scan with cholecystokinin stimulation showing an ejection fraction of \u226435% is considered diagnostic, and percutaneous cholecystostomy tubes can typically be removed after 3 weeks without requiring patency confirmation.",
       "expected_topic": 3,
       "expected_topic_name": "Acute Cholecystitis",
       "predicted_topic": 3,
       "predicted_topic_name": "Acute Cholecystitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2676682472229004,
+      "search_time": 0.09381985664367676,
       "context_length": 4003
     },
     {
@@ -1996,7 +1996,7 @@
       "predicted_topic_name": "Toxicology Screen",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2538914680480957,
+      "search_time": 0.09365105628967285,
       "context_length": 4003
     },
     {
@@ -2008,7 +2008,7 @@
       "predicted_topic_name": "Bronchitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22892332077026367,
+      "search_time": 0.08833503723144531,
       "context_length": 4003
     },
     {
@@ -2020,7 +2020,7 @@
       "predicted_topic_name": "Ruptured AAA",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2968313694000244,
+      "search_time": 0.14640474319458008,
       "context_length": 4003
     },
     {
@@ -2032,7 +2032,7 @@
       "predicted_topic_name": "Cardiac Contusion",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23499536514282227,
+      "search_time": 0.0808861255645752,
       "context_length": 1523
     },
     {
@@ -2044,8 +2044,8 @@
       "predicted_topic_name": "Hyperventilation Syndrome",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24398183822631836,
-      "context_length": 4003
+      "search_time": 0.08188581466674805,
+      "context_length": 3436
     },
     {
       "sample_id": 170,
@@ -2056,7 +2056,7 @@
       "predicted_topic_name": "Penetrating Trauma",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23615002632141113,
+      "search_time": 0.08372306823730469,
       "context_length": 4003
     },
     {
@@ -2068,7 +2068,7 @@
       "predicted_topic_name": "Heart Failure (Acute_Chronic)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24061918258666992,
+      "search_time": 0.08514285087585449,
       "context_length": 4003
     },
     {
@@ -2080,19 +2080,19 @@
       "predicted_topic_name": "Right Heart Failure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25063252449035645,
+      "search_time": 0.08125782012939453,
       "context_length": 4003
     },
     {
       "sample_id": 173,
-      "statement": "Febrile seizures occur exclusively in children with fever above 102\u00c2\u00b0F (38.9\u00c2\u00b0C), and prophylactic antipyretic medications like acetaminophen have been proven effective in preventing recurrent febrile seizures in high-risk children.",
+      "statement": "Febrile seizures occur exclusively in children with fever above 102\u00b0F (38.9\u00b0C), and prophylactic antipyretic medications like acetaminophen have been proven effective in preventing recurrent febrile seizures in high-risk children.",
       "expected_topic": 71,
       "expected_topic_name": "Seizures_Status Epilepticus",
       "predicted_topic": 71,
       "predicted_topic_name": "Seizures_Status Epilepticus",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.249985933303833,
+      "search_time": 0.09192514419555664,
       "context_length": 4003
     },
     {
@@ -2100,11 +2100,11 @@
       "statement": "Current survival rates for acute liver failure patients, including those undergoing liver transplantation, show 1-year survival greater than 65% overall, with recent registry data indicating up to 79% at 1 year and 72% at 5 years for transplant recipients.",
       "expected_topic": 6,
       "expected_topic_name": "Acute Liver Failure",
-      "predicted_topic": 50,
-      "predicted_topic_name": "Multi-organ Failure",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.2556893825531006,
+      "predicted_topic": 6,
+      "predicted_topic_name": "Acute Liver Failure",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.09495687484741211,
       "context_length": 2028
     },
     {
@@ -2116,7 +2116,7 @@
       "predicted_topic_name": "Interstitial Lung Disease",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2534220218658447,
+      "search_time": 0.09054803848266602,
       "context_length": 2555
     },
     {
@@ -2128,19 +2128,19 @@
       "predicted_topic_name": "Meningitis",
       "topic_correct": false,
       "topic_rank": 3,
-      "search_time": 0.22742128372192383,
+      "search_time": 0.08721375465393066,
       "context_length": 1296
     },
     {
       "sample_id": 177,
-      "statement": "SGLT2 inhibitors predispose patients to euglycemic diabetic ketoacidosis through multiple mechanisms including promotion of glucagon secretion from pancreatic \u00ce\u00b1-cells, decreased urinary excretion of ketone bodies, and creation of a carbohydrate starvation state despite normal glucose levels.",
+      "statement": "SGLT2 inhibitors predispose patients to euglycemic diabetic ketoacidosis through multiple mechanisms including promotion of glucagon secretion from pancreatic \u03b1-cells, decreased urinary excretion of ketone bodies, and creation of a carbohydrate starvation state despite normal glucose levels.",
       "expected_topic": 30,
       "expected_topic_name": "Diabetic Ketoacidosis",
       "predicted_topic": 30,
       "predicted_topic_name": "Diabetic Ketoacidosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2696797847747803,
+      "search_time": 0.1445319652557373,
       "context_length": 4003
     },
     {
@@ -2152,7 +2152,7 @@
       "predicted_topic_name": "Sleep Apnea",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.3121047019958496,
+      "search_time": 0.14471793174743652,
       "context_length": 4003
     },
     {
@@ -2164,7 +2164,7 @@
       "predicted_topic_name": "Acute Appendicitis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25336527824401855,
+      "search_time": 0.09368395805358887,
       "context_length": 4003
     },
     {
@@ -2176,7 +2176,7 @@
       "predicted_topic_name": "Procalcitonin",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23922991752624512,
+      "search_time": 0.08690834045410156,
       "context_length": 4003
     },
     {
@@ -2188,7 +2188,7 @@
       "predicted_topic_name": "Acute Kidney Injury",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.27039170265197754,
+      "search_time": 0.09160494804382324,
       "context_length": 4003
     },
     {
@@ -2200,7 +2200,7 @@
       "predicted_topic_name": "COPD Exacerbation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2605719566345215,
+      "search_time": 0.08697199821472168,
       "context_length": 4003
     },
     {
@@ -2212,7 +2212,7 @@
       "predicted_topic_name": "Perforated Viscus",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.24915671348571777,
+      "search_time": 0.09304666519165039,
       "context_length": 3749
     },
     {
@@ -2224,7 +2224,7 @@
       "predicted_topic_name": "COPD Exacerbation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2527315616607666,
+      "search_time": 0.08513689041137695,
       "context_length": 3680
     },
     {
@@ -2236,7 +2236,7 @@
       "predicted_topic_name": "Cardiac Catheterization",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2446918487548828,
+      "search_time": 0.08674311637878418,
       "context_length": 4003
     },
     {
@@ -2248,7 +2248,7 @@
       "predicted_topic_name": "Empyema",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22848725318908691,
+      "search_time": 0.08812308311462402,
       "context_length": 4003
     },
     {
@@ -2256,11 +2256,11 @@
       "statement": "Hyperbaric oxygen therapy for acute acoustic trauma typically involves 120-minute treatments at pressures ranging from 200 to 280 kPa daily for 10 days and can serve as salvage therapy when combined with corticosteroids within 1 month of onset.",
       "expected_topic": 55,
       "expected_topic_name": "Penetrating Trauma",
-      "predicted_topic": 55,
-      "predicted_topic_name": "Penetrating Trauma",
-      "topic_correct": true,
-      "topic_rank": 1,
-      "search_time": 0.25116586685180664,
+      "predicted_topic": 16,
+      "predicted_topic_name": "Blunt Trauma",
+      "topic_correct": false,
+      "topic_rank": 2,
+      "search_time": 0.09391021728515625,
       "context_length": 4003
     },
     {
@@ -2272,7 +2272,7 @@
       "predicted_topic_name": "Eclampsia",
       "topic_correct": false,
       "topic_rank": 10,
-      "search_time": 0.24680542945861816,
+      "search_time": 0.0923471450805664,
       "context_length": 4003
     },
     {
@@ -2284,7 +2284,7 @@
       "predicted_topic_name": "Diabetic Ketoacidosis",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2891709804534912,
+      "search_time": 0.10916304588317871,
       "context_length": 4003
     },
     {
@@ -2296,7 +2296,7 @@
       "predicted_topic_name": "12-lead ECG",
       "topic_correct": false,
       "topic_rank": 3,
-      "search_time": 0.22443461418151855,
+      "search_time": 0.08820772171020508,
       "context_length": 4003
     },
     {
@@ -2308,7 +2308,7 @@
       "predicted_topic_name": "Central Venous Pressure",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23052215576171875,
+      "search_time": 0.08746194839477539,
       "context_length": 4003
     },
     {
@@ -2320,7 +2320,7 @@
       "predicted_topic_name": "Arterial Blood Gas (ABG)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.23401594161987305,
+      "search_time": 0.08704113960266113,
       "context_length": 4003
     },
     {
@@ -2332,7 +2332,7 @@
       "predicted_topic_name": "Acute Myocardial Infarction (STEMI_NSTEMI)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.22365117073059082,
+      "search_time": 0.0898141860961914,
       "context_length": 4003
     },
     {
@@ -2344,7 +2344,7 @@
       "predicted_topic_name": "Angiography (invasive)",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2269761562347412,
+      "search_time": 0.08843183517456055,
       "context_length": 4003
     },
     {
@@ -2356,7 +2356,7 @@
       "predicted_topic_name": "Bronchoscopy with BAL",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2357957363128662,
+      "search_time": 0.09240603446960449,
       "context_length": 1069
     },
     {
@@ -2368,7 +2368,7 @@
       "predicted_topic_name": "Hemoglobin A1C",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25238680839538574,
+      "search_time": 0.0935051441192627,
       "context_length": 4003
     },
     {
@@ -2376,12 +2376,12 @@
       "statement": "In ventricular overdrive pacing during supraventricular tachycardia, a post-pacing interval minus tachycardia cycle length (PPI-TCL) difference of less than 115 milliseconds indicates a higher likelihood of atrioventricular reciprocating tachycardia compared to atrioventricular nodal reentrant tachycardia.",
       "expected_topic": 12,
       "expected_topic_name": "Arrhythmias (various)",
-      "predicted_topic": 82,
-      "predicted_topic_name": "Ventricular Tachycardia",
-      "topic_correct": false,
-      "topic_rank": 2,
-      "search_time": 0.288280725479126,
-      "context_length": 3332
+      "predicted_topic": 12,
+      "predicted_topic_name": "Arrhythmias (various)",
+      "topic_correct": true,
+      "topic_rank": 1,
+      "search_time": 0.11161589622497559,
+      "context_length": 4003
     },
     {
       "sample_id": 198,
@@ -2392,7 +2392,7 @@
       "predicted_topic_name": "Mitral Regurgitation",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.2155745029449463,
+      "search_time": 0.07942795753479004,
       "context_length": 4003
     },
     {
@@ -2404,7 +2404,7 @@
       "predicted_topic_name": "Syncope",
       "topic_correct": true,
       "topic_rank": 1,
-      "search_time": 0.25788021087646484,
+      "search_time": 0.08710408210754395,
       "context_length": 4003
     }
   ]
