@@ -172,6 +172,9 @@ class RaceCarEnv:
         car.y = int((lane.y_start + lane.y_end) / 2 - car_sprite.get_height() / 2)
         car.lane = lane
 
+    def intersects(self, rect1, rect2):
+        return rect1.colliderect(rect2)
+
     def update_game(self, current_action: str):
         self.handle_action(current_action)
         self.STATE.distance += self.STATE.ego.velocity.x
@@ -180,7 +183,43 @@ class RaceCarEnv:
         self.place_car()
         for sensor in self.STATE.sensors:
             sensor.update()
+        # Handle collisions
+        for car in self.STATE.cars:
+            if car != self.STATE.ego and self.intersects(self.STATE.ego.rect, car.rect):
+                self.STATE.crashed = True
+        
+        # Check collision with walls
+        for wall in self.STATE.road.walls:
+            if self.intersects(self.STATE.ego.rect, wall.rect):
+                self.STATE.crashed = True
 
+        # Render game (only if verbose) TODO: Implement rendering
+        # if self.verbose:
+        #     self.screen.fill((0, 0, 0))  # Clear the screen with black
+
+        #     # Draw the road background
+        #     self.screen.blit(self.STATE.road.surface, (0, 0))
+
+        #     # Draw all walls
+        #     for wall in self.STATE.road.walls:
+        #         wall.draw(screen)
+
+        #     # Draw all cars
+        #     for car in self.STATE.cars:
+        #         if car.sprite:
+        #             screen.blit(car.sprite, (car.x, car.y))
+        #             bounds = car.get_bounds()
+        #             color = (255, 0, 0) if car == self.STATE.ego else (0, 255, 0)
+        #             pygame.draw.rect(screen, color, bounds, width=2)
+        #         else:
+        #             pygame.draw.rect(screen, (255, 255, 0) if car == self.STATE.ego else (0, 0, 255), car.rect)
+
+        #     # Draw sensors if enabled
+        #     if STATE.sensors_enabled:
+        #         for sensor in STATE.sensors:
+        #             sensor.draw(screen)
+
+            # pygame.display.flip()
 
     def reset(self):
         self.initialize_game_state(api_url=self.api_url, seed_value=self.seed_value, sensor_removal=self.sensor_removal)
