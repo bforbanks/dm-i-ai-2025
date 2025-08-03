@@ -14,7 +14,7 @@ Set seed_value to None for random seed.
 Within game_loop, change get_action() to your custom models prediction for local testing and training.
 '''
 # This is the full dotted path: module path + class name
-model_path = "rl.dqn.deepQ.DQNAgent"  # <== 'DQNAgent' is the class name
+model_path = "PredictionModel.PredictionModel"  # <== 'DQNAgent' is the class name
 
 # Split the path into module and class name
 *module_parts, class_name = model_path.split(".")
@@ -38,14 +38,14 @@ print(f"Using model: {MODEL.__name__}")
 # MODEL = getattr(module, class_name)
 
 # Set to True if you want to use the RL environment
-RL_ENV = True
+RL_ENV = True if "rl." in model_path else False
 
 
 if __name__ == '__main__':
-    seed_value = 12345
+    seed_value = None
     pygame.init()
     if RL_ENV:
-        show_visualization = False  # Change to False for headless training
+        show_visualization = True  # Change to False for headless training
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         dtype = torch.float32
         env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value, render=show_visualization)        
