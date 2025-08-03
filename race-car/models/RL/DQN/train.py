@@ -1,11 +1,8 @@
 import torch
 
 from models.rl.dqn.deepQ import DQNAgent
-from models.rl.dqn.DQNModel import DQN
 
 from tqdm import tqdm
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dtype = torch.float32
 
     #              input_dim: int,
@@ -22,14 +19,11 @@ dtype = torch.float32
     #              weight_path_prefix: Optional[str] = None,
 
 
-agent = DQNAgent(input_dim=21, output_dim=5, device=device, dtype=dtype)
-
-
     
 
 
 
-def train(agent: DQNAgent, env, episodes: int = 1000):
+def train(agent: DQNAgent, env, episodes: int = 1000, weight_folder: str = "models/rl/dqn/weights"):
     env.reset()  # Initialize the environment
     tick = 0
     for episode in tqdm(range(episodes), desc="Training Episodes"):
@@ -38,7 +32,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
         state = agent.state_dict_to_tensor(state)  # Convert state to tensor
         
         # Uncomment if you want to track total reward
-        # total_reward = 0
+        total_reward = 0
         print("Tick before reset:", tick)
         tick = 0
         while not done:
@@ -49,15 +43,18 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
-
+    
             next_state = agent.state_dict_to_tensor(next_state)
 
             agent.memory.append((state, action, reward, next_state, done))
 
-            if len(agent.memory) > agent.batch_size and tick % 120 == 0:
+            if len(agent.memory) > agent.batch_size and tick % 1 == 0:
                 agent.learn()
 
+            total_reward += reward
             state = next_state
-        if episode % 100 == 0:
-            agent.save(f"dqn_agent_ep{episode}")
-    agent.save("dqn_agent")  # Save the model after training
+
+        print("total reward:", total_reward)
+        if episode % 5 == 0:
+            agent.save(f"{weight_folder}/dqn_agent")
+    agent.save(f"{weight_folder}/dqn_agent")  # Save the model after training
