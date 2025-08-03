@@ -23,9 +23,11 @@ dtype = torch.float32
 
 
 
-def train(agent: DQNAgent, env, episodes: int = 1000, weight_folder: str = "models/rl/dqn/weights"):
+def train(agent: DQNAgent, env, episodes: int = 1000):
     env.reset()  # Initialize the environment
     tick = 0
+    tick_before_reset = []
+    reward_list = []
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         done = False
         state = env.state_to_state_dict(env.STATE)  # Assuming this method exists to convert the game state to a dict
@@ -34,6 +36,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000, weight_folder: str = "mode
         # Uncomment if you want to track total reward
         total_reward = 0
         print("Tick before reset:", tick)
+        
         tick = 0
         while not done:
             tick += 1
@@ -42,19 +45,24 @@ def train(agent: DQNAgent, env, episodes: int = 1000, weight_folder: str = "mode
                 raise RuntimeError(f"Tick limit exceeded. Check your game logic. Tick: {tick}, Episode: {episode}")
             
             action = agent.get_action(state)
+            # print(action, type(action))
             next_state, reward, done = env.step(action)
-    
+
             next_state = agent.state_dict_to_tensor(next_state)
 
             agent.memory.append((state, action, reward, next_state, done))
 
-            if len(agent.memory) > agent.batch_size and tick % 1 == 0:
+            if len(agent.memory) > agent.batch_size and tick % 4 == 0:
                 agent.learn()
 
             total_reward += reward
             state = next_state
-
-        print("total reward:", total_reward)
-        if episode % 5 == 0:
-            agent.save(f"{weight_folder}/dqn_agent")
-    agent.save(f"{weight_folder}/dqn_agent")  # Save the model after training
+        reward_list.append(total_reward)
+        tick_before_reset.append(tick)
+        if episode % 100 == 0:
+            agent.save(agent.model_path)
+            print("MODEL SAVED")
+            N = min(100, len(reward_list))
+            print(f"Episode {episode} completed. Average reward the last {N} episodes: {sum(reward_list[-N:]) / N:.2f}")
+            print(f"Average ticks before reset: {sum(tick_before_reset[-N:]) / N:.2f}")
+    agent.save(agent.model_path)  # Save the model after training
