@@ -42,9 +42,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
         while not done:
             tick += 1; total_ticks += 1
             # print(f"Episode: {episode}, Tick: {tick}, State: {state}")
-            if tick > 4601: # Temporary tick limit to catch potential bugs
-                raise RuntimeError(f"Tick limit exceeded. Check your game logic. Tick: {tick}, Episode: {episode}")
-            
+            # print(env.SCREEN_WIDTH, env.SCREEN_HEIGHT, env.STATE.ego.y, env.STATE.ego.x, env.STATE.ego.velocity.x, env.STATE.ego.velocity.y)
             action = agent.get_action(state)
             # print(action, type(action))
             next_state, reward, done = env.step(action)
@@ -53,6 +51,10 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
 
             agent.memory.append((state, action, reward, next_state, done))
 
+
+            if total_ticks % 1000 == 0:
+                agent.target_model.load_state_dict(agent.model.state_dict())
+                
             if len(agent.memory) > agent.batch_size and tick % 4 == 0:
                 agent.learn()
 
