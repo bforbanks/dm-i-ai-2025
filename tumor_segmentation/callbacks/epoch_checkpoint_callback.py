@@ -34,7 +34,7 @@ class EpochCheckpointCallback(pl.Callback):
             # Mark as saved to avoid duplicate saves
             self.saved = True
             
-            print(f"📁 Saved specific checkpoint at epoch {current_epoch}: {checkpoint_path}")
+            # Checkpoint saved silently
             
             # Log the checkpoint path for easy access
             if hasattr(trainer, 'log'):
@@ -43,11 +43,7 @@ class EpochCheckpointCallback(pl.Callback):
     def on_train_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         """Reset saved flag at the start of training."""
         self.saved = False
-        print(f"🎯 EpochCheckpointCallback initialized: will save checkpoint at epoch {self.target_epoch}")
     
     def on_train_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         """Log final status."""
-        if not self.saved:
-            print(f"⚠️  EpochCheckpointCallback: Target epoch {self.target_epoch} was not reached during training")
-        else:
-            print(f"✅ EpochCheckpointCallback: Successfully saved checkpoint at epoch {self.target_epoch}") 
+        # Status logged silently 

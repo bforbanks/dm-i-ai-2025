@@ -38,8 +38,9 @@ trainer:
         additional_control_names: ["control_123", "control_090"]
     - class_path: callbacks.dice_analysis_callback.DiceAnalysisCallback
       init_args:
-        analysis_every_n_epochs: 5
+        analysis_every_n_epochs: 3
         save_top_k: 7
+        verbose: false  # Set to false to disable verbose dice analysis output
     - class_path: callbacks.epoch_checkpoint_callback.EpochCheckpointCallback
       init_args:
         target_epoch: 65

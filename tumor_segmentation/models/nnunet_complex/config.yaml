@@ -1,0 +1,26 @@
+model:
+  class_path: models.nnunet_complex.model.NNUNetStyle
+  init_args:
+    # Loss configuration for better tumor detection
+    bce_loss_weight: 0.3  # Reduced to give more weight to Dice loss
+    false_negative_penalty: 0.02  # Increased penalty for missed tumors
+    false_negative_penalty_scheduler:
+      enabled: true
+      start_value: 0.001  # Starting penalty value
+      end_value: 0.02    # Final penalty value after warmup
+      warmup_epochs: 80  # Longer warmup for better convergence
+      schedule_type: "exponential"  # Exponential schedule for smoother increase
+    patient_weight: 2.0  # Increased weight for patient images (tumors)
+    control_weight: 0.3  # Reduced weight for control images
+    
+    # Architecture configuration
+    base_channels: 48  # Increased base channels for more capacity
+    depth: 5  # Deeper network for better feature extraction
+    dropout_rate: 0.05  # Moderate dropout for regularization
+    
+    # Advanced features
+    use_attention: true  # Enable CBAM attention mechanisms
+    use_residual: true   # Enable residual connections
+    use_multiscale: true # Enable multi-scale feature fusion
+    use_deep_supervision: true  # Enable deep supervision for better gradients
+

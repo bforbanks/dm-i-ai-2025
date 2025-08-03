@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import Callback
+import wandb
 
 
 class DiceAnalysisCallback(Callback):
@@ -15,14 +16,16 @@ class DiceAnalysisCallback(Callback):
     Shows FP/FN problems and saves visualization plots.
     """
     
-    def __init__(self, analysis_every_n_epochs: int = 5, save_top_k: int = 7):
+    def __init__(self, analysis_every_n_epochs: int = 5, save_top_k: int = 7, verbose: bool = True):
         super().__init__()
         self.analysis_every_n_epochs = analysis_every_n_epochs
         self.save_top_k = save_top_k
+        self.verbose = verbose
         self.validation_predictions = []
         self.validation_targets = []
         self.validation_images = []
         self.validation_names = []
+        self.trainer = None  # Store trainer reference for wandb logging
         
         # Create visualization directory
         self.viz_dir = Path("visualizations/worstdice")
@@ -41,6 +44,10 @@ class DiceAnalysisCallback(Callback):
         batch_idx: int
     ):
         """Store validation batch data for analysis."""
+        # Store trainer reference for wandb logging
+        if self.trainer is None:
+            self.trainer = trainer
+            
         if trainer.current_epoch % self.analysis_every_n_epochs == 0:
             images, targets = batch
             
@@ -75,9 +82,10 @@ class DiceAnalysisCallback(Callback):
     def on_validation_epoch_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule):
         """Analyze worst performing images and save visualizations."""
         if trainer.current_epoch % self.analysis_every_n_epochs == 0 and self.validation_predictions:
-            print(f"\n{'='*60}")
-            print(f"EPOCH {trainer.current_epoch} - DICE ANALYSIS")
-            print(f"{'='*60}")
+            if self.verbose:
+                print(f"\n{'='*60}")
+                print(f"EPOCH {trainer.current_epoch} - DICE ANALYSIS")
+                print(f"{'='*60}")
             
             # Convert to numpy arrays
             predictions = np.array(self.validation_predictions)
@@ -96,7 +104,8 @@ class DiceAnalysisCallback(Callback):
                 # Check if predictions are in reasonable range (0-1)
                 pred_values = predictions[i, 0]
                 if pred_values.max() > 1.0 or pred_values.min() < 0.0:
-                    print(f"⚠️  Warning: Sample {i} has predictions outside [0,1] range: [{pred_values.min():.4f}, {pred_values.max():.4f}]")
+                    if self.verbose:
+                        print(f"⚠️  Warning: Sample {i} has predictions outside [0,1] range: [{pred_values.min():.4f}, {pred_values.max():.4f}]")
                     # Clamp predictions to [0,1] for analysis
                     pred_values = np.clip(pred_values, 0.0, 1.0)
                 
@@ -114,7 +123,7 @@ class DiceAnalysisCallback(Callback):
                 patient_names.append(names[i])
                 
                 # Debug: print prediction statistics for first few patient samples
-                if len(patient_indices) <= 3:
+                if self.verbose and len(patient_indices) <= 3:
                     pred_min, pred_max = pred_values.min(), pred_values.max()
                     pred_mean = pred_values.mean()
                     print(f"Patient sample {len(patient_indices)}: pred range [{pred_min:.4f}, {pred_max:.4f}], mean={pred_mean:.4f}")
@@ -133,7 +142,8 @@ class DiceAnalysisCallback(Callback):
             
             # Check if we have any patient images
             if len(patient_indices) == 0:
-                print("⚠️  No patient images found in validation set!")
+                if self.verbose:
+                    print("⚠️  No patient images found in validation set!")
                 return
             
             # Find worst, best, and median performing patient images
@@ -154,8 +164,9 @@ class DiceAnalysisCallback(Callback):
             median_indices = [patient_indices[idx] for idx in median_patient_indices]
             
             # Analyze problems for worst performing
-            print(f"\nTop {len(worst_indices)} worst performing PATIENT images:")
-            print("-" * 50)
+            if self.verbose:
+                print(f"\nTop {len(worst_indices)} worst performing PATIENT images:")
+                print("-" * 50)
             
             total_fp_worst = 0
             total_fn_worst = 0
@@ -166,13 +177,15 @@ class DiceAnalysisCallback(Callback):
                 fp = fp_counts[worst_patient_indices[i]]
                 fn = fn_counts[worst_patient_indices[i]]
                 
-                print(f"{i+1}. {name}: Dice={dice:.4f}, FP={fp:.0f}, FN={fn:.0f}")
+                if self.verbose:
+                    print(f"{i+1}. {name}: Dice={dice:.4f}, FP={fp:.0f}, FN={fn:.0f}")
                 total_fp_worst += fp
                 total_fn_worst += fn
             
             # Show best performing
-            print(f"\nTop {len(best_indices)} best performing PATIENT images:")
-            print("-" * 50)
+            if self.verbose:
+                print(f"\nTop {len(best_indices)} best performing PATIENT images:")
+                print("-" * 50)
             
             for i, idx in enumerate(best_indices):
                 name = names[idx]
@@ -180,13 +193,15 @@ class DiceAnalysisCallback(Callback):
                 fp = fp_counts[best_patient_indices[i]]
                 fn = fn_counts[best_patient_indices[i]]
                 
-                print(f"{i+1}. {name}: Dice={dice:.4f}, FP={fp:.0f}, FN={fn:.0f}")
+                if self.verbose:
+                    print(f"{i+1}. {name}: Dice={dice:.4f}, FP={fp:.0f}, FN={fn:.0f}")
             
             
             
-            print(f"\nTotal problems in worst {len(worst_indices)} images:")
-            print(f"False Positives (FP): {total_fp_worst:.0f}")
-            print(f"False Negatives (FN): {total_fn_worst:.0f}")
+            if self.verbose:
+                print(f"\nTotal problems in worst {len(worst_indices)} images:")
+                print(f"False Positives (FP): {total_fp_worst:.0f}")
+                print(f"False Negatives (FN): {total_fn_worst:.0f}")
             
             # Calculate average dice scores
             avg_dice_worst = np.mean(dice_scores[worst_patient_indices])
@@ -194,27 +209,29 @@ class DiceAnalysisCallback(Callback):
             avg_dice_median = np.mean(dice_scores[median_patient_indices])
             avg_dice_all = np.mean(dice_scores)
             
-            print(f"Average Dice Scores:")
-            print(f"  - Worst {len(worst_indices)}: {avg_dice_worst:.4f}")
-            print(f"  - Best {len(best_indices)}: {avg_dice_best:.4f}")
-            print(f"  - Median {len(median_indices)}: {avg_dice_median:.4f}")
-            print(f"  - All patient images: {avg_dice_all:.4f}")
+            if self.verbose:
+                print(f"Average Dice Scores:")
+                print(f"  - Worst {len(worst_indices)}: {avg_dice_worst:.4f}")
+                print(f"  - Best {len(best_indices)}: {avg_dice_best:.4f}")
+                print(f"  - Median {len(median_indices)}: {avg_dice_median:.4f}")
+                print(f"  - All patient images: {avg_dice_all:.4f}")
             
-            if total_fp_worst > total_fn_worst:
-                print(f"⚠️  MAIN PROBLEM: Too many False Positives ({total_fp_worst:.0f} vs {total_fn_worst:.0f} FN)")
-                print("   → Model is predicting tumors where there aren't any")
-                if total_fp_worst > 10000:  # Very high FP count
-                    print("   → NOTE: Very high FP count is normal in early training epochs")
-                    print("   → The model will improve as training progresses")
-                print("   → Consider: Increase threshold, add regularization, or review data")
-            elif total_fn_worst > total_fp_worst:
-                print(f"⚠️  MAIN PROBLEM: Too many False Negatives ({total_fn_worst:.0f} vs {total_fp_worst:.0f} FP)")
-                print("   → Model is missing actual tumors")
-                print("   → Consider: Lower threshold, improve feature extraction, or review data")
-            else:
-                print(f"⚠️  BALANCED PROBLEMS: Similar FP ({total_fp_worst:.0f}) and FN ({total_fn_worst:.0f})")
-                print("   → Model has general segmentation issues")
-                print("   → Consider: Architecture improvements or more training data")
+            if self.verbose:
+                if total_fp_worst > total_fn_worst:
+                    print(f"⚠️  MAIN PROBLEM: Too many False Positives ({total_fp_worst:.0f} vs {total_fn_worst:.0f} FN)")
+                    print("   → Model is predicting tumors where there aren't any")
+                    if total_fp_worst > 10000:  # Very high FP count
+                        print("   → NOTE: Very high FP count is normal in early training epochs")
+                        print("   → The model will improve as training progresses")
+                    print("   → Consider: Increase threshold, add regularization, or review data")
+                elif total_fn_worst > total_fp_worst:
+                    print(f"⚠️  MAIN PROBLEM: Too many False Negatives ({total_fn_worst:.0f} vs {total_fp_worst:.0f} FP)")
+                    print("   → Model is missing actual tumors")
+                    print("   → Consider: Lower threshold, improve feature extraction, or review data")
+                else:
+                    print(f"⚠️  BALANCED PROBLEMS: Similar FP ({total_fp_worst:.0f}) and FN ({total_fn_worst:.0f})")
+                    print("   → Model has general segmentation issues")
+                    print("   → Consider: Architecture improvements or more training data")
             
             # Save visualization (worst, best, and median patient images)
             self._save_comprehensive_visualization(
@@ -228,13 +245,21 @@ class DiceAnalysisCallback(Callback):
             # Save CSV with all patient dice scores
             self._save_dice_csv(patient_names, dice_scores, trainer.current_epoch)
             
+            # Log dice statistics to wandb
+            self._log_dice_statistics_to_wandb(
+                dice_scores, worst_patient_indices, best_patient_indices, 
+                median_patient_indices, total_fp_worst, total_fn_worst, 
+                trainer.current_epoch
+            )
+            
             # Clear stored data
             self.validation_predictions = []
             self.validation_targets = []
             self.validation_images = []
             self.validation_names = []
             
-            print(f"{'='*60}\n")
+            if self.verbose:
+                print(f"{'='*60}\n")
     
     def _save_comprehensive_visualization(
         self,
@@ -321,10 +346,24 @@ class DiceAnalysisCallback(Callback):
         axes[0, 3].legend(handles=[green_patch, red_patch, blue_patch], loc='lower right', fontsize=8)
         
         plt.tight_layout()
-        plt.savefig(self.viz_dir / f'worst_dice_epoch_{epoch:03d}.png', dpi=150, bbox_inches='tight')
+        
+        # Save locally
+        save_path = self.viz_dir / f'worst_dice_epoch_{epoch:03d}.png'
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        
+        # Log to wandb if available
+        if hasattr(self, 'trainer') and self.trainer and self.trainer.logger and hasattr(self.trainer.logger, 'experiment'):
+            # Use current global step instead of epoch to avoid step ordering issues
+            current_step = self.trainer.global_step
+            self.trainer.logger.experiment.log({
+                f"worst_dice_visualization_epoch_{epoch}": wandb.Image(fig)
+            }, step=current_step)
+        
         plt.close()
         
-        print(f"📊 Saved comprehensive visualization to: {self.viz_dir / f'worst_dice_epoch_{epoch:03d}.png'}")
+        if self.verbose:
+            print(f"📊 Saved comprehensive visualization to: {save_path}")
+            print(f"📊 Logged to wandb as: worst_dice_visualization_epoch_{epoch}")
     
     def _save_dice_csv(self, patient_names: List[str], dice_scores: np.ndarray, epoch: int):
         """Save CSV with all patient dice scores across epochs."""
@@ -355,5 +394,44 @@ class DiceAnalysisCallback(Callback):
         df = pd.DataFrame(data)
         df.to_csv(self.csv_path, index=False)
         
-        print(f"📊 Saved patient dice scores CSV to: {self.csv_path}")
-        print(f"   → Tracking {len(self.patient_dice_history)} patients across {len(all_epochs)} epochs") 
+        if self.verbose:
+            print(f"📊 Saved patient dice scores CSV to: {self.csv_path}")
+            print(f"   → Tracking {len(self.patient_dice_history)} patients across {len(all_epochs)} epochs")
+    
+    def _log_dice_statistics_to_wandb(
+        self,
+        dice_scores: np.ndarray,
+        worst_patient_indices: List[int],
+        best_patient_indices: List[int],
+        median_patient_indices: List[int],
+        total_fp_worst: float,
+        total_fn_worst: float,
+        epoch: int
+    ):
+        """Log dice statistics to wandb for monitoring."""
+        if not (self.trainer and self.trainer.logger and hasattr(self.trainer.logger, 'experiment')):
+            return
+        
+        # Calculate statistics
+        avg_dice_worst = np.mean(dice_scores[worst_patient_indices])
+        avg_dice_best = np.mean(dice_scores[best_patient_indices])
+        avg_dice_median = np.mean(dice_scores[median_patient_indices])
+        avg_dice_all = np.mean(dice_scores)
+        
+        # Log to wandb
+        wandb_logs = {
+            f"dice_analysis/avg_dice_worst_{len(worst_patient_indices)}": avg_dice_worst,
+            f"dice_analysis/avg_dice_best_{len(best_patient_indices)}": avg_dice_best,
+            f"dice_analysis/avg_dice_median_{len(median_patient_indices)}": avg_dice_median,
+            f"dice_analysis/avg_dice_all_patients": avg_dice_all,
+            f"dice_analysis/total_fp_worst_{len(worst_patient_indices)}": total_fp_worst,
+            f"dice_analysis/total_fn_worst_{len(worst_patient_indices)}": total_fn_worst,
+            f"dice_analysis/fp_fn_ratio": total_fp_worst / (total_fn_worst + 1e-6),  # Avoid division by zero
+            f"dice_analysis/num_patient_images": len(dice_scores),
+        }
+        
+        # Use current global step instead of epoch to avoid step ordering issues
+        current_step = self.trainer.global_step
+        self.trainer.logger.experiment.log(wandb_logs, step=current_step)
+        if self.verbose:
+            print(f"📊 Logged dice statistics to wandb for epoch {epoch} at step {current_step}") 
