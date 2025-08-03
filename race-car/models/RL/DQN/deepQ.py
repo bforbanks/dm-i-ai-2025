@@ -1,7 +1,8 @@
 import torch
 import random
 from collections import deque
-from typing import Callable, Optional
+from typing import Optional
+from models.rl.dqn.DQNModel import DQNModel
 
 # REMINDER for how the DTOs look like:
 # from pydantic import BaseModel
@@ -24,11 +25,6 @@ from typing import Callable, Optional
 #     # 'STEER_RIGHT'
 #     # 'NOTHING''
 
-
-from models.rl.dqn.DQNModel import DQN
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 class DQNAgent:
     def __init__(self,
                  input_dim: int,
@@ -42,18 +38,22 @@ class DQNAgent:
                  memory_size: int = 10000,
                  device: Optional[torch.device] = torch.device("cpu"),
                  dtype: Optional[torch.dtype] = torch.float32,
-                 weight_path_prefix: Optional[str] = None,
+                 weight_path_prefix: Optional[str] = "models/rl/dqn/weights/",
                 ):
         # Set device and dtype
         self.device = device
         self.dtype = dtype
-
+        print(f"Using device: {self.device}, dtype: {self.dtype}")
         # Initialize the DQN model
-        self.model = DQN(input_dim=input_dim, output_dim=output_dim)
+        self.model = DQNModel(input_dim=input_dim, output_dim=output_dim)
         self.model.to(self.device)
 
         if weight_path_prefix:
-            self.load(weight_path_prefix + "_model.pt", weight_path_prefix + "_optimizer.pt")
+            try:
+                self.load(weight_path_prefix + "_model.pt", weight_path_prefix + "_optimizer.pt")
+                print(f"Loaded weights from: {weight_path_prefix}_model.pt")
+            except (FileNotFoundError, OSError) as e:
+                print(f"No weights found at {weight_path_prefix} — starting from scratch.")
 
         # Define hyperparameters
         self.epsilon = epsilon_start
