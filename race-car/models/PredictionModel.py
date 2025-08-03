@@ -132,16 +132,20 @@ class PredictionModel:
                 total_joint_prob += joint_prob
                 total_new_speed=0            
 
+                full_bin_chance = perc_per_length * lane.vel_resolution
                 for new_vel_bin in range(low_bin, hi_bin + 1):
                     if hi_bin == low_bin:
                         length = diff
+                        new_speed_chance = perc_per_length * length
                     elif new_vel_bin == low_bin:
                         length = lane.velocity_bin_dividers[low_bin+1]-low_vel
+                        new_speed_chance = perc_per_length * length
                     elif new_vel_bin == hi_bin:
                         length = hi_vel-lane.velocity_bin_dividers[hi_bin]
+                        new_speed_chance = perc_per_length * length
                     else: 
-                        length = lane.vel_resolution
-                    new_speed_chance = perc_per_length * length
+                        new_speed_chance = full_bin_chance
+
                     total_new_speed += new_speed_chance
                     # Add to joint probability distribution
                     new_state = (new_x_bin, new_vel_bin)
