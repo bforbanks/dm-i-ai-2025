@@ -33,7 +33,7 @@ class RaceCarEnv:
         self.sensor_removal = sensor_removal
         self.done = False
     
-
+        seed(seed_value)
 
         self.SCREEN_WIDTH = SCREEN_WIDTH
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
@@ -55,12 +55,10 @@ class RaceCarEnv:
         
 
         self.initialize_game_state(self.api_url, self.seed_value, self.sensor_removal)
-    
-    
-    def initialize_game_state(self, api_url: str, seed_value: str, sensor_removal = 0):
-        seed(seed_value)
-        self.STATE = GameState(api_url=api_url)
 
+
+    def initialize_game_state(self, api_url: str, seed_value: str, sensor_removal = 0):
+        self.STATE = GameState(api_url=api_url)
         # Create environment
         self.STATE.road = Road(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, self.LANE_COUNT)
         self.middle_lane = self.STATE.road.middle_lane()
@@ -250,7 +248,7 @@ class RaceCarEnv:
         reward = self._get_reward()
 
         # Define your own termination condition
-        done = self.STATE.crashed or self.STATE.ticks > 3600 #or self.STATE.elapsed_game_time > 60000  # for example
+        done = self.STATE.crashed or self.STATE.ticks > self.MAX_TICKS #or self.STATE.elapsed_game_time > 60000  # for example
 
         state_to_return = self.state_to_state_dict(self.STATE)
 
@@ -260,9 +258,20 @@ class RaceCarEnv:
         return state_to_return, reward, done
     
     def _get_reward(self):
+        # List of normalization constants used in the agent
+        # The constants should not be changed, but reward logic can be adjusted as needed :)
+        # max_ticks = 3600         # typical episode length
+        # max_distance = 10**5      # estimated max track length
+        # max_velocity = 50      # estimated max x velocity
+        # max_drift = 1200.0        # for y velocity
+        # max_sensor = 1000.0       # assuming 0–100 for sensor distances
+        x_velocity = self.STATE.ego.velocity.x / 50
+        
+        drift = abs(self.SCREEN_HEIGHT // 2 - self.STATE.ego.y) / 1200
+        distance  = self.STATE.distance / 10**5
         if self.STATE.crashed:
-            return -100
-        return self.STATE.ego.velocity.x / 10
+            return -1.5
+        return distance + 0.5*(x_velocity) - drift * 0.2
     
     def _render_frame(self):
         """Render the current game frame"""
