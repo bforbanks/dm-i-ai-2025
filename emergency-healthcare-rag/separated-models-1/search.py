@@ -207,7 +207,7 @@ def get_best_topic(statement: str) -> int:
 
 def get_rich_context_for_statement(statement: str, topic_id: int, max_chars: int = 4000) -> str:
     """
-    Get rich context using only the full documents from the chosen topic
+    Get rich context using only the most relevant chunks for the statement
     """
     # Find topic name from ID
     topic_name = None
@@ -220,12 +220,34 @@ def get_rich_context_for_statement(statement: str, topic_id: int, max_chars: int
     if not topic_name:
         return ""
     
-    # Get the FULL document for the chosen topic only
-    full_document = get_full_document_for_topic(topic_name)
+    # Get the most relevant chunks for this statement
+    search_results = hybrid_search(statement, top_k=5)
     
-    # Build context with only the topic's full document
-    context = f"MEDICAL CONTEXT FOR TOPIC: {topic_name}\n\n"
-    context += full_document
+    # Filter results to only include chunks from the identified topic
+    relevant_chunks = []
+    for result in search_results:
+        if result['topic_id'] == topic_id:
+            relevant_chunks.append(result['chunk_text'])
+    
+    # If no chunks from the topic, fall back to a few chunks from the topic
+    if not relevant_chunks:
+        # Get a few chunks from the topic as fallback
+        all_results = hybrid_search(statement, top_k=20)
+        for result in all_results:
+            if result['topic_id'] == topic_id:
+                relevant_chunks.append(result['chunk_text'])
+                if len(relevant_chunks) >= 3:  # Limit fallback chunks
+                    break
+    
+    # Build context with only the most relevant chunks
+    if relevant_chunks:
+        context = f"MEDICAL CONTEXT FOR TOPIC: {topic_name}\n\n"
+        context += "\n\n--- RELEVANT CHUNKS ---\n\n"
+        context += "\n\n".join(relevant_chunks)
+    else:
+        # Fallback to topic name only if no chunks found
+        context = f"MEDICAL CONTEXT FOR TOPIC: {topic_name}\n\n"
+        context += "No specific relevant chunks found for this statement."
     
     # Truncate if too long
     if len(context) > max_chars:

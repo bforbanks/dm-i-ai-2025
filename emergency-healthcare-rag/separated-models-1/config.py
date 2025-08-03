@@ -9,7 +9,7 @@ from typing import Dict, Any
 
 class Config:
     # Default LLM model
-    DEFAULT_LLM_MODEL = "gemma3:27b"  # Large model for cloud testing
+    DEFAULT_LLM_MODEL = "gemma3n:e4b"  # Efficient model for local testing
     
     # Available models with descriptions
     AVAILABLE_MODELS = {

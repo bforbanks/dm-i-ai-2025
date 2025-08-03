@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from model import predict
 
-def load_train_data(n_samples: int = 50) -> List[Dict]:
+def load_train_data(n_samples: int = 10) -> List[Dict]:
     """Load first n samples from train data"""
     statements_dir = Path("data/train/statements")
     answers_dir = Path("data/train/answers")
@@ -91,7 +91,7 @@ def main():
     
     print(f"📚 Loaded {len(samples)} samples from train data\n")
     
-    print("🧪 Evaluating Separated Models 1 on 50 samples...\n")
+    print("🧪 Evaluating Separated Models 1 on 10 samples...\n")
     
     results = []
     total_time = 0
