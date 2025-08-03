@@ -54,5 +54,5 @@ if __name__ == '__main__':
     else:
         
         initialize_game_state(api_url="http://example.com/api/predict", seed_value=seed_value)
-        game_loop(verbose=True, model=False) # For pygame window
+        game_loop(verbose=False, model=MODEL()) # For pygame window
     pygame.quit()
