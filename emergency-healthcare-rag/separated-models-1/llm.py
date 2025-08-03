@@ -31,12 +31,6 @@ In other words, lean towards rating statements false unless the context provides
 
 Respond with ONLY a single number: 1 for TRUE or 0 for FALSE.
 
-Examples:
-- If the context clearly supports the statement: "1"
-- If the context contradicts the statement: "0" 
-- If the context doesn't provide enough information: "0"
-- If you're unsure: "0"
-
 NEVER SAY ANYTHING BUT A SINGLE NUMBER."""
 
 def classify_truth_only(statement: str, context: str, model: str = None) -> int:
