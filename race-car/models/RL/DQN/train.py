@@ -1,7 +1,9 @@
 import torch
 
-from deepQ import DQNAgent
-from model import DQN
+from models.rl.dqn.deepQ import DQNAgent
+from models.rl.dqn.DQNModel import DQN
+
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dtype = torch.float32
@@ -22,24 +24,40 @@ dtype = torch.float32
 
 agent = DQNAgent(input_dim=21, output_dim=5, device=device, dtype=dtype)
 
-#TODO: Implement env
+
+    
+
+
 
 def train(agent: DQNAgent, env, episodes: int = 1000):
-    for episode in range(episodes):
-        state = env.reset()
+    env.reset()  # Initialize the environment
+    tick = 0
+    for episode in tqdm(range(episodes), desc="Training Episodes"):
         done = False
-        total_reward = 0
-
+        state = env.state_to_state_dict(env.STATE)  # Assuming this method exists to convert the game state to a dict
+        state = agent.state_dict_to_tensor(state)  # Convert state to tensor
+        
+        # Uncomment if you want to track total reward
+        # total_reward = 0
+        print("Tick before reset:", tick)
+        tick = 0
         while not done:
-            action = agent.select_action(torch.tensor(state, dtype=dtype, device=device))
-            next_state, reward, done = env.step(action) # TODO: This does maybe not work as intended
+            tick += 1
+            # print(f"Episode: {episode}, Tick: {tick}, State: {state}")
+            if tick > 4601: # Temporary tick limit to catch potential bugs
+                raise RuntimeError(f"Tick limit exceeded. Check your game logic. Tick: {tick}, Episode: {episode}")
             
+            action = agent.get_action(state)
+            next_state, reward, done = env.step(action)
+
+            next_state = agent.state_dict_to_tensor(next_state)
+
             agent.memory.append((state, action, reward, next_state, done))
 
-
-            agent.train()
+            if len(agent.memory) > agent.batch_size and tick % 120 == 0:
+                agent.learn()
 
             state = next_state
-    
+        if episode % 100 == 0:
+            agent.save(f"dqn_agent_ep{episode}")
     agent.save("dqn_agent")  # Save the model after training
-    

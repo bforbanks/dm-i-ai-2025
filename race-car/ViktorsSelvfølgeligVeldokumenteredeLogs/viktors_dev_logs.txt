@@ -5,4 +5,5 @@ TODO: Lav en reset til environment (findes måske allerede faktisk)
 DQN:
 
 0208-1122: Jeg har implimenteret den helt basale arkitektur af DQN'en og er nu gået i gang med at opsætte agenten
-0208-1256: DQNagent er implimenteret, dog ikke testet. Jeg er begyndt at arbejde på en train function. 
+0208-1256: DQNagent er implimenteret, dog ikke testet. Jeg er begyndt at arbejde på en train function.
+0208-2247: Train funktionen er lavet, men ikke testet. Der mangler stadig en måde at behandle spillet som et klassisk RL environment

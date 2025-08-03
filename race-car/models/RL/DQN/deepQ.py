@@ -25,7 +25,7 @@ from typing import Callable, Optional
 #     # 'NOTHING''
 
 
-from model import DQN
+from models.rl.dqn.DQNModel import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -65,6 +65,8 @@ class DQNAgent:
         self.learning_rate = learning_rate
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
+        
+
 
 
     def save(self, path_prefix: str):
@@ -77,27 +79,67 @@ class DQNAgent:
         if optimizer_path:
             self.optimizer.load_state_dict(torch.load(optimizer_path, map_location=self.device))
 
-    def select_action(self, state: torch.Tensor) -> int:
+    def state_dict_to_tensor(self, state_dict: dict) -> torch.Tensor:
+        """
+        Converts a state dictionary (as the one we recieve from the API) to a tensor.
+        
+        The state tensor is indexed as follows:
+            - 0: did_crash (bool)
+            - 1: elapsed_ticks (int)
+            - 2: distance (float)
+            - 3: x-velocity (float)
+            - 4: y-velocity (float)
+            - 5-20: sensors (front, right_front, right_side, right_back, back, left_back, left_side, left_front, left_side_front, front_left_front, front_right_front, right_side_front, right_side_back, back_right_back, back_left_back, left_side_back)
+        The sensors are expected to be in the order defined in the RaceCarPredictRequestDto.
+        """
+        sensor_names = [
+            "front", "right_front", "right_side", "right_back", "back",
+            "left_back", "left_side", "left_front", "left_side_front",
+            "front_left_front", "front_right_front", "right_side_front",
+            "right_side_back", "back_right_back", "back_left_back",
+            "left_side_back"
+        ]
+        tensor = torch.zeros(21, dtype=self.dtype, device=self.device)
+        tensor[0] = float(state_dict["did_crash"])
+        tensor[1] = float(state_dict["elapsed_ticks"])
+        tensor[2] = float(state_dict["distance"])
+        tensor[3] = float(state_dict["velocity"]["x"])
+        tensor[4] = float(state_dict["velocity"]["y"])
+        for i, sensor in enumerate(sensor_names):
+            tensor[5 + i] = (state_dict["sensors"].get(sensor, -1.0)) if state_dict["sensors"].get(sensor) is not None else -1.0
+        
+        return tensor
+
+
+    def get_action(self, state: torch.Tensor) -> int:
         if self.epsilon > self.epsilon_min:
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
         if random.random() < self.epsilon:
             return random.randint(0, self.model.output.out_features - 1)
         with torch.no_grad():
-            state_tensor = torch.tensor(state, dtype=self.dtype).unsqueeze(0).to(self.device)
-            q_values = self.model(state_tensor)
+            if not torch.is_tensor(state):
+                state = torch.tensor(state, dtype=self.dtype, device=self.device)
+            else:
+                state = state.to(self.device, dtype=self.dtype)
+
+            state = state.unsqueeze(0)
+            q_values = self.model(state)
             return q_values.argmax(dim=1).item()
 
 
-    def train(self):
+
+
+    def learn(self):
         if len(self.memory) < self.batch_size:
             return  # Avoid training on too little data
 
         batch = random.sample(self.memory, self.batch_size)
         states, actions, rewards, next_states, dones = zip(*batch)
 
-        states = torch.tensor(states, dtype=self.dtype, device=self.device)
-        next_states = torch.tensor(next_states, dtype=self.dtype, device=self.device)
+        # Convert to tensors
+        states = torch.stack(states).to(self.device, dtype=self.dtype)
+        next_states = torch.stack(next_states).to(self.device, dtype=self.dtype)
         actions = torch.tensor(actions, dtype=torch.long, device=self.device).unsqueeze(1)
         rewards = torch.tensor(rewards, dtype=self.dtype, device=self.device)
         dones = torch.tensor(dones, dtype=torch.bool, device=self.device)
