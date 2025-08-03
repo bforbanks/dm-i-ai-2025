@@ -240,9 +240,8 @@ class RaceCarEnv:
             self.STATE.elapsed_game_time += delta
 
         self.STATE.ticks += 1
-
         self.update_game(action)
-        
+
         # Render if visualization is enabled
         if self.render:
             self._render_frame()
