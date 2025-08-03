@@ -1,6 +1,6 @@
 import torch
 
-from models.rl.dqn.deepQ import DQNAgent
+from models.rl.dqn.DQNAgent import DQNAgent
 
 from tqdm import tqdm
 dtype = torch.float32
@@ -26,6 +26,7 @@ dtype = torch.float32
 def train(agent: DQNAgent, env, episodes: int = 1000):
     env.reset()  # Initialize the environment
     tick = 0
+    total_ticks = 0
     tick_before_reset = []
     reward_list = []
     for episode in tqdm(range(episodes), desc="Training Episodes"):
@@ -35,11 +36,11 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
         
         # Uncomment if you want to track total reward
         total_reward = 0
-        print("Tick before reset:", tick)
         
         tick = 0
+        
         while not done:
-            tick += 1
+            tick += 1; total_ticks += 1
             # print(f"Episode: {episode}, Tick: {tick}, State: {state}")
             if tick > 4601: # Temporary tick limit to catch potential bugs
                 raise RuntimeError(f"Tick limit exceeded. Check your game logic. Tick: {tick}, Episode: {episode}")
@@ -65,4 +66,5 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             N = min(100, len(reward_list))
             print(f"Episode {episode} completed. Average reward the last {N} episodes: {sum(reward_list[-N:]) / N:.2f}")
             print(f"Average ticks before reset: {sum(tick_before_reset[-N:]) / N:.2f}")
+            print(f"Epsilon: {agent.epsilon:.4f}")
     agent.save(agent.model_path)  # Save the model after training
