@@ -45,10 +45,13 @@ class RaceCarEnv:
         self.verbose = verbose
         self.render = render
         if self.render:
+            pygame.init()
             self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-            pygame.display.set_caption("Race Car Game")
+            pygame.display.set_caption("Race Car Game - RL Training")
+            self.clock = pygame.time.Clock()
         else:
-            pygame.display.quit()
+            self.screen = None
+            self.clock = None
         
 
         self.initialize_game_state(self.api_url, self.seed_value, self.sensor_removal)
@@ -223,15 +226,27 @@ class RaceCarEnv:
         self.done = False
     
     def step(self, action):        
-        # if self.render:
-        #     delta = self.clock.tick(60)
-        # else:
-        #     delta = delta = 16  # Approx. 60 FPS time delta in ms
+        # Handle pygame events (window close, etc.)
+        if self.render:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+            
+            delta = self.clock.tick(60)  # 60 FPS
+            self.STATE.elapsed_game_time += delta
+        else:
+            delta = 16  # Approx. 60 FPS time delta in ms
+            self.STATE.elapsed_game_time += delta
 
-        # self.STATE.elapsed_game_time += delta
         self.STATE.ticks += 1
 
-        self.update_game(action)    
+        self.update_game(action)
+        
+        # Render if visualization is enabled
+        if self.render:
+            self._render_frame()
+        
         # Define your own reward logic here
         reward = self._get_reward()
 
@@ -249,6 +264,45 @@ class RaceCarEnv:
         if self.STATE.crashed:
             return -100
         return self.STATE.ego.velocity.x / 10
+    
+    def _render_frame(self):
+        """Render the current game frame"""
+        if not self.render or not self.screen:
+            return
+        
+        # Clear the screen with black
+        self.screen.fill((0, 0, 0))
+        
+        # Draw the road background
+        self.screen.blit(self.STATE.road.surface, (0, 0))
+        
+        # Draw all walls
+        for wall in self.STATE.road.walls:
+            wall.draw(self.screen)
+        
+        # Draw all cars
+        for car in self.STATE.cars:
+            if car.sprite:
+                self.screen.blit(car.sprite, (car.x, car.y))
+                bounds = car.get_bounds()
+                color = (255, 0, 0) if car == self.STATE.ego else (0, 255, 0)
+                pygame.draw.rect(self.screen, color, bounds, width=2)
+            else:
+                color = (255, 255, 0) if car == self.STATE.ego else (0, 0, 255)
+                pygame.draw.rect(self.screen, color, car.rect)
+        
+        # Draw sensors if enabled
+        if self.STATE.sensors_enabled:
+            for sensor in self.STATE.sensors:
+                sensor.draw(self.screen)
+        
+        # Update display
+        pygame.display.flip()
+    
+    def close(self):
+        """Clean up pygame resources"""
+        if self.render and pygame.get_init():
+            pygame.quit()
     
     def state_to_state_dict(self, state: GameState):
         """The state in this file is a GameState object. This function converts it
