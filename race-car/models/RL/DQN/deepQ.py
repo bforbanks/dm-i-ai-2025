@@ -38,7 +38,7 @@ class DQNAgent:
                  memory_size: int = 10000,
                  device: Optional[torch.device] = torch.device("cpu"),
                  dtype: Optional[torch.dtype] = torch.float32,
-                 weight_path_prefix: Optional[str] = "models/rl/dqn/weights/",
+                 model_path: str = "models/rl/dqn/weights/dqn.pt",
                 ):
         # Set device and dtype
         self.device = device
@@ -48,13 +48,9 @@ class DQNAgent:
         self.model = DQNModel(input_dim=input_dim, output_dim=output_dim)
         self.model.to(self.device)
 
-        if weight_path_prefix:
-            try:
-                self.load(weight_path_prefix + "_model.pt", weight_path_prefix + "_optimizer.pt")
-                print(f"Loaded weights from: {weight_path_prefix}_model.pt")
-            except (FileNotFoundError, OSError) as e:
-                print(f"No weights found at {weight_path_prefix} — starting from scratch.")
+        self.model_path = model_path
 
+        
         # Define hyperparameters
         self.epsilon = epsilon_start
         self.epsilon_min = epsilon_min
@@ -65,19 +61,43 @@ class DQNAgent:
         self.learning_rate = learning_rate
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
+        if model_path:
+            try:
+                self.load(model_path)
+                print(f"Loaded weights from: {model_path}")
+            except (FileNotFoundError, OSError) as e:
+                print(f"No saved model found at {model_path} — starting from scratch.")
+
+        self.action_dict_idx_to_str = {
+            0: "ACCELERATE",
+            1: "DECELERATE",
+            2: "STEER_LEFT",
+            3: "STEER_RIGHT",
+            4: "NOTHING",
+        }
+        self.action_dict_str_to_idx = {
+            "ACCELERATE": 0,
+            "DECELERATE": 1,
+            "STEER_LEFT": 2,
+            "STEER_RIGHT": 3,
+            "NOTHING": 4
+        }
         
 
 
+    def save(self, filepath: str = "models/rl/dqn/weights/dqn_agent.pt"):
+        torch.save({
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'epsilon': self.epsilon
+        }, filepath)
 
-    def save(self, path_prefix: str):
-        torch.save(self.model.state_dict(), f"{path_prefix}_model.pt")
-        torch.save(self.optimizer.state_dict(), f"{path_prefix}_optimizer.pt")
-
-    def load(self, model_path: str, optimizer_path: Optional[str] = None):
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+    def load(self, filepath: str = "models/rl/dqn/weights/dqn_agent.pt"):
+        checkpoint = torch.load(filepath, map_location=self.device)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.model.to(self.device)
-        if optimizer_path:
-            self.optimizer.load_state_dict(torch.load(optimizer_path, map_location=self.device))
+        self.epsilon = checkpoint.get('epsilon', self.epsilon)  # Restore epsilon if present
 
     def state_dict_to_tensor(self, state_dict: dict) -> torch.Tensor:
         """
@@ -92,13 +112,14 @@ class DQNAgent:
             - 5-20: sensors (front, right_front, right_side, right_back, back, left_back, left_side, left_front, left_side_front, front_left_front, front_right_front, right_side_front, right_side_back, back_right_back, back_left_back, left_side_back)
         The sensors are expected to be in the order defined in the RaceCarPredictRequestDto.
         """
+        # Very important to use the same order as the DQNModel expects!
         sensor_names = [
             "front", "right_front", "right_side", "right_back", "back",
             "left_back", "left_side", "left_front", "left_side_front",
             "front_left_front", "front_right_front", "right_side_front",
             "right_side_back", "back_right_back", "back_left_back",
             "left_side_back"
-        ]
+        ] 
         tensor = torch.zeros(21, dtype=self.dtype, device=self.device)
         tensor[0] = float(state_dict["did_crash"])
         tensor[1] = float(state_dict["elapsed_ticks"])
@@ -111,12 +132,12 @@ class DQNAgent:
         return tensor
 
 
-    def get_action(self, state: torch.Tensor) -> int:
+    def get_action(self, state: torch.Tensor) -> str:
         if self.epsilon > self.epsilon_min:
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
         if random.random() < self.epsilon:
-            return random.randint(0, self.model.output.out_features - 1)
+            return self.action_dict_idx_to_str[random.randint(0, self.model.output.out_features - 1)]
         with torch.no_grad():
             if not torch.is_tensor(state):
                 state = torch.tensor(state, dtype=self.dtype, device=self.device)
@@ -125,7 +146,9 @@ class DQNAgent:
 
             state = state.unsqueeze(0)
             q_values = self.model(state)
-            return q_values.argmax(dim=1).item()
+            string_action = self.action_dict_idx_to_str[q_values.argmax(dim=1).item()]
+            assert isinstance(string_action, str), f"Expected string action, got {type(string_action)}"
+            return string_action
 
 
 
@@ -136,7 +159,7 @@ class DQNAgent:
 
         batch = random.sample(self.memory, self.batch_size)
         states, actions, rewards, next_states, dones = zip(*batch)
-
+        actions = [self.action_dict_str_to_idx[action] for action in actions]
         # Convert to tensors
         states = torch.stack(states).to(self.device, dtype=self.dtype)
         next_states = torch.stack(next_states).to(self.device, dtype=self.dtype)
