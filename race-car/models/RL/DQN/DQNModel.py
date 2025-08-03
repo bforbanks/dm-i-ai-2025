@@ -19,8 +19,8 @@ class DQNModel(nn.Module):
     def __init__(self, input_dim: int = 21, output_dim: int = 5):
         super(DQNModel, self).__init__()
         self.inputlayer = nn.Linear(input_dim, 128)
-        self.layer2 = nn.Linear(128, 64)
-        self.output = nn.Linear(64, output_dim)
+        self.layer2 = nn.Linear(128, 128)
+        self.output = nn.Linear(128, output_dim)
         
         self.relu = nn.ReLU()
 
