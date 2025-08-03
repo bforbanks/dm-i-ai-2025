@@ -61,7 +61,6 @@ def hello():
         "uptime": "{}".format(datetime.timedelta(seconds=time.time() - start_time)),
     }
 
-
 @app.get("/")
 def index():
     return "Your endpoint is running!"
