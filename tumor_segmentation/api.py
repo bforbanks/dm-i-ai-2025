@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 import os
+import cv2
 import uvicorn
 import time
 import datetime
@@ -29,20 +30,27 @@ checkpoint_path = os.getenv(
 )
 if not checkpoint_path:
     raise ValueError("CHECKPOINT_PATH environment variable is not set")
-    
+
 # model = SimpleUNet.load_from_checkpoint(
-model = NNUNetStyle.load_from_checkpoint(
-    checkpoint_path, map_location="cpu"
-)  # Force CPU loading
+# model = SimpleUNet.load_from_checkpoint(
+#     checkpoint_path, map_location="cpu"
+# )  # Force CPU loading
+model = SimpleUNet()
 model.eval()  # Set to evaluation mode
 model.freeze()  # Freeze the model for inference
 
 app = FastAPI()
 start_time = time.time()
 
+
 @app.post("/predict", response_model=TumorPredictResponseDto)
 def predict_endpoint(request: TumorPredictRequestDto):
     img: np.ndarray = decode_request(request)
+
+    # predict will be called mutiple times. Save the images in a folder
+    # os.makedirs("images", exist_ok=True)
+    # img_path = os.path.join("images", f"{time.time()}.png")
+    # cv2.imwrite(img_path, img)
 
     predicted_segmentation = model.predict(img)
 
@@ -60,6 +68,7 @@ def hello():
         "service": "race-car-usecase",
         "uptime": "{}".format(datetime.timedelta(seconds=time.time() - start_time)),
     }
+
 
 @app.get("/")
 def index():

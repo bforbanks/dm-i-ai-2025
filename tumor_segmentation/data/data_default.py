@@ -80,7 +80,7 @@ class TumorSegmentationDataset(Dataset):
 class OversamplingTumorSegmentationDataset(Dataset):
     """
     Dataset for tumor segmentation with oversampling to achieve desired patient/control ratio.
-    
+
     This dataset uses ALL available data and oversamples the minority class to achieve
     the desired patient_control_ratio. It always uses all data from one class and oversamples
     the other class as needed.
@@ -101,76 +101,92 @@ class OversamplingTumorSegmentationDataset(Dataset):
         self.patient_control_ratio = patient_control_ratio
         self.transform = transform
         self.random_state = random_state
-        
+
         num_patients = len(patient_image_paths)
         num_controls = len(control_image_paths)
-        
+
         # Determine which class to oversample based on the desired ratio
         if patient_control_ratio >= 0.5:
             # We want more patients than controls, so oversample patients
             # Use ALL control data and oversample patients
-            target_patients = int(num_controls * patient_control_ratio / (1 - patient_control_ratio))
-            
+            target_patients = int(
+                num_controls * patient_control_ratio / (1 - patient_control_ratio)
+            )
+
             if target_patients > num_patients:
                 # Need to oversample patients
                 self.patient_indices = []
-                
+
                 # Add all original patient indices
                 self.patient_indices.extend(range(num_patients))
-                
+
                 # Add oversampled indices
                 rng = np.random.RandomState(random_state)
                 additional_samples = target_patients - num_patients
-                oversampled_indices = rng.choice(num_patients, size=additional_samples, replace=True)
+                oversampled_indices = rng.choice(
+                    num_patients, size=additional_samples, replace=True
+                )
                 self.patient_indices.extend(oversampled_indices)
             else:
                 # No oversampling needed, use all patients
                 self.patient_indices = list(range(num_patients))
-            
+
             # Use all controls
             self.control_indices = list(range(num_controls))
             self.oversample_patients = True
-            
+
         else:
             # We want more controls than patients, so oversample controls
             # Use ALL patient data and oversample controls
-            target_controls = int(num_patients * (1 - patient_control_ratio) / patient_control_ratio)
-            
+            target_controls = int(
+                num_patients * (1 - patient_control_ratio) / patient_control_ratio
+            )
+
             if target_controls > num_controls:
                 # Need to oversample controls
                 self.control_indices = []
-                
+
                 # Add all original control indices
                 self.control_indices.extend(range(num_controls))
-                
+
                 # Add oversampled indices
                 rng = np.random.RandomState(random_state)
                 additional_samples = target_controls - num_controls
-                oversampled_indices = rng.choice(num_controls, size=additional_samples, replace=True)
+                oversampled_indices = rng.choice(
+                    num_controls, size=additional_samples, replace=True
+                )
                 self.control_indices.extend(oversampled_indices)
             else:
                 # No oversampling needed, use all controls
                 self.control_indices = list(range(num_controls))
-            
+
             # Use all patients
             self.patient_indices = list(range(num_patients))
             self.oversample_patients = False
-        
+
         # Shuffle the indices for randomness
         rng = np.random.RandomState(random_state)
         rng.shuffle(self.patient_indices)
         rng.shuffle(self.control_indices)
-        
-        print(f"Oversampling dataset initialized:")
+
+        print("Oversampling dataset initialized:")
         print(f"  - Original patients: {num_patients}")
         print(f"  - Original controls: {num_controls}")
         if self.oversample_patients:
-            print(f"  - Target patients for {patient_control_ratio:.1%} ratio: {len(self.patient_indices)}")
-            print(f"  - Final ratio: {len(self.patient_indices) / (len(self.patient_indices) + len(self.control_indices)):.1%} patients")
+            print(
+                f"  - Target patients for {patient_control_ratio:.1%} ratio: {len(self.patient_indices)}"
+            )
+            print(
+                f"  - Final ratio: {len(self.patient_indices) / (len(self.patient_indices) + len(self.control_indices)):.1%} patients"
+            )
         else:
-            print(f"  - Target controls for {patient_control_ratio:.1%} ratio: {len(self.control_indices)}")
-            print(f"  - Final ratio: {len(self.patient_indices) / (len(self.patient_indices) + len(self.control_indices)):.1%} patients")
-    
+            print(
+                f"  - Target controls for {patient_control_ratio:.1%} ratio: {len(self.control_indices)}"
+            )
+            print(
+                f"  - Final ratio: {len(self.patient_indices) / (len(self.patient_indices) + len(self.control_indices)):.1%} patients"
+            )
+
     def regenerate_oversampling(self, epoch: int = 0):
         """
         Regenerate oversampling indices for a new epoch to ensure different patterns.
@@ -178,41 +194,53 @@ class OversamplingTumorSegmentationDataset(Dataset):
         """
         num_patients = len(self.patient_image_paths)
         num_controls = len(self.control_image_paths)
-        
+
         # Use epoch number as additional seed for randomness
         seed = self.random_state + epoch
         rng = np.random.RandomState(seed)
-        
+
         if self.oversample_patients:
             # Regenerate patient oversampling
-            target_patients = int(num_controls * self.patient_control_ratio / (1 - self.patient_control_ratio))
-            
+            target_patients = int(
+                num_controls
+                * self.patient_control_ratio
+                / (1 - self.patient_control_ratio)
+            )
+
             if target_patients > num_patients:
                 self.patient_indices = []
                 self.patient_indices.extend(range(num_patients))
-                
+
                 additional_samples = target_patients - num_patients
-                oversampled_indices = rng.choice(num_patients, size=additional_samples, replace=True)
+                oversampled_indices = rng.choice(
+                    num_patients, size=additional_samples, replace=True
+                )
                 self.patient_indices.extend(oversampled_indices)
             else:
                 self.patient_indices = list(range(num_patients))
-            
+
             # Shuffle patient indices
             rng.shuffle(self.patient_indices)
         else:
             # Regenerate control oversampling
-            target_controls = int(num_patients * (1 - self.patient_control_ratio) / self.patient_control_ratio)
-            
+            target_controls = int(
+                num_patients
+                * (1 - self.patient_control_ratio)
+                / self.patient_control_ratio
+            )
+
             if target_controls > num_controls:
                 self.control_indices = []
                 self.control_indices.extend(range(num_controls))
-                
+
                 additional_samples = target_controls - num_controls
-                oversampled_indices = rng.choice(num_controls, size=additional_samples, replace=True)
+                oversampled_indices = rng.choice(
+                    num_controls, size=additional_samples, replace=True
+                )
                 self.control_indices.extend(oversampled_indices)
             else:
                 self.control_indices = list(range(num_controls))
-            
+
             # Shuffle control indices
             rng.shuffle(self.control_indices)
 
@@ -226,7 +254,7 @@ class OversamplingTumorSegmentationDataset(Dataset):
             patient_idx = self.patient_indices[idx]
             img_path = self.patient_image_paths[patient_idx]
             mask_path = self.patient_mask_paths[patient_idx]
-            
+
             # Load image and mask
             image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
             mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
@@ -234,10 +262,12 @@ class OversamplingTumorSegmentationDataset(Dataset):
         else:
             # Control sample
             control_idx = idx - len(self.patient_indices)
-            control_idx = self.control_indices[control_idx]  # Map to actual control index
+            control_idx = self.control_indices[
+                control_idx
+            ]  # Map to actual control index
             img_path = self.control_image_paths[control_idx]
             mask_path = None
-            
+
             # Load image and create zero mask
             image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
             mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
@@ -267,11 +297,11 @@ class OversamplingDataLoader(DataLoader):
     Custom DataLoader that regenerates oversampling indices at the beginning of each epoch.
     This ensures different oversampling patterns across epochs for better training stability.
     """
-    
+
     def __init__(self, dataset, *args, **kwargs):
         super().__init__(dataset, *args, **kwargs)
         self.epoch = 0
-    
+
     def __iter__(self):
         # Regenerate oversampling indices for the new epoch
         if isinstance(self.dataset, OversamplingTumorSegmentationDataset):
@@ -358,6 +388,35 @@ def get_transforms(augmentation: bool = True, image_size: int = 256):
         return get_standard_transforms(image_size)
 
 
+class EvaluationDataset(Dataset):
+    """
+    Dataset for evaluation/test images without ground truth masks.
+    Used for inference-only evaluation on new data.
+    """
+
+    def __init__(self, image_paths: List[str], transform=None):
+        self.image_paths = image_paths
+        self.transform = transform
+
+        print(f"Evaluation dataset initialized with {len(image_paths)} images")
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        # Load image as grayscale
+        img_path = self.image_paths[idx]
+        image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+        # Apply transformations (same preprocessing as training)
+        if self.transform:
+            augmented = self.transform(image=image)
+            image = augmented["image"]
+
+        # Return image and filename for tracking
+        return image, Path(img_path).name
+
+
 class TumorSegmentationDataModule(pl.LightningDataModule):
     """
     PyTorch Lightning DataModule for tumor segmentation.
@@ -367,6 +426,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
     - Train/validation split
     - Data augmentation
     - Dataloader creation
+    - Evaluation set loading
     """
 
     def __init__(
@@ -396,6 +456,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         # Data paths
         self.train_dataset = None
         self.val_dataset = None
+        self.eval_dataset = None
 
     def setup(self, stage: Optional[str] = None):
         """Load and split data"""
@@ -411,8 +472,15 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         if self.use_oversampling:
             # Use oversampling approach
             print("Using OVERSAMPLING approach (uses all data)")
-            train_imgs, val_imgs, train_masks, val_masks, train_controls, val_controls = (
-                self._create_oversampled_split(patient_images, patient_masks, control_images)
+            (
+                train_imgs,
+                val_imgs,
+                train_masks,
+                val_masks,
+                train_controls,
+                val_controls,
+            ) = self._create_oversampled_split(
+                patient_images, patient_masks, control_images
             )
 
             # Create oversampling datasets for training
@@ -432,7 +500,9 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
                 val_imgs,
                 val_masks,
                 val_controls,
-                transform=get_transforms(augmentation=False, image_size=self.image_size),
+                transform=get_transforms(
+                    augmentation=False, image_size=self.image_size
+                ),
             )
 
             print(f"Train set: {len(self.train_dataset)} samples (with oversampling)")
@@ -440,8 +510,15 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         else:
             # Use previous balanced approach
             print("Using PREVIOUS BALANCED approach (may waste data)")
-            train_imgs, val_imgs, train_masks, val_masks, train_controls, val_controls = (
-                self._create_balanced_split(patient_images, patient_masks, control_images)
+            (
+                train_imgs,
+                val_imgs,
+                train_masks,
+                val_masks,
+                train_controls,
+                val_controls,
+            ) = self._create_balanced_split(
+                patient_images, patient_masks, control_images
             )
 
             # Create regular datasets for both training and validation
@@ -458,7 +535,9 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
                 val_imgs,
                 val_masks,
                 val_controls,
-                transform=get_transforms(augmentation=False, image_size=self.image_size),
+                transform=get_transforms(
+                    augmentation=False, image_size=self.image_size
+                ),
             )
 
             print(f"Train set: {len(self.train_dataset)} samples (balanced)")
@@ -467,7 +546,7 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
     def _create_oversampled_split(self, patient_images, patient_masks, control_images):
         """
         Create a train/validation split that uses ALL data and applies oversampling during training.
-        
+
         Strategy:
         1. Use ALL available data (no undersampling)
         2. Split both patient and control data into train/validation
@@ -480,7 +559,9 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         print(
             f"Original data: {available_patients} patients, {available_controls} controls"
         )
-        print(f"Using ALL data with oversampling to achieve {self.patient_control_ratio:.1%} patient ratio")
+        print(
+            f"Using ALL data with oversampling to achieve {self.patient_control_ratio:.1%} patient ratio"
+        )
 
         # Split patients into train/validation
         train_imgs, val_imgs, train_masks, val_masks = train_test_split(
@@ -651,7 +732,9 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
 
     def train_dataloader(self):
         """Training dataloader with optional epoch-based oversampling regeneration"""
-        if self.use_oversampling and isinstance(self.train_dataset, OversamplingTumorSegmentationDataset):
+        if self.use_oversampling and isinstance(
+            self.train_dataset, OversamplingTumorSegmentationDataset
+        ):
             return OversamplingDataLoader(
                 self.train_dataset,
                 batch_size=self.batch_size,
@@ -672,6 +755,41 @@ class TumorSegmentationDataModule(pl.LightningDataModule):
         """Validation dataloader"""
         return DataLoader(
             self.val_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=torch.cuda.is_available(),
+        )
+
+    def setup_evaluation_set(self):
+        """Set up evaluation dataset from evaluation_set folder"""
+        eval_dir = self.data_dir / "evaluation_set"
+        if not eval_dir.exists():
+            print(f"Warning: Evaluation directory {eval_dir} does not exist")
+            return
+
+        # Load all PNG images from evaluation set
+        eval_images = sorted(list(eval_dir.glob("*.png")))
+        eval_image_paths = [str(p) for p in eval_images]
+
+        print(f"Found {len(eval_image_paths)} evaluation images")
+
+        # Create evaluation dataset (no augmentation, only preprocessing)
+        self.eval_dataset = EvaluationDataset(
+            eval_image_paths,
+            transform=get_transforms(augmentation=False, image_size=self.image_size),
+        )
+
+    def eval_dataloader(self):
+        """Evaluation dataloader for inference-only evaluation set"""
+        if self.eval_dataset is None:
+            self.setup_evaluation_set()
+
+        if self.eval_dataset is None:
+            return None
+
+        return DataLoader(
+            self.eval_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
