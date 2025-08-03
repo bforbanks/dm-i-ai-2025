@@ -207,14 +207,12 @@ def get_best_topic(statement: str) -> int:
 
 def get_rich_context_for_statement(statement: str, topic_id: int, max_chars: int = 4000) -> str:
     """
-    Get rich context using hybrid approach: full document for chosen topic + chunks for related topics
+    Get rich context using only the full documents from the chosen topic
     """
-    data = load_embeddings()
-    model = load_sentence_embedding_model()
-    
     # Find topic name from ID
     topic_name = None
-    for name, tid in data['topics_data'].items():
+    topics_data = load_topics_mapping()
+    for name, tid in topics_data.items():
         if tid == topic_id:
             topic_name = name
             break
@@ -222,29 +220,12 @@ def get_rich_context_for_statement(statement: str, topic_id: int, max_chars: int
     if not topic_name:
         return ""
     
-    # Step 1: Get the FULL document for the chosen topic
+    # Get the FULL document for the chosen topic only
     full_document = get_full_document_for_topic(topic_name)
     
-    # Step 2: Get high-scoring chunks from other topics for broader context
-    search_results = hybrid_search(statement, top_k=10)
-    related_chunks = []
-    
-    for result in search_results:
-        if result['topic_id'] != topic_id and result['score'] > 0.3:  # Lower threshold for related chunks
-            related_chunks.append({
-                'text': result['chunk_text'],
-                'topic': result['topic_name'],
-                'score': result['score']
-            })
-    
-    # Step 3: Build context with full document first, then related chunks
+    # Build context with only the topic's full document
     context = f"MEDICAL CONTEXT FOR TOPIC: {topic_name}\n\n"
-    context += f"FULL DOCUMENT:\n{full_document}\n\n"
-    
-    if related_chunks:
-        context += "RELATED INFORMATION FROM OTHER TOPICS:\n"
-        for chunk in related_chunks[:3]:  # Limit to top 3 related chunks
-            context += f"[From {chunk['topic']}]: {chunk['text']}\n\n"
+    context += full_document
     
     # Truncate if too long
     if len(context) > max_chars:
