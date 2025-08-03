@@ -14,22 +14,32 @@ def create_prompt(statement: str, topics: dict) -> str:
     topic_list = "\n".join([f"{i+1}. {topic}" for i, topic in enumerate(topics.keys())])
     
     prompt = f"""You are a medical expert. Given a statement about emergency healthcare, determine:
-1. Whether the statement is TRUE (1) or FALSE (0)
-2. Which medical topic it relates to (choose from the list below)
+    1. Whether the statement is TRUE (1) or FALSE (0)
+    2. Which medical topic it relates to (choose from the list below)
 
-Statement: {statement}
+    Common patterns in FALSE statements include:
+    - Incorrect numerical values (e.g., drug doses, lab cutoffs, time durations)
+    - Reversed or false causation (e.g., misattributed physiological effects)
+    - Overgeneralized treatment recommendations (ignoring contraindications or exceptions)
+    - Misstated diagnostic criteria or staging definitions
+    - Misleading statistics or prevalence claims
+    - Anatomical or pathophysiological errors
+    - Confusion between similar clinical terms or concepts
 
-Available topics:
-{topic_list}
+    Be skeptical of absolute claims with precise numbers, fixed durations, or universal recommendations.
 
-Please respond in this exact format:
-Truth: [0 or 1]
-Topic: [topic name exactly as listed above]
+    Statement: {statement}
 
-Example:
-Truth: 1
-Topic: Acute Coronary Syndrome"""
-    
+    Available topics:
+    {topic_list}
+
+    Please respond in this exact format:
+    Truth: [0 or 1]
+    Topic: [topic name exactly as listed above]
+
+    Example:
+    Truth: 1
+    Topic: Acute Coronary Syndrome"""
     return prompt
 
 def predict(statement: str) -> tuple[bool, str]:
