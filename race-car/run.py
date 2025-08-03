@@ -45,10 +45,10 @@ if __name__ == '__main__':
     seed_value = 12345
     pygame.init()
     if RL_ENV:
+        show_visualization = False  # Change to False for headless training
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         dtype = torch.float32
-        # Initialize the environment
-        env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value, render=False)
+        env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value, render=show_visualization)        
         agent = MODEL(input_dim=21, output_dim=5, device=device, dtype=dtype)
         train(agent=agent, env=env, episodes=10000)  # Train the agent
     else:
