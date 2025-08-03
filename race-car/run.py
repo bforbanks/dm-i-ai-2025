@@ -42,7 +42,7 @@ RL_ENV = True
 
 
 if __name__ == '__main__':
-    seed_value = 12345
+    seed_value = None
     pygame.init()
     if RL_ENV:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
