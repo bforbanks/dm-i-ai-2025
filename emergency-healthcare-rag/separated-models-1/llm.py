@@ -26,7 +26,7 @@ MEDICAL CONTEXT:
 
 TASK: Determine if the statement is TRUE (1) or FALSE (0) based on the medical context above.
 
-The chance of a statement being true or false is roughly 50/50.
+The chance of a statement being true or false is roughly 50/50. Previous tests indicate that you rate true too much, so lean towards false unless you know otherwise or the medical context supports true.
 Common patterns in FALSE statements include:
     - Incorrect numerical values (e.g., drug doses, lab cutoffs, time durations)
     - Reversed or false causation (e.g., misattributed physiological effects)

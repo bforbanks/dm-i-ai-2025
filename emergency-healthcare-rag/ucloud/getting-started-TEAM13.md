@@ -150,7 +150,7 @@ To expose the FastAPI endpoint to the internet:
 Keep these terminal tabs open:
 - **Tab 1**: Main terminal for setup and management
 - **Tab 2**: Ollama server (`/work/TEAM13/ollama/bin/ollama serve`)
-- **Tab 3**: FastAPI server (`python ucloud/api.py`)
+- **Tab 3**: FastAPI server (`python api.py`)
 - **Tab 4**: Model management and testing
 
 ## 7. Restarting Jobs
