@@ -9,10 +9,6 @@ data:
   patient_control_ratio: 0.80
   use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
 
-
-
-
-
 # Trainer configuration - Common for all models
 trainer:
   max_epochs: 10000
