@@ -37,7 +37,7 @@ class NNUNetStyle(BaseModel):
         
         # Store dropout rate
         self.dropout_rate = dropout_rate
-        
+
         # Use hardcoded channel dimensions like SimpleUNet for now
         # Encoder
         self.enc1 = self._make_encoder_block(in_channels, 32)

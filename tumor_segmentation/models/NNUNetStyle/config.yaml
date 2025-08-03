@@ -11,8 +11,9 @@ model:
       schedule_type: "linear"  # "linear" or "exponential"
     patient_weight: 0.5  # Weight multiplier for patient images (higher = more focus on tumors)
     control_weight: 0.5  # Weight multiplier for control images (lower = less focus on empty masks)
-    base_channels: 64
-    depth: 8
+    # Not implemente yet
+    # base_channels: 64
+    # depth: 8
     dropout_rate: 0.1  # Dropout rate for regularization
 
 # # Override dice analysis callback frequency
