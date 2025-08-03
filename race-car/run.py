@@ -1,19 +1,20 @@
 import pygame
 import random
+import torch
 import importlib
 from src.game.core import initialize_game_state, game_loop
 
 # RL imports
 from src.game.rl_wrapper import RaceCarEnv
 from models.rl.dqn.train import train
-
+from models.rl.dqn.deepQ import DQNAgent
 
 '''
 Set seed_value to None for random seed.
 Within game_loop, change get_action() to your custom models prediction for local testing and training.
 '''
 # This is the full dotted path: module path + class name
-model_path = "rl.dqn.DQNModel.DQN"  # <== 'DQN' is the class name
+model_path = "rl.dqn.deepQ.DQNAgent"  # <== 'DQNAgent' is the class name
 
 # Split the path into module and class name
 *module_parts, class_name = model_path.split(".")
@@ -44,10 +45,14 @@ if __name__ == '__main__':
     seed_value = 12345
     pygame.init()
     if RL_ENV:
-        env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value)
-        agent = MODEL(input_dim=21, output_dim=5)
-        train(agent=agent, env=env, episodes=1)  # Train the agent
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        dtype = torch.float32
+        # Initialize the environment
+        env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value, render=False)
+        agent = MODEL(input_dim=21, output_dim=5, device=device, dtype=dtype)
+        train(agent=agent, env=env, episodes=10000)  # Train the agent
     else:
+        
         initialize_game_state(api_url="http://example.com/api/predict", seed_value=seed_value)
         game_loop(verbose=True, model=False) # For pygame window
     pygame.quit()
