@@ -46,14 +46,16 @@ class SimpleUNet(BaseModel):
         )
 
     def _make_layer(self, in_channels: int, out_channels: int) -> nn.Sequential:
-        """Create a simple convolutional layer"""
+        """Create a simple convolutional layer with dropout for regularization"""
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
+            nn.Dropout2d(0.1),  # Add dropout after first conv block
             nn.Conv2d(out_channels, out_channels, 3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
+            nn.Dropout2d(0.1),  # Add dropout after second conv block
         )
 
     def forward(self, x):

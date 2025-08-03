@@ -6,7 +6,12 @@ data:
   val_split: 0.2
   batch_size: 16
   num_workers: 0
-  patient_control_ratio: 0.95
+  patient_control_ratio: 0.80
+  use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
+
+
+
+
 
 # Trainer configuration - Common for all models
 trainer:
@@ -30,8 +35,12 @@ trainer:
         logging_interval: "epoch"
     - class_path: callbacks.visualization_callback.TumorVisualizationCallback
       init_args:
-        log_every_n_epochs: 1
+        log_every_n_epochs: 3
         tumor_image_name: "patient_019"
         control_image_name: "control_275"
         additional_tumor_names: ["patient_042", "patient_067"]
         additional_control_names: ["control_123", "control_090"]
+    - class_path: callbacks.dice_analysis_callback.DiceAnalysisCallback
+      init_args:
+        analysis_every_n_epochs: 5
+        save_top_k: 7

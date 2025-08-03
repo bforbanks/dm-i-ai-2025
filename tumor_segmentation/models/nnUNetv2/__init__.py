@@ -1,1 +1,0 @@
-# nnU-Net v2 model package 

@@ -15,11 +15,26 @@ class BaseModel(pl.LightningModule):
     - Support for both patient and control data
     """
 
-    def __init__(self, lr=1e-3, weight_decay=1e-5, bce_loss_weight=0.5, **kwargs):
+    def __init__(self, lr: float = 1e-3, weight_decay: float = 1e-5, bce_loss_weight: float = 0.5, false_negative_penalty: float = 2.0, 
+                 false_negative_penalty_scheduler: dict | None = None, patient_weight: float = 2.0, control_weight: float = 0.5, **kwargs):
         super().__init__()
 
         self.bce_loss_weight = bce_loss_weight
+        self.false_negative_penalty = false_negative_penalty
         self.save_hyperparameters()
+
+        # Initialize false negative penalty scheduler
+        self.false_negative_penalty_scheduler = false_negative_penalty_scheduler or {}
+        
+        # Set initial penalty value
+        if self.false_negative_penalty_scheduler.get('enabled', False):
+            self.current_false_negative_penalty = self.false_negative_penalty_scheduler.get('start_value', 0.001)
+        else:
+            self.current_false_negative_penalty = self.false_negative_penalty
+
+        # Initialize patient/control weighting
+        self.patient_weight = patient_weight
+        self.control_weight = control_weight
 
         # Initialize loss function - we'll use the _calculate_dice_loss method
         self.smooth = 1e-6
@@ -36,8 +51,26 @@ class BaseModel(pl.LightningModule):
         # Convert predictions to binary for Dice score calculation
         pred_binary = (pred > 0.5).float()
 
-        # Calculate BCE loss
-        bce_loss = torch.nn.functional.binary_cross_entropy(pred, target)
+        # Calculate sample weights based on whether they contain tumors (patient vs control)
+        # target.sum() > 0 indicates patient images (with tumors)
+        sample_weights = torch.where(
+            target.sum(dim=[1, 2, 3]) > 0,  # Patient images
+            self.patient_weight,
+            self.control_weight  # Control images
+        )
+        
+        # Calculate weighted BCE loss
+        bce_loss = torch.nn.functional.binary_cross_entropy(pred, target, reduction='none')
+        bce_loss = (bce_loss * sample_weights.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)).mean()
+
+        # Calculate false negative penalty (only applies to patient images)
+        # False negatives: target=1 but pred=0 (missed tumor pixels)
+        # We want to penalize these more heavily
+        false_negative_mask = (target == 1) & (pred < 0.5)
+        false_negative_penalty = torch.nn.functional.binary_cross_entropy(
+            pred[false_negative_mask], 
+            target[false_negative_mask]
+        ) if false_negative_mask.sum() > 0 else torch.tensor(0.0, device=pred.device)
 
         # Calculate overall Dice score using custom implementation (matches utils.py)
         dice_score = self._calculate_dice_score(pred_binary, target)
@@ -45,10 +78,13 @@ class BaseModel(pl.LightningModule):
         # Calculate Dice score for patient images only (non-control images)
         patient_dice_score = self._calculate_patient_dice_score(pred_binary, target)
 
-        # Calculate loss using raw sigmoid predictions
+        # Calculate weighted Dice loss
+        dice_loss = self._calculate_weighted_dice_loss(pred, target, sample_weights)
+        
+        # Calculate total loss with all components
         loss = bce_loss * self.bce_loss_weight + (
             1 - self.bce_loss_weight
-        ) * self._calculate_dice_loss(pred, target)
+        ) * dice_loss + self.current_false_negative_penalty * false_negative_penalty
 
         # Log metrics
         batch_size = target.size(0)
@@ -58,6 +94,46 @@ class BaseModel(pl.LightningModule):
             on_step=False,
             on_epoch=True,
             prog_bar=True,
+            batch_size=batch_size,
+        )
+        
+        # Log false negative penalty contribution and current penalty value
+        self.log(
+            f"{prefix}_false_negative_penalty",
+            false_negative_penalty,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
+            batch_size=batch_size,
+        )
+        
+        # Log current penalty value for monitoring
+        self.log(
+            f"{prefix}_current_penalty_value",
+            self.current_false_negative_penalty,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
+            batch_size=batch_size,
+        )
+        
+        # Log patient/control weighting statistics
+        patient_count = (target.sum(dim=[1, 2, 3]) > 0).sum().item()
+        control_count = batch_size - patient_count
+        self.log(
+            f"{prefix}_patient_count",
+            patient_count,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
+            batch_size=batch_size,
+        )
+        self.log(
+            f"{prefix}_control_count",
+            control_count,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
             batch_size=batch_size,
         )
 
@@ -81,6 +157,60 @@ class BaseModel(pl.LightningModule):
         )
 
         return loss
+
+    def _update_false_negative_penalty(self, epoch: int):
+        """Update the false negative penalty based on the current epoch."""
+        if not self.false_negative_penalty_scheduler.get('enabled', False):
+            return
+            
+        start_value = self.false_negative_penalty_scheduler.get('start_value', 0.001)
+        end_value = self.false_negative_penalty_scheduler.get('end_value', 0.05)
+        warmup_epochs = self.false_negative_penalty_scheduler.get('warmup_epochs', 50)
+        schedule_type = self.false_negative_penalty_scheduler.get('schedule_type', 'linear')
+        
+        if epoch >= warmup_epochs:
+            self.current_false_negative_penalty = end_value
+        else:
+            progress = epoch / warmup_epochs
+            if schedule_type == 'linear':
+                self.current_false_negative_penalty = start_value + (end_value - start_value) * progress
+            elif schedule_type == 'exponential':
+                self.current_false_negative_penalty = start_value * (end_value / start_value) ** progress
+            else:
+                self.current_false_negative_penalty = start_value + (end_value - start_value) * progress
+
+    def _calculate_weighted_dice_loss(self, pred, target, sample_weights):
+        """
+        Calculate weighted Dice loss using sigmoid predictions.
+        
+        Args:
+            pred: Model predictions [B, 1, H, W] (sigmoid output, values 0-1)
+            target: Ground truth [B, 1, H, W] (binary, values 0 or 1)
+            sample_weights: Sample weights [B] (patient_weight or control_weight)
+            
+        Returns:
+            Weighted mean Dice loss across the batch
+        """
+        # Ensure target shape matches prediction shape
+        if pred.shape != target.shape:
+            # If target has extra dimensions, squeeze them
+            while len(target.shape) > len(pred.shape):
+                target = target.squeeze(-1)
+            # If target needs channel dimension, add it
+            if len(target.shape) == 3 and len(pred.shape) == 4:
+                target = target.unsqueeze(1)
+
+        # Use the shared dice calculation function
+        dice_scores = self._calculate_dice_per_sample(pred, target, smooth=self.smooth)
+
+        # Convert dice scores to losses (1 - dice)
+        dice_losses = [1 - dice for dice in dice_scores]
+        dice_losses = torch.stack(dice_losses)
+        
+        # Apply sample weights and return weighted mean
+        weighted_dice_loss = (dice_losses * sample_weights).sum() / sample_weights.sum()
+        
+        return weighted_dice_loss
 
     def _calculate_dice_per_sample(self, pred, target, smooth=1e-6):
         """
@@ -232,12 +362,17 @@ class BaseModel(pl.LightningModule):
         pred = self(images)
         return self._calculate_and_log_metrics(pred, masks, "val")
 
+    def on_train_epoch_start(self):
+        """Update false negative penalty at the start of each training epoch."""
+        current_epoch = self.trainer.current_epoch
+        self._update_false_negative_penalty(current_epoch)
+
     def configure_optimizers(self):
         """Configure optimizer and learning rate scheduler"""
         optimizer = torch.optim.Adam(
             self.parameters(),
-            lr=self.hparams.lr,
-            weight_decay=self.hparams.weight_decay,
+            lr=self.hparams.get('lr', 1e-3),
+            weight_decay=self.hparams.get('weight_decay', 1e-5),
         )
 
         # Learning rate scheduler

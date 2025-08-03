@@ -106,6 +106,55 @@ See below for an example segmentation prediction and dice score.
 
 
 
+## Data Handling and Oversampling
+
+The tumor segmentation project uses an advanced oversampling approach to maximize data utilization while achieving desired class balance ratios.
+
+### Oversampling Strategy
+
+The system implements intelligent oversampling that:
+
+1. **Uses ALL available data** - No data is wasted through undersampling
+2. **Preserves patient_control_ratio** - Achieves the exact desired ratio through oversampling
+3. **Adapts to any ratio** - Works for both patient_control_ratio ≥ 0.5 (oversample patients) and < 0.5 (oversample controls)
+4. **Epoch-based regeneration** - Creates different oversampling patterns each epoch for training stability
+5. **Natural validation** - Validation set uses natural data distribution without oversampling
+
+### How it Works
+
+- **Training**: Uses `OversamplingTumorSegmentationDataset` that oversamples the minority class to achieve the desired ratio
+- **Validation**: Uses regular `TumorSegmentationDataset` with natural data distribution
+- **Configuration**: Set `patient_control_ratio` in your model config (default: 0.8)
+
+### Example Usage
+
+```python
+# In your model config
+data:
+  patient_control_ratio: 0.8  # 80% patients, 20% controls
+  batch_size: 16
+  val_split: 0.2
+  use_oversampling: true  # Toggle between oversampling (true) and previous approach (false)
+
+# With use_oversampling: true (recommended):
+# - Use all available patient and control data
+# - Oversample patients to achieve 80% ratio during training
+# - Use natural distribution for validation
+
+# With use_oversampling: false (previous approach):
+# - May waste data through undersampling
+# - Achieves ratio by limiting larger class
+# - Both training and validation use balanced distribution
+```
+
+### Testing Oversampling
+
+Run the test script to see how oversampling works:
+
+```bash
+python test_oversampling.py
+```
+
 ## Quickstart
 
 ```cmd

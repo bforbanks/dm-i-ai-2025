@@ -6,6 +6,6 @@ model:
     weight_decay: 1e-3
     use_self_attention: true
     use_attention_gates: true
-    # Memory optimization parameters
-    base_channels: 16  # Reduced from 32 for memory efficiency
-    attention_reduction_ratio: 16  # Increased from 8 for memory efficiency
+    # Aggressive memory optimization parameters
+    base_channels: 12  # Further reduced for maximum memory efficiency
+    attention_reduction_ratio: 32  # Much higher reduction ratio 

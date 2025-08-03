@@ -1,0 +1,11 @@
+model:
+  class_path: models.AttentionUNet.model.AttentionUNet
+  init_args:
+    bce_loss_weight: 0.5
+    lr: 1e-3
+    weight_decay: 1e-3
+    use_self_attention: true  # Keep self-attention enabled
+    use_attention_gates: true  # Keep attention gates enabled
+    # Memory-efficient parameters (now that we have channel attention)
+    base_channels: 16  # Back to reasonable size
+    attention_reduction_ratio: 8  # Back to reasonable ratio 

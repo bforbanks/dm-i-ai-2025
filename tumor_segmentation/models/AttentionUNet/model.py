@@ -6,8 +6,8 @@ from tumor_segmentation.models.base_model import BaseModel
 
 class SelfAttention(nn.Module):
     """
-    Simple Spatial Self-Attention mechanism for medical image segmentation.
-    Allows each pixel to attend to all other pixels in the feature map.
+    Memory-efficient Channel Self-Attention mechanism for medical image segmentation.
+    Uses channel attention instead of spatial attention to avoid quadratic memory usage.
     """
 
     def __init__(self, in_channels: int, reduction_ratio: int = 8):
@@ -16,16 +16,18 @@ class SelfAttention(nn.Module):
         self.reduction_ratio = reduction_ratio
         self.inter_channels = max(in_channels // reduction_ratio, 1)
 
-        # Query, Key, Value projections
-        self.query_conv = nn.Conv2d(in_channels, self.inter_channels, 1)
-        self.key_conv = nn.Conv2d(in_channels, self.inter_channels, 1)
-        self.value_conv = nn.Conv2d(in_channels, self.inter_channels, 1)
-
-        # Output projection
-        self.output_conv = nn.Conv2d(self.inter_channels, in_channels, 1)
-
-        # Normalization
-        self.softmax = nn.Softmax(dim=-1)
+        # Channel attention mechanism (much more memory efficient)
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+        
+        # Shared MLP for channel attention
+        self.shared_mlp = nn.Sequential(
+            nn.Conv2d(in_channels, self.inter_channels, 1, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(self.inter_channels, in_channels, 1, bias=False)
+        )
+        
+        self.sigmoid = nn.Sigmoid()
         self.gamma = nn.Parameter(torch.zeros(1))  # Learnable scaling factor
 
     def forward(self, x):
@@ -33,39 +35,20 @@ class SelfAttention(nn.Module):
         Args:
             x: Input feature map (B, C, H, W)
         Returns:
-            out: Self-attended feature map (B, C, H, W)
+            out: Channel-attended feature map (B, C, H, W)
         """
         batch_size, channels, height, width = x.size()
 
-        # Generate Query, Key, Value
-        query = self.query_conv(x).view(
-            batch_size, self.inter_channels, -1
-        )  # (B, C', H*W)
-        key = self.key_conv(x).view(batch_size, self.inter_channels, -1)  # (B, C', H*W)
-        value = self.value_conv(x).view(
-            batch_size, self.inter_channels, -1
-        )  # (B, C', H*W)
-
-        # Transpose for matrix multiplication
-        query = query.permute(0, 2, 1)  # (B, H*W, C')
-
-        # Compute attention scores
-        attention_scores = torch.bmm(query, key)  # (B, H*W, H*W)
-        attention_weights = self.softmax(
-            attention_scores
-        )  # Normalize along last dimension
-
-        # Apply attention to values
-        attended_values = torch.bmm(
-            attention_weights, value.permute(0, 2, 1)
-        )  # (B, H*W, C')
-        attended_values = attended_values.permute(0, 2, 1).view(
-            batch_size, self.inter_channels, height, width
-        )
-
-        # Project back to original channel dimensions
-        attended_output = self.output_conv(attended_values)
-
+        # Channel attention using both avg and max pooling
+        avg_out = self.shared_mlp(self.avg_pool(x))  # (B, C, 1, 1)
+        max_out = self.shared_mlp(self.max_pool(x))  # (B, C, 1, 1)
+        
+        # Combine attention weights
+        attention_weights = self.sigmoid(avg_out + max_out)  # (B, C, 1, 1)
+        
+        # Apply channel attention
+        attended_output = x * attention_weights  # (B, C, H, W)
+        
         # Residual connection with learnable scaling
         output = self.gamma * attended_output + x
 
@@ -148,6 +131,9 @@ class AttentionUNet(BaseModel):
         bce_loss_weight=0.5,
         use_self_attention: bool = True,
         use_attention_gates: bool = True,
+        # Memory optimization parameters
+        base_channels: int = 16,  # Reduced from 32
+        attention_reduction_ratio: int = 16,  # Increased from 8
     ):
         super().__init__(
             lr=lr, weight_decay=weight_decay, bce_loss_weight=bce_loss_weight
@@ -156,38 +142,38 @@ class AttentionUNet(BaseModel):
         self.use_self_attention = use_self_attention
         self.use_attention_gates = use_attention_gates
 
-        # Encoder
-        self.enc1 = self._make_layer(in_channels, 32)
-        self.enc2 = self._make_layer(32, 64)
-        self.enc3 = self._make_layer(64, 128)
-        self.enc4 = self._make_layer(128, 256)
+        # Encoder with reduced channels
+        self.enc1 = self._make_layer(in_channels, base_channels)
+        self.enc2 = self._make_layer(base_channels, base_channels * 2)
+        self.enc3 = self._make_layer(base_channels * 2, base_channels * 4)
+        self.enc4 = self._make_layer(base_channels * 4, base_channels * 8)
 
-        # Self-attention modules for encoder (optional)
+        # Self-attention modules for encoder (optional) with higher reduction ratio
         if self.use_self_attention:
-            self.self_attn_enc2 = SelfAttention(64, reduction_ratio=8)
-            self.self_attn_enc3 = SelfAttention(128, reduction_ratio=8)
-            self.self_attn_enc4 = SelfAttention(256, reduction_ratio=8)
+            self.self_attn_enc2 = SelfAttention(base_channels * 2, reduction_ratio=attention_reduction_ratio)
+            self.self_attn_enc3 = SelfAttention(base_channels * 4, reduction_ratio=attention_reduction_ratio)
+            self.self_attn_enc4 = SelfAttention(base_channels * 8, reduction_ratio=attention_reduction_ratio)
 
         # Bottleneck with self-attention
-        self.bottleneck = self._make_layer(256, 512)
+        self.bottleneck = self._make_layer(base_channels * 8, base_channels * 16)
         if self.use_self_attention:
-            self.self_attn_bottleneck = SelfAttention(512, reduction_ratio=8)
+            self.self_attn_bottleneck = SelfAttention(base_channels * 16, reduction_ratio=attention_reduction_ratio)
 
         # Attention Gates for skip connections (optional)
         if self.use_attention_gates:
-            self.att_gate4 = AttentionGate(encoder_channels=256, decoder_channels=512)
-            self.att_gate3 = AttentionGate(encoder_channels=128, decoder_channels=256)
-            self.att_gate2 = AttentionGate(encoder_channels=64, decoder_channels=128)
-            self.att_gate1 = AttentionGate(encoder_channels=32, decoder_channels=64)
+            self.att_gate4 = AttentionGate(encoder_channels=base_channels * 8, decoder_channels=base_channels * 16)
+            self.att_gate3 = AttentionGate(encoder_channels=base_channels * 4, decoder_channels=base_channels * 8)
+            self.att_gate2 = AttentionGate(encoder_channels=base_channels * 2, decoder_channels=base_channels * 4)
+            self.att_gate1 = AttentionGate(encoder_channels=base_channels, decoder_channels=base_channels * 2)
 
         # Decoder
-        self.dec4 = self._make_layer(512 + 256, 256)  # +256 for skip connection
-        self.dec3 = self._make_layer(256 + 128, 128)  # +128 for skip connection
-        self.dec2 = self._make_layer(128 + 64, 64)  # +64 for skip connection
-        self.dec1 = self._make_layer(64 + 32, 32)  # +32 for skip connection
+        self.dec4 = self._make_layer(base_channels * 16 + base_channels * 8, base_channels * 8)  # +base_channels * 8 for skip connection
+        self.dec3 = self._make_layer(base_channels * 8 + base_channels * 4, base_channels * 4)  # +base_channels * 4 for skip connection
+        self.dec2 = self._make_layer(base_channels * 4 + base_channels * 2, base_channels * 2)  # +base_channels * 2 for skip connection
+        self.dec1 = self._make_layer(base_channels * 2 + base_channels, base_channels)  # +base_channels for skip connection
 
         # Final output
-        self.final_conv = nn.Conv2d(32, num_classes, 1)
+        self.final_conv = nn.Conv2d(base_channels, num_classes, 1)
 
         # Pooling
         self.pool = nn.MaxPool2d(2)
