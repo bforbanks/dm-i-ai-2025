@@ -34,9 +34,14 @@ from batchgenerators.utilities.file_and_folder_operations import load_json, save
 # =============================================================================
 
 # Model configuration
-MODEL_NAME = "smallerv1"  # Name for the new ResEnc model
-TILING_SIZE = (400, 400)  # Tiling size (width, height) in pixels
-STRATIFIED_SPLIT_PERCENTAGE = 0.5  # Percentage for stratified split (0.0-1.0)
+MODEL_NAME = "nnunet_first_benja"  # Name for the new ResEnc model
+TILING_SIZE = (
+    400,
+    400,
+)  # Tiling size (width, height) in pixels - reduced to avoid dimension mismatches
+STRATIFIED_SPLIT_PERCENTAGE = (
+    0.5  # Percentage for stratified split (0.0-1.0)# to be experimented with
+)
 
 
 # Dataset configuration
@@ -67,6 +72,8 @@ RANDOM_SEED = 42  # Random seed for reproducibility
 
 # Set to None to use standard model architecture
 SMALLER_MODEL_CONFIG = None
+
+# Use smaller model to avoid dimension issues
 
 # =============================================================================
 # END OF CONFIGURABLE PARAMETERS
@@ -130,13 +137,37 @@ def create_fresh_resenc_plans(
 
     original_config = plans["configurations"]["2d"]
 
+    # Calculate compatible patch size based on the ResEnc architecture
+    # ResEnc has 7 stages with stride 2, so we need patch size divisible by 2^6 = 64
+    def make_patch_size_compatible(patch_size, n_stages=7):
+        """Make patch size compatible with the number of downsampling stages."""
+        divisor = 2 ** (n_stages - 1)  # 2^6 = 64 for 7 stages
+        compatible_size = []
+        for dim in patch_size:
+            # Round to nearest multiple of divisor
+            rounded = round(dim / divisor) * divisor
+            # Ensure minimum size
+            if rounded < divisor:
+                rounded = divisor
+            compatible_size.append(rounded)
+        return compatible_size
+
+    # Determine number of stages for patch size calculation
+    n_stages = 7  # Default ResEnc
+    if smaller_model_config:
+        n_stages = smaller_model_config["n_stages"]
+
+    compatible_patch_size = make_patch_size_compatible(patch_size, n_stages)
+    print(f"   Original patch size: {patch_size}")
+    print(f"   Compatible patch size: {compatible_patch_size}")
+
     # Create fresh optimized configuration that inherits from ResEnc 2d
     optimized_config = {
         "inherits_from": "2d",
         "data_identifier": f"nnUNetPlans_{config_name}",
         "preprocessor_name": "DefaultPreprocessor",
         "batch_size": batch_size,
-        "patch_size": list(patch_size),
+        "patch_size": compatible_patch_size,
         # Keep all other settings from original ResEnc config
         "median_image_size_in_voxels": original_config["median_image_size_in_voxels"],
         "spacing": original_config["spacing"],
@@ -242,13 +273,31 @@ def fix_resenc_no_resampling(
     # Get the current configuration
     current_config = plans["configurations"][config_name]
 
+    # Calculate compatible patch size (same function as in create_fresh_resenc_plans)
+    def make_patch_size_compatible(patch_size, n_stages=7):
+        """Make patch size compatible with the number of downsampling stages."""
+        divisor = 2 ** (n_stages - 1)  # 2^6 = 64 for 7 stages
+        compatible_size = []
+        for dim in patch_size:
+            # Round to nearest multiple of divisor
+            rounded = round(dim / divisor) * divisor
+            # Ensure minimum size
+            if rounded < divisor:
+                rounded = divisor
+            compatible_size.append(rounded)
+        return compatible_size
+
+    compatible_patch_size = make_patch_size_compatible(patch_size)
+    print(f"   Original patch size: {patch_size}")
+    print(f"   Compatible patch size: {compatible_patch_size}")
+
     # Create fixed configuration that explicitly removes resampling
     fixed_config = {
         "inherits_from": "2d",
         "data_identifier": f"nnUNetPlans_{config_name}",
         "preprocessor_name": "DefaultPreprocessor",
         "batch_size": batch_size,
-        "patch_size": list(patch_size),
+        "patch_size": compatible_patch_size,
         # Keep all other settings from original ResEnc config
         "median_image_size_in_voxels": current_config["median_image_size_in_voxels"],
         "spacing": current_config["spacing"],
@@ -278,7 +327,9 @@ def fix_resenc_no_resampling(
     print(f"   Configuration '{config_name}' updated in {resenc_plans_path}")
     print(f"   ✅ Resampling functions REMOVED")
     print(f"   ✅ Original image dimensions preserved")
-    print(f"   ✅ {patch_size[0]}×{patch_size[1]} patches will tile original images")
+    print(
+        f"   ✅ {compatible_patch_size[0]}×{compatible_patch_size[1]} patches will tile original images"
+    )
 
     return True
 

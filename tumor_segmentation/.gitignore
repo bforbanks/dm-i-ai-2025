@@ -10,6 +10,9 @@ preprocessed/Dataset001_TumorSegmentation/
 nnUNetPlans_smallerv1/
 preprocessing_verification/
 *.pth
+nnUNetPlans*
+data_nnUNet/results/*
+data_nnUNet/preprocessed/*
 
 # Emily-specific files
 .emily
