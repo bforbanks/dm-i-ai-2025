@@ -1,5 +1,6 @@
 import torch
 import random
+
 from collections import deque
 from typing import Optional
 from models.rl.dqn.DQNModel import DQNModel
@@ -31,11 +32,11 @@ class DQNAgent:
                  output_dim: int,
                  learning_rate=1e-4,
                  gamma=0.95,
-                 batch_size: int = 64,
-                 epsilon_start: float = 1,
-                 epsilon_min: float = 0.1,
-                 epsilon_decay: float = 0.999995,
-                 memory_size: int = 10000,
+                 batch_size: int = 128,
+                 epsilon_start: float = 0,
+                 epsilon_min: float = 0,
+                 epsilon_decay: float = 0.999999,
+                 memory_size: int = 50000,
                  device: Optional[torch.device] = torch.device("cpu"),
                  dtype: Optional[torch.dtype] = torch.float32,
                  model_path: str = "models/rl/dqn/weights/dqn.pt",
@@ -51,7 +52,9 @@ class DQNAgent:
 
         self.model_path = model_path
 
-        
+        # Diagnostics
+        self.loss_list = []
+
         # Define hyperparameters
         self.epsilon = epsilon_start
         self.epsilon_min = epsilon_min
@@ -149,7 +152,13 @@ class DQNAgent:
         return tensor
 
 
-    def get_action(self, state: torch.Tensor) -> str:
+    def return_action(self, state: torch.Tensor) -> str:
+        # print(f"State: {state}")
+        if not isinstance(state, torch.Tensor):
+            state = self.state_dict_to_tensor(state) # Ensure state is a tensor
+        # print(f"State tensor: {state}")
+        if not torch.is_tensor(state):
+            raise ValueError(f"Expected state to be a tensor, got {type(state)}")
         if self.epsilon > self.epsilon_min:
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
@@ -165,6 +174,7 @@ class DQNAgent:
             q_values = self.model(state)
             string_action = self.action_dict_idx_to_str[q_values.argmax(dim=1).item()]
             assert isinstance(string_action, str), f"Expected string action, got {type(string_action)}"
+            # print(f"Action chosen: {string_action} (epsilon: {self.epsilon:.4f})")
             return string_action
 
 
@@ -199,6 +209,7 @@ class DQNAgent:
             target_q_values = rewards + (1 - dones.float()) * self.gamma * next_q_values
 
         loss = torch.nn.functional.mse_loss(q_values, target_q_values)
+        self.loss_list.append(loss.item())
         loss.backward()
         self.optimizer.step()
 

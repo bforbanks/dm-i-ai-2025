@@ -1,5 +1,5 @@
 import torch
-
+import pickle
 from models.rl.dqn.DQNAgent import DQNAgent
 
 from tqdm import tqdm
@@ -29,6 +29,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
     total_ticks = 0
     tick_before_reset = []
     reward_list = []
+    distance_list = []
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         done = False
         state = env.state_to_state_dict(env.STATE)  # Assuming this method exists to convert the game state to a dict
@@ -43,7 +44,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             tick += 1; total_ticks += 1
             # print(f"Episode: {episode}, Tick: {tick}, State: {state}")
             # print(env.SCREEN_WIDTH, env.SCREEN_HEIGHT, env.STATE.ego.y, env.STATE.ego.x, env.STATE.ego.velocity.x, env.STATE.ego.velocity.y)
-            action = agent.get_action(state)
+            action = agent.return_action(state)
             # print(action, type(action))
             next_state, reward, done = env.step(action)
 
@@ -59,14 +60,25 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
                 agent.learn()
 
             total_reward += reward
+            if not done:
+                distance = state[2]
+            
             state = next_state
+
+
         reward_list.append(total_reward)
         tick_before_reset.append(tick)
+        distance_list.append(distance*50000)
+        
         if episode % 100 == 0:
             agent.save(agent.model_path)
             print("MODEL SAVED")
             N = min(100, len(reward_list))
             print(f"Episode {episode} completed. Average reward the last {N} episodes: {sum(reward_list[-N:]) / N:.2f}")
             print(f"Average ticks before reset: {sum(tick_before_reset[-N:]) / N:.2f}")
+            print(f"Average distance: {sum(distance_list[-N:]) / N:.2f}")
             print(f"Epsilon: {agent.epsilon:.4f}")
+            print(f"Average loss: {sum(agent.loss_list[-N:]) / N:.4f}")
+            with open("models/rl/dqn/diagnostics/losses.pkl", "wb") as f:
+                pickle.dump(agent.loss_list, f)
     agent.save(agent.model_path)  # Save the model after training
