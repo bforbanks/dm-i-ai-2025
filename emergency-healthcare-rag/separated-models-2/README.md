@@ -65,6 +65,12 @@ python separated-models-2/search.py
 
 # Evaluate full pipeline (requires LLM)
 python separated-models-2/evaluate.py
+
+# Command-line options for evaluation
+python separated-models-2/evaluate.py --model gemma3:27b                    # Use specific model
+python separated-models-2/evaluate.py --search-only                        # Evaluate only search
+python separated-models-2/evaluate.py --full-pipeline --model llama3.1:8b  # Evaluate only pipeline with specific model
+python separated-models-2/evaluate.py --samples 50                         # Evaluate on subset of samples
 ```
 
 ## Configuration

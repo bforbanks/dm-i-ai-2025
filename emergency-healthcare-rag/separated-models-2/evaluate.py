@@ -6,12 +6,22 @@ Tests BM25-only search performance
 
 import json
 import time
+import argparse
 from pathlib import Path
 from typing import List, Tuple, Dict
 from tqdm import tqdm
 import re
 from search import bm25_search, get_best_topic
 from model import create_rag_model
+
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Evaluate separated-models-2 RAG system')
+    parser.add_argument('--samples', type=int, default=200, help='Number of samples to evaluate')
+    parser.add_argument('--model', type=str, default=None, help='LLM model to use')
+    parser.add_argument('--search-only', action='store_true', help='Evaluate only search component')
+    parser.add_argument('--full-pipeline', action='store_true', help='Evaluate only full pipeline')
+    return parser.parse_args()
 
 def load_test_data() -> List[Tuple[str, int, bool]]:
     """Load test statements with their true topic and truth value"""
@@ -51,32 +61,40 @@ def extract_truth_from_response(response: str) -> bool:
     return False  # Default to false for safety
 
 def evaluate_search_only():
-    """Evaluate only the search component (BM25)"""
+    """Evaluate only the search component (BM25) - optimized version"""
     print("🔍 EVALUATING BM25 SEARCH COMPONENT")
     print("=" * 60)
     
     statements = load_test_data()
     print(f"Testing on {len(statements)} statements")
     
-    # Test top-k performance
-    top_k_values = range(1, 11)
+    # Do one search per statement and check all top-k values
     search_results = {}
+    top_k_values = range(1, 11)
     
+    # Initialize counters for each top-k
     for top_k in top_k_values:
-        correct = 0
-        for stmt, true_topic, _ in tqdm(statements, desc=f"Top-{top_k}", leave=False):
-            results = bm25_search(stmt, top_k=top_k)
-            if any(result['topic_id'] == true_topic for result in results):
-                correct += 1
+        search_results[top_k] = 0
+    
+    for stmt, true_topic, _ in tqdm(statements, desc="Search evaluation"):
+        # Do one search with top-10 to get all results
+        results = bm25_search(stmt, top_k=10)
         
+        # Check each top-k value
+        for top_k in top_k_values:
+            if any(result['topic_id'] == true_topic for result in results[:top_k]):
+                search_results[top_k] += 1
+    
+    # Print results
+    for top_k in top_k_values:
+        correct = search_results[top_k]
         accuracy = correct / len(statements)
-        search_results[top_k] = accuracy
         print(f"Top-{top_k:2d}: {accuracy:.3f} ({correct}/{len(statements)})")
     
     print("-" * 60)
     return search_results
 
-def evaluate_full_pipeline():
+def evaluate_full_pipeline(model_name: str = None):
     """Evaluate the full RAG pipeline"""
     print("🤖 EVALUATING FULL RAG PIPELINE")
     print("=" * 60)
@@ -84,8 +102,8 @@ def evaluate_full_pipeline():
     statements = load_test_data()
     print(f"Testing on {len(statements)} statements")
     
-    # Create RAG model
-    rag_model = create_rag_model()
+    # Create RAG model with specified model
+    rag_model = create_rag_model(model_name)
     print(f"Using model: {rag_model.get_model_info()['llm_model']}")
     
     # Evaluation metrics
@@ -178,18 +196,27 @@ def evaluate_full_pipeline():
 
 def main():
     """Main evaluation function"""
+    args = parse_arguments()
+    
     print("🚑 EMERGENCY HEALTHCARE RAG - SEPARATED MODELS 2 EVALUATION")
     print("=" * 80)
     print("BM25-only search with optimized chunking (chunk_size=128, overlap=12)")
+    if args.model:
+        print(f"Using model: {args.model}")
     print("=" * 80)
     
-    # Evaluate search component
-    search_results = evaluate_search_only()
-    
-    print("\n")
-    
-    # Evaluate full pipeline
-    pipeline_results = evaluate_full_pipeline()
+    # Determine what to evaluate
+    if args.search_only:
+        # Evaluate search component only
+        search_results = evaluate_search_only()
+    elif args.full_pipeline:
+        # Evaluate full pipeline only
+        pipeline_results = evaluate_full_pipeline(args.model)
+    else:
+        # Evaluate both (default)
+        search_results = evaluate_search_only()
+        print("\n")
+        pipeline_results = evaluate_full_pipeline(args.model)
     
     print("\n" + "=" * 80)
     print("✅ EVALUATION COMPLETE")
