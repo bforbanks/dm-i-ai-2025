@@ -61,18 +61,18 @@ class TumorVisualizationCallback(pl.Callback):
             
             # Load main tumor image and mask
             if self.tumor_image_name:
-                self.sample_image, self.sample_mask = self._load_patient_image(data_dir, self.tumor_image_name)
+                self.sample_image, self.sample_mask = self._load_patient_image(data_dir, self.tumor_image_name, datamodule)
 
             
             # Load main control image and mask
             if self.control_image_name:
-                self.control_image, self.control_mask = self._load_control_image(data_dir, self.control_image_name)
+                self.control_image, self.control_mask = self._load_control_image(data_dir, self.control_image_name, datamodule)
 
             
             # Load additional tumor images
             for tumor_name in self.additional_tumor_names:
                 try:
-                    image, mask = self._load_patient_image(data_dir, tumor_name)
+                    image, mask = self._load_patient_image(data_dir, tumor_name, datamodule)
                     self.additional_tumor_images.append(image)
                     self.additional_tumor_masks.append(mask)
                 except Exception as e:
@@ -81,7 +81,7 @@ class TumorVisualizationCallback(pl.Callback):
             # Load additional control images
             for control_name in self.additional_control_names:
                 try:
-                    image, mask = self._load_control_image(data_dir, control_name)
+                    image, mask = self._load_control_image(data_dir, control_name, datamodule)
                     self.additional_control_images.append(image)
                     self.additional_control_masks.append(mask)
                 except Exception as e:
@@ -94,7 +94,7 @@ class TumorVisualizationCallback(pl.Callback):
             import traceback
             traceback.print_exc()
     
-    def _load_patient_image(self, data_dir, patient_name):
+    def _load_patient_image(self, data_dir, patient_name, datamodule=None):
         """Load a patient image and its corresponding mask"""
         # Patient image path
         img_path = data_dir / "patients" / "imgs" / f"{patient_name}.png"
@@ -108,21 +108,36 @@ class TumorVisualizationCallback(pl.Callback):
         if not mask_path.exists():
             raise FileNotFoundError(f"Patient mask not found: {mask_path}")
         
-        # Load and preprocess image
+        # Load image and mask
         image = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
-        image = cv2.resize(image, (256, 256))
-        image = image.astype(np.float32) / 255.0
-        image_tensor = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
-        
-        # Load and preprocess mask
         mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
-        mask = cv2.resize(mask, (256, 256))
-        mask = (mask > 0).astype(np.float32)  # Binary mask
+        mask = (mask > 0).astype(np.uint8)  # Binary mask
+        
+        # Apply same preprocessing as training data
+        if datamodule and datamodule.padding:
+            # Use padding transform
+            from data.data_default import PaddingTransform
+            padding_transform = PaddingTransform(datamodule.target_width, datamodule.target_height)
+            result = padding_transform(image=image, mask=mask)
+            image = result['image']
+            mask = result['mask']
+        else:
+            # Use resizing
+            target_size = (datamodule.image_size, datamodule.image_size) if datamodule else (256, 256)
+            image = cv2.resize(image, target_size)
+            mask = cv2.resize(mask, target_size)
+        
+        # Normalize image to [0, 1]
+        image = image.astype(np.float32) / 255.0
+        mask = mask.astype(np.float32)
+        
+        # Convert to tensors
+        image_tensor = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
         mask_tensor = torch.from_numpy(mask).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
         
         return image_tensor, mask_tensor
     
-    def _load_control_image(self, data_dir, control_name):
+    def _load_control_image(self, data_dir, control_name, datamodule=None):
         """Load a control image (no mask needed)"""
         # Control image path
         img_path = data_dir / "controls" / "imgs" / f"{control_name}.png"
@@ -130,14 +145,31 @@ class TumorVisualizationCallback(pl.Callback):
         if not img_path.exists():
             raise FileNotFoundError(f"Control image not found: {img_path}")
         
-        # Load and preprocess image
+        # Load image
         image = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
-        image = cv2.resize(image, (256, 256))
+        
+        # Apply same preprocessing as training data
+        if datamodule and datamodule.padding:
+            # Use padding transform
+            from data.data_default import PaddingTransform
+            padding_transform = PaddingTransform(datamodule.target_width, datamodule.target_height)
+            result = padding_transform(image=image, mask=None)
+            image = result['image']
+            mask_size = (datamodule.target_height, datamodule.target_width)
+        else:
+            # Use resizing
+            target_size = (datamodule.image_size, datamodule.image_size) if datamodule else (256, 256)
+            image = cv2.resize(image, target_size)
+            mask_size = target_size
+        
+        # Normalize image to [0, 1]
         image = image.astype(np.float32) / 255.0
+        
+        # Convert to tensors
         image_tensor = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
         
         # Create empty mask for control (no tumors)
-        mask_tensor = torch.zeros(1, 1, 256, 256)
+        mask_tensor = torch.zeros(1, 1, mask_size[0], mask_size[1])
         
         return image_tensor, mask_tensor
     
@@ -148,14 +180,17 @@ class TumorVisualizationCallback(pl.Callback):
             image = cv2.imread(self.sample_image_path, cv2.IMREAD_COLOR)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             
-            # Resize to model input size
-            image = cv2.resize(image, (256, 256))
+            # Convert to grayscale for consistency
+            image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            
+            # Resize to model input size (default to 256x256 if no datamodule available)
+            image_gray = cv2.resize(image_gray, (256, 256))
             
             # Normalize to [0, 1]
-            image = image.astype(np.float32) / 255.0
+            image_gray = image_gray.astype(np.float32) / 255.0
             
             # Convert to tensor and add batch dimension
-            self.sample_image = torch.from_numpy(image).permute(2, 0, 1).unsqueeze(0)
+            self.sample_image = torch.from_numpy(image_gray).unsqueeze(0).unsqueeze(0)
             
             # Create dummy mask (you can modify this to load actual mask)
             self.sample_mask = torch.zeros(1, 1, 256, 256)

@@ -103,6 +103,9 @@ data:
   image_size: 256
   val_split: 0.2
   random_state: 42
+  padding: False  # Toggle between padding (true) and resizing (false) for image processing
+  target_width: 400  # Target width when padding is enabled
+  target_height: 992  # Target height when padding is enabled
 optimizer: null
 lr_scheduler: null
 ckpt_path: null

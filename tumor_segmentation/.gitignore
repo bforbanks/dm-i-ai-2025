@@ -2,6 +2,14 @@ checkpoints/
 lightning_logs/
 wandb_logs/
 visualizations/
+imagesTr/
+labelsTr/
+gt_segmentations/
+nnUNetPlans_2d_resenc_optimized/
+preprocessed/Dataset001_TumorSegmentation/
+nnUNetPlans_smallerv1/
+preprocessing_verification/
+*.pth
 
 # Emily-specific files
 .emily

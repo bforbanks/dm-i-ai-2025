@@ -3,11 +3,14 @@
 
 # Data configuration - Common for all models
 data:
-  val_split: 0.2
+  val_split: 0.20
   batch_size: 16
   num_workers: 0
   patient_control_ratio: 0.80
   use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
+  padding: false  # Toggle between padding (true) and resizing (false) for image processing
+  target_width: 400  # Target width when padding is enabled
+  target_height: 992  # Target height when padding is enabled
 
 # Trainer configuration - Common for all models
 trainer:
@@ -43,6 +46,6 @@ trainer:
         verbose: false  # Set to false to disable verbose dice analysis output
     - class_path: callbacks.epoch_checkpoint_callback.EpochCheckpointCallback
       init_args:
-        target_epoch: 65
+        target_epoch: 75
         dirpath: "checkpoints"
         filename: "epoch_065_specific"

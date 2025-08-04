@@ -9,21 +9,42 @@ def validate_segmentation(pet_mip, seg_pred):
     assert isinstance(seg_pred, np.ndarray), (
         "Segmentation was not succesfully decoded as a numpy array"
     )
-    assert pet_mip.shape == seg_pred.shape, (
-        f"Segmentation of shape {seg_pred.shape} is not identical to image shape {pet_mip.shape}"
-    )
+    
+    # Handle both 2D and 3D segmentation arrays
+    if len(seg_pred.shape) == 2:
+        # 2D grayscale segmentation - check if it matches the 2D image
+        if len(pet_mip.shape) == 3:
+            # If input image is 3D, take the first channel for comparison
+            pet_mip_2d = pet_mip[:, :, 0] if pet_mip.shape[2] == 3 else pet_mip[:, :, 0]
+        else:
+            pet_mip_2d = pet_mip
+        assert pet_mip_2d.shape == seg_pred.shape, (
+            f"Segmentation of shape {seg_pred.shape} is not identical to image shape {pet_mip_2d.shape}"
+        )
+    else:
+        # 3D segmentation - check if it matches the 3D image
+        assert pet_mip.shape == seg_pred.shape, (
+            f"Segmentation of shape {seg_pred.shape} is not identical to image shape {pet_mip.shape}"
+        )
 
     unique_vals = list(np.unique(seg_pred))
-    allowed_vals = [0, 255]
+    # Allow both binary (0, 1) and 8-bit (0, 255) values
+    allowed_vals_binary = [0, 1]
+    allowed_vals_8bit = [0, 255]
     unique_vals_str = ", ".join([str(x) for x in (unique_vals)])
-    all_values_are_allowed = all(x in allowed_vals for x in unique_vals)
-    assert all_values_are_allowed, (
-        f"The segmentation contains values {{{unique_vals_str}}} but only values {{0,255}} are allowed"
+    
+    all_values_are_binary = all(x in allowed_vals_binary for x in unique_vals)
+    all_values_are_8bit = all(x in allowed_vals_8bit for x in unique_vals)
+    
+    assert all_values_are_binary or all_values_are_8bit, (
+        f"The segmentation contains values {{{unique_vals_str}}} but only values {{0,1}} or {{0,255}} are allowed"
     )
 
-    assert np.all(seg_pred[:, :, 0] == seg_pred[:, :, 1]) & np.all(
-        seg_pred[:, :, 1] == seg_pred[:, :, 2]
-    ), "The segmentation values should be identical along the 3 color channels."
+    # Only check color channel consistency for 3D arrays
+    if len(seg_pred.shape) == 3:
+        assert np.all(seg_pred[:, :, 0] == seg_pred[:, :, 1]) & np.all(
+            seg_pred[:, :, 1] == seg_pred[:, :, 2]
+        ), "The segmentation values should be identical along the 3 color channels."
 
 
 def dice_score(y_true: np.ndarray, y_pred: np.ndarray):
@@ -47,8 +68,10 @@ def encode_request(np_array: np.ndarray) -> str:
 
 def decode_request(request) -> np.ndarray:
     encoded_img: str = request.img
-    np_img = np.fromstring(base64.b64decode(encoded_img), np.uint8)
+    np_img = np.frombuffer(base64.b64decode(encoded_img), np.uint8)
     a = cv2.imdecode(np_img, cv2.IMREAD_ANYCOLOR)
+    if a is None:
+        raise ValueError("Failed to decode image")
     return a
 
 
