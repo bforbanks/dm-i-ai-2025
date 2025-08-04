@@ -8,6 +8,8 @@ import sys
 import json
 import time
 import random
+import argparse
+import os
 from pathlib import Path
 from typing import List, Dict, Tuple
 
@@ -16,17 +18,21 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from model import predict
 
-def load_train_data(n_samples: int = 10) -> List[Dict]:
+def load_train_data(n_samples: int = 20) -> List[Dict]:
     """Load first n samples from train data"""
     statements_dir = Path("data/train/statements")
     answers_dir = Path("data/train/answers")
     
+    # Get all available statement files
+    statement_files = sorted(list(statements_dir.glob("statement_*.txt")))
+    
     samples = []
-    for i in range(n_samples):
-        statement_file = statements_dir / f"statement_{i:04d}.txt"
-        answer_file = answers_dir / f"statement_{i:04d}.json"
+    for i, statement_file in enumerate(statement_files[:n_samples]):
+        # Extract the statement number from filename
+        statement_num = statement_file.stem.split('_')[1]
+        answer_file = answers_dir / f"statement_{statement_num}.json"
         
-        if statement_file.exists() and answer_file.exists():
+        if answer_file.exists():
             with open(statement_file, 'r') as f:
                 statement = f.read().strip()
             
@@ -37,7 +43,7 @@ def load_train_data(n_samples: int = 10) -> List[Dict]:
                 'statement': statement,
                 'expected_truth': answer_data['statement_is_true'],
                 'expected_topic': answer_data['statement_topic'],
-                'sample_id': i
+                'sample_id': int(statement_num)
             })
     
     return samples
@@ -82,8 +88,23 @@ def evaluate_sample(sample: Dict, sample_num: int, total_samples: int) -> Dict:
 
 def main():
     """Main evaluation function"""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Evaluate separated-models-1')
+    parser.add_argument('--samples', type=int, default=20, 
+                       help='Number of samples to evaluate (default: 20)')
+    parser.add_argument('--model', type=str, default=None,
+                       help='LLM model to use (e.g., gemma3:27b, llama3.1:8b)')
+    args = parser.parse_args()
+    
+    # Set model if specified
+    if args.model:
+        os.environ['LLM_MODEL'] = args.model
+        print(f"🔧 Using specified model: {args.model}")
+    else:
+        print(f"🔧 Using default model: {os.getenv('LLM_MODEL', 'gemma3n:e4b')}")
+    
     print("📚 Loading train data...")
-    samples = load_train_data(n_samples=50)
+    samples = load_train_data(n_samples=args.samples)
     
     if not samples:
         print("❌ No samples loaded. Check if train data exists.")
@@ -91,7 +112,7 @@ def main():
     
     print(f"📚 Loaded {len(samples)} samples from train data\n")
     
-    print("🧪 Evaluating Separated Models 1 on 10 samples...\n")
+    print(f"🧪 Evaluating Separated Models 1 on {args.samples} samples...\n")
     
     results = []
     total_time = 0

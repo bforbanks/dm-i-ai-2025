@@ -104,7 +104,7 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 
 6. Start the FastAPI server:
    ```bash
-   python ucloud/api.py
+   python api.py
    ```
 
 7. Test the API:
