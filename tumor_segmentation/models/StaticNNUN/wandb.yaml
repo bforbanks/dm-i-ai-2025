@@ -1,0 +1,17 @@
+trainer:
+  logger:
+    class_path: lightning.pytorch.loggers.WandbLogger
+    init_args:
+      project: "tumor-segmentation"
+      name: "static-nnun"  # Specific name for Basic GNN
+      save_dir: "wandb_logs"
+      log_model: "all"
+  callbacks+:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        dirpath: "checkpoints"
+        filename: "static-nnun-{epoch:02d}-{val_dice_patients:.4f}"
+        monitor: "val_dice_patients"
+        mode: "max"
+        save_top_k: 1
+        verbose: true 

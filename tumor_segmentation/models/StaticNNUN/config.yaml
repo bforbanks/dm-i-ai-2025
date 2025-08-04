@@ -1,0 +1,4 @@
+model:
+  class_path: models.StaticNNUN.model.StaticNNUN
+  init_args:
+    bce_loss_weight: 0.4
