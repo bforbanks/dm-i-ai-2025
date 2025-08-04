@@ -268,10 +268,12 @@ class RaceCarEnv:
         x_velocity = self.STATE.ego.velocity.x / 50
         
         drift = abs(self.SCREEN_HEIGHT // 2 - self.STATE.ego.y) / 1200
+        
         distance  = self.STATE.distance / 10**5
+        # print(f"Drift: {drift}, X Velocity: {x_velocity}, Distance: {distance}")
         if self.STATE.crashed:
-            return -1.5
-        return distance + 0.5*(x_velocity) - drift * 0.2
+            return -10
+        return 10* distance + 0.5*(x_velocity) - drift * 0.2
     
     def _render_frame(self):
         """Render the current game frame"""
