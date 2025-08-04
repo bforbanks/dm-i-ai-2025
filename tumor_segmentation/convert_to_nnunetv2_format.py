@@ -166,13 +166,16 @@ def convert_dataset_to_nnunetv2_format(
         patient_count += 1
 
     # Process control images (create empty masks)
-    control_images = list(controls_img_dir.glob("control_*.png"))
+    # Look for any PNG files in controls directory
+    control_images = list(controls_img_dir.glob("*.png"))
     print(f"   Found {len(control_images)} control images")
 
     control_count = 0
     for img_path in control_images:
-        # Extract control number
-        control_num = img_path.stem  # control_425
+        # Extract control number and ensure it starts with "control_"
+        control_num = img_path.stem
+        if not control_num.startswith("control_"):
+            control_num = f"control_{control_num}"
 
         # Copy and ensure image is grayscale with nnUNet v2 naming convention
         new_img_name = f"{control_num}_0000.png"
@@ -334,8 +337,8 @@ def main():
     print("=" * 60)
 
     # Configuration
-    source_data_dir = "tumor_segmentation/data"
-    output_dir = "tumor_segmentation/data_nnUNet"
+    source_data_dir = "data"
+    output_dir = "data_nnUNet"
     dataset_id = 1
     dataset_name = "TumorSegmentation"
 
