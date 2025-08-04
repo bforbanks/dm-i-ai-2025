@@ -34,7 +34,7 @@ class DQNAgent:
                  batch_size: int = 64,
                  epsilon_start: float = 1,
                  epsilon_min: float = 0.1,
-                 epsilon_decay: float = 0.99999,
+                 epsilon_decay: float = 0.999995,
                  memory_size: int = 10000,
                  device: Optional[torch.device] = torch.device("cpu"),
                  dtype: Optional[torch.dtype] = torch.float32,
