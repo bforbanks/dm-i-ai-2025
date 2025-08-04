@@ -1,0 +1,1481 @@
+{
+  "analysis": {
+    "rank_1": {
+      "count": 179,
+      "percentage": 89.5,
+      "cumulative_count": 179,
+      "cumulative_percentage": 89.5,
+      "avg_score": 87.94787470876516
+    },
+    "rank_2": {
+      "count": 16,
+      "percentage": 8.0,
+      "cumulative_count": 195,
+      "cumulative_percentage": 97.5,
+      "avg_score": 77.17502486000245
+    },
+    "rank_3": {
+      "count": 1,
+      "percentage": 0.5,
+      "cumulative_count": 196,
+      "cumulative_percentage": 98.0,
+      "avg_score": 50.929999087969065
+    },
+    "rank_4": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 196,
+      "cumulative_percentage": 98.0,
+      "avg_score": 0.0
+    },
+    "rank_5": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 196,
+      "cumulative_percentage": 98.0,
+      "avg_score": 0.0
+    },
+    "rank_6": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 196,
+      "cumulative_percentage": 98.0,
+      "avg_score": 0.0
+    },
+    "rank_7": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 196,
+      "cumulative_percentage": 98.0,
+      "avg_score": 0.0
+    },
+    "rank_8": {
+      "count": 2,
+      "percentage": 1.0,
+      "cumulative_count": 198,
+      "cumulative_percentage": 99.0,
+      "avg_score": 30.915377155370454
+    },
+    "rank_9": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 198,
+      "cumulative_percentage": 99.0,
+      "avg_score": 0.0
+    },
+    "rank_10": {
+      "count": 0,
+      "percentage": 0.0,
+      "cumulative_count": 198,
+      "cumulative_percentage": 99.0,
+      "avg_score": 0.0
+    },
+    "overall": {
+      "total_samples": 200,
+      "avg_time_per_search": 0.05995247125625611,
+      "total_time": 11.99049425125122
+    }
+  },
+  "detailed_results": [
+    {
+      "sample_id": 0,
+      "expected_topic": 4,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 86.47519058108527,
+      "time_taken": 0.14205145835876465
+    },
+    {
+      "sample_id": 1,
+      "expected_topic": 78,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 167.47277865323886,
+      "time_taken": 0.05706477165222168
+    },
+    {
+      "sample_id": 2,
+      "expected_topic": 33,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 109.47852352740463,
+      "time_taken": 0.06620597839355469
+    },
+    {
+      "sample_id": 3,
+      "expected_topic": 91,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 90.43752155415876,
+      "time_taken": 0.04768991470336914
+    },
+    {
+      "sample_id": 4,
+      "expected_topic": 41,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 93.12055573860029,
+      "time_taken": 0.07333016395568848
+    },
+    {
+      "sample_id": 5,
+      "expected_topic": 65,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 71.43899168847474,
+      "time_taken": 0.0640420913696289
+    },
+    {
+      "sample_id": 6,
+      "expected_topic": 40,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 47.869196222545426,
+      "time_taken": 0.07326984405517578
+    },
+    {
+      "sample_id": 7,
+      "expected_topic": 108,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 127.69974927223716,
+      "time_taken": 0.07758951187133789
+    },
+    {
+      "sample_id": 8,
+      "expected_topic": 96,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 83.32968406496784,
+      "time_taken": 0.08234667778015137
+    },
+    {
+      "sample_id": 9,
+      "expected_topic": 53,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 47.839944977323654,
+      "time_taken": 0.06275248527526855
+    },
+    {
+      "sample_id": 10,
+      "expected_topic": 63,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 91.20913120475822,
+      "time_taken": 0.09763145446777344
+    },
+    {
+      "sample_id": 11,
+      "expected_topic": 113,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 112.8872058984434,
+      "time_taken": 0.06206488609313965
+    },
+    {
+      "sample_id": 12,
+      "expected_topic": 43,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 86.78862934023162,
+      "time_taken": 0.07836794853210449
+    },
+    {
+      "sample_id": 13,
+      "expected_topic": 97,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 55.657339061287615,
+      "time_taken": 0.06242728233337402
+    },
+    {
+      "sample_id": 14,
+      "expected_topic": 77,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 55.4240914409683,
+      "time_taken": 0.04239535331726074
+    },
+    {
+      "sample_id": 15,
+      "expected_topic": 56,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 131.24695104377886,
+      "time_taken": 0.09663200378417969
+    },
+    {
+      "sample_id": 16,
+      "expected_topic": 97,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 57.5552389453808,
+      "time_taken": 0.04877161979675293
+    },
+    {
+      "sample_id": 17,
+      "expected_topic": 105,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 61.86168317482356,
+      "time_taken": 0.03984951972961426
+    },
+    {
+      "sample_id": 18,
+      "expected_topic": 99,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 143.2415631779637,
+      "time_taken": 0.06078076362609863
+    },
+    {
+      "sample_id": 19,
+      "expected_topic": 22,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 33.13842072394024,
+      "time_taken": 0.0435175895690918
+    },
+    {
+      "sample_id": 20,
+      "expected_topic": 52,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 68.54661811631513,
+      "time_taken": 0.061673879623413086
+    },
+    {
+      "sample_id": 21,
+      "expected_topic": 80,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 93.41606417498193,
+      "time_taken": 0.05780839920043945
+    },
+    {
+      "sample_id": 22,
+      "expected_topic": 21,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 64.0924104315184,
+      "time_taken": 0.0605318546295166
+    },
+    {
+      "sample_id": 23,
+      "expected_topic": 86,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 63.21464172330632,
+      "time_taken": 0.0534358024597168
+    },
+    {
+      "sample_id": 24,
+      "expected_topic": 27,
+      "expected_topic_rank": 8,
+      "expected_topic_score": 28.895675128162274,
+      "time_taken": 0.03900551795959473
+    },
+    {
+      "sample_id": 25,
+      "expected_topic": 25,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 98.22938303909778,
+      "time_taken": 0.06272363662719727
+    },
+    {
+      "sample_id": 26,
+      "expected_topic": 9,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 86.64097268587342,
+      "time_taken": 0.04689526557922363
+    },
+    {
+      "sample_id": 27,
+      "expected_topic": 87,
+      "expected_topic_rank": 8,
+      "expected_topic_score": 32.93507918257863,
+      "time_taken": 0.04222750663757324
+    },
+    {
+      "sample_id": 28,
+      "expected_topic": 47,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 104.63097201668353,
+      "time_taken": 0.05964064598083496
+    },
+    {
+      "sample_id": 29,
+      "expected_topic": 20,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 86.5103924424198,
+      "time_taken": 0.07595372200012207
+    },
+    {
+      "sample_id": 30,
+      "expected_topic": 101,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 54.71266396898248,
+      "time_taken": 0.0586695671081543
+    },
+    {
+      "sample_id": 31,
+      "expected_topic": 57,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 108.82874896553791,
+      "time_taken": 0.07046818733215332
+    },
+    {
+      "sample_id": 32,
+      "expected_topic": 60,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 88.0202298011066,
+      "time_taken": 0.0656285285949707
+    },
+    {
+      "sample_id": 33,
+      "expected_topic": 2,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 72.51523383135066,
+      "time_taken": 0.05261635780334473
+    },
+    {
+      "sample_id": 34,
+      "expected_topic": 86,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 123.93589673202858,
+      "time_taken": 0.03998398780822754
+    },
+    {
+      "sample_id": 35,
+      "expected_topic": 79,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 98.16449945365336,
+      "time_taken": 0.062084197998046875
+    },
+    {
+      "sample_id": 36,
+      "expected_topic": 113,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 120.22575805553302,
+      "time_taken": 0.05183291435241699
+    },
+    {
+      "sample_id": 37,
+      "expected_topic": 65,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 60.74755893836588,
+      "time_taken": 0.04856133460998535
+    },
+    {
+      "sample_id": 38,
+      "expected_topic": 16,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 139.25703170022135,
+      "time_taken": 0.07505249977111816
+    },
+    {
+      "sample_id": 39,
+      "expected_topic": 98,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 69.21276107742361,
+      "time_taken": 0.09255528450012207
+    },
+    {
+      "sample_id": 40,
+      "expected_topic": 90,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 90.74992719852413,
+      "time_taken": 0.08358621597290039
+    },
+    {
+      "sample_id": 41,
+      "expected_topic": 96,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 126.368994148713,
+      "time_taken": 0.07536554336547852
+    },
+    {
+      "sample_id": 42,
+      "expected_topic": 34,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 53.475418467378496,
+      "time_taken": 0.04431629180908203
+    },
+    {
+      "sample_id": 43,
+      "expected_topic": 34,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 115.4270616854422,
+      "time_taken": 0.04214024543762207
+    },
+    {
+      "sample_id": 44,
+      "expected_topic": 4,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 48.17079684503915,
+      "time_taken": 0.05245661735534668
+    },
+    {
+      "sample_id": 45,
+      "expected_topic": 61,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 89.35879197354984,
+      "time_taken": 0.0845952033996582
+    },
+    {
+      "sample_id": 46,
+      "expected_topic": 25,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 128.71947061650906,
+      "time_taken": 0.12251591682434082
+    },
+    {
+      "sample_id": 47,
+      "expected_topic": 50,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 32.590996610239614,
+      "time_taken": 0.04443717002868652
+    },
+    {
+      "sample_id": 48,
+      "expected_topic": 1,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 63.51805357679932,
+      "time_taken": 0.05515789985656738
+    },
+    {
+      "sample_id": 49,
+      "expected_topic": 36,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 57.79200687150513,
+      "time_taken": 0.04984259605407715
+    },
+    {
+      "sample_id": 50,
+      "expected_topic": 50,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 84.91425786041486,
+      "time_taken": 0.04047203063964844
+    },
+    {
+      "sample_id": 51,
+      "expected_topic": 58,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 82.68810879072134,
+      "time_taken": 0.051084041595458984
+    },
+    {
+      "sample_id": 52,
+      "expected_topic": 83,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 115.79610954523599,
+      "time_taken": 0.06362175941467285
+    },
+    {
+      "sample_id": 53,
+      "expected_topic": 88,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 33.01254660659815,
+      "time_taken": 0.042655229568481445
+    },
+    {
+      "sample_id": 54,
+      "expected_topic": 1,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 70.87776484470758,
+      "time_taken": 0.05980706214904785
+    },
+    {
+      "sample_id": 55,
+      "expected_topic": 106,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 128.80349050506916,
+      "time_taken": 0.0641336441040039
+    },
+    {
+      "sample_id": 56,
+      "expected_topic": 105,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 99.64499893908783,
+      "time_taken": 0.05887198448181152
+    },
+    {
+      "sample_id": 57,
+      "expected_topic": 38,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 82.22492857028058,
+      "time_taken": 0.06426191329956055
+    },
+    {
+      "sample_id": 58,
+      "expected_topic": 82,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 90.47208342477674,
+      "time_taken": 0.061554670333862305
+    },
+    {
+      "sample_id": 59,
+      "expected_topic": 26,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 82.19941674397413,
+      "time_taken": 0.04230499267578125
+    },
+    {
+      "sample_id": 60,
+      "expected_topic": 100,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 82.72231107604804,
+      "time_taken": 0.054708242416381836
+    },
+    {
+      "sample_id": 61,
+      "expected_topic": 61,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.945762552590615,
+      "time_taken": 0.05453968048095703
+    },
+    {
+      "sample_id": 62,
+      "expected_topic": 63,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 102.75215718892514,
+      "time_taken": 0.07376933097839355
+    },
+    {
+      "sample_id": 63,
+      "expected_topic": 21,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 155.49173298756045,
+      "time_taken": 0.10281109809875488
+    },
+    {
+      "sample_id": 64,
+      "expected_topic": 40,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 81.97949026129758,
+      "time_taken": 0.05729937553405762
+    },
+    {
+      "sample_id": 65,
+      "expected_topic": 10,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 118.13862893794925,
+      "time_taken": 0.07309174537658691
+    },
+    {
+      "sample_id": 66,
+      "expected_topic": 3,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 44.53486773996924,
+      "time_taken": 0.03470182418823242
+    },
+    {
+      "sample_id": 67,
+      "expected_topic": 64,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 113.31608644664583,
+      "time_taken": 0.06725239753723145
+    },
+    {
+      "sample_id": 68,
+      "expected_topic": 67,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 83.84340808853419,
+      "time_taken": 0.05894184112548828
+    },
+    {
+      "sample_id": 69,
+      "expected_topic": 70,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 93.79759065737689,
+      "time_taken": 0.0775144100189209
+    },
+    {
+      "sample_id": 70,
+      "expected_topic": 84,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 58.909252182496786,
+      "time_taken": 0.053220272064208984
+    },
+    {
+      "sample_id": 71,
+      "expected_topic": 86,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 96.52517550355111,
+      "time_taken": 0.07338976860046387
+    },
+    {
+      "sample_id": 72,
+      "expected_topic": 65,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 67.60147687629552,
+      "time_taken": 0.073822021484375
+    },
+    {
+      "sample_id": 73,
+      "expected_topic": 64,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 60.931192612739636,
+      "time_taken": 0.06840682029724121
+    },
+    {
+      "sample_id": 74,
+      "expected_topic": 40,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 99.75709352301666,
+      "time_taken": 0.08000946044921875
+    },
+    {
+      "sample_id": 75,
+      "expected_topic": 8,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 99.8711114982892,
+      "time_taken": 0.05544590950012207
+    },
+    {
+      "sample_id": 76,
+      "expected_topic": 69,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 64.59429672797911,
+      "time_taken": 0.060128211975097656
+    },
+    {
+      "sample_id": 77,
+      "expected_topic": 100,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 145.44620327973792,
+      "time_taken": 0.05998373031616211
+    },
+    {
+      "sample_id": 78,
+      "expected_topic": 65,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 72.14708434837895,
+      "time_taken": 0.056999921798706055
+    },
+    {
+      "sample_id": 79,
+      "expected_topic": 63,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 115.69306974829257,
+      "time_taken": 0.07515883445739746
+    },
+    {
+      "sample_id": 80,
+      "expected_topic": 65,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 40.679563997820324,
+      "time_taken": 0.0330357551574707
+    },
+    {
+      "sample_id": 81,
+      "expected_topic": 103,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 111.84383841277317,
+      "time_taken": 0.057904958724975586
+    },
+    {
+      "sample_id": 82,
+      "expected_topic": 26,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 85.66438150849476,
+      "time_taken": 0.06517648696899414
+    },
+    {
+      "sample_id": 83,
+      "expected_topic": 73,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 99.53134647066659,
+      "time_taken": 0.05208849906921387
+    },
+    {
+      "sample_id": 84,
+      "expected_topic": 17,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 79.40353056972359,
+      "time_taken": 0.05214810371398926
+    },
+    {
+      "sample_id": 85,
+      "expected_topic": 83,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 98.79177476501005,
+      "time_taken": 0.0679318904876709
+    },
+    {
+      "sample_id": 86,
+      "expected_topic": 68,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 116.02480664584888,
+      "time_taken": 0.05351448059082031
+    },
+    {
+      "sample_id": 87,
+      "expected_topic": 32,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 104.97943901003194,
+      "time_taken": 0.05924582481384277
+    },
+    {
+      "sample_id": 88,
+      "expected_topic": 1,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 68.16527348487791,
+      "time_taken": 0.04782748222351074
+    },
+    {
+      "sample_id": 89,
+      "expected_topic": 11,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 50.12427922842853,
+      "time_taken": 0.04788565635681152
+    },
+    {
+      "sample_id": 90,
+      "expected_topic": 3,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 64.24852953614254,
+      "time_taken": 0.055140018463134766
+    },
+    {
+      "sample_id": 91,
+      "expected_topic": 38,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 114.46044409746662,
+      "time_taken": 0.05693340301513672
+    },
+    {
+      "sample_id": 92,
+      "expected_topic": 87,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 58.265151673460814,
+      "time_taken": 0.05774497985839844
+    },
+    {
+      "sample_id": 93,
+      "expected_topic": 5,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 69.96541456842156,
+      "time_taken": 0.051532745361328125
+    },
+    {
+      "sample_id": 94,
+      "expected_topic": 99,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 89.06971323530568,
+      "time_taken": 0.05731678009033203
+    },
+    {
+      "sample_id": 95,
+      "expected_topic": 102,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 111.78314690176894,
+      "time_taken": 0.07018280029296875
+    },
+    {
+      "sample_id": 96,
+      "expected_topic": 76,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 82.12489628328832,
+      "time_taken": 0.05364561080932617
+    },
+    {
+      "sample_id": 97,
+      "expected_topic": 26,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 130.30395130424375,
+      "time_taken": 0.05528378486633301
+    },
+    {
+      "sample_id": 98,
+      "expected_topic": 6,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 84.7408067142848,
+      "time_taken": 0.08570122718811035
+    },
+    {
+      "sample_id": 99,
+      "expected_topic": 67,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 119.0654317396746,
+      "time_taken": 0.06977701187133789
+    },
+    {
+      "sample_id": 100,
+      "expected_topic": 39,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 70.4145658643184,
+      "time_taken": 0.05214571952819824
+    },
+    {
+      "sample_id": 101,
+      "expected_topic": 15,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 73.13812098337283,
+      "time_taken": 0.03872323036193848
+    },
+    {
+      "sample_id": 102,
+      "expected_topic": 105,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 129.54962117345246,
+      "time_taken": 0.06212210655212402
+    },
+    {
+      "sample_id": 103,
+      "expected_topic": 28,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 87.66706984067629,
+      "time_taken": 0.046181678771972656
+    },
+    {
+      "sample_id": 104,
+      "expected_topic": 83,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 139.2892261472768,
+      "time_taken": 0.08482909202575684
+    },
+    {
+      "sample_id": 105,
+      "expected_topic": 94,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 108.14915773075361,
+      "time_taken": 0.062043190002441406
+    },
+    {
+      "sample_id": 106,
+      "expected_topic": 70,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 92.07121032213912,
+      "time_taken": 0.12758088111877441
+    },
+    {
+      "sample_id": 107,
+      "expected_topic": 48,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 79.18680697824924,
+      "time_taken": 0.0620574951171875
+    },
+    {
+      "sample_id": 108,
+      "expected_topic": 12,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 38.42348532636912,
+      "time_taken": 0.03725886344909668
+    },
+    {
+      "sample_id": 109,
+      "expected_topic": 60,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 107.93434445298642,
+      "time_taken": 0.06834912300109863
+    },
+    {
+      "sample_id": 110,
+      "expected_topic": 53,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 91.58422667655763,
+      "time_taken": 0.05156993865966797
+    },
+    {
+      "sample_id": 111,
+      "expected_topic": 40,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 44.079639281472794,
+      "time_taken": 0.03493475914001465
+    },
+    {
+      "sample_id": 112,
+      "expected_topic": 106,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 81.29827620336663,
+      "time_taken": 0.05986332893371582
+    },
+    {
+      "sample_id": 113,
+      "expected_topic": 40,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 61.919302654773574,
+      "time_taken": 0.04437899589538574
+    },
+    {
+      "sample_id": 114,
+      "expected_topic": 1,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 120.70566004354207,
+      "time_taken": 0.06911993026733398
+    },
+    {
+      "sample_id": 115,
+      "expected_topic": 81,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 43.92297545084033,
+      "time_taken": 0.04671287536621094
+    },
+    {
+      "sample_id": 116,
+      "expected_topic": 0,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 94.73767874172357,
+      "time_taken": 0.06698155403137207
+    },
+    {
+      "sample_id": 117,
+      "expected_topic": 77,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 46.7481486338783,
+      "time_taken": 0.03007030487060547
+    },
+    {
+      "sample_id": 118,
+      "expected_topic": 96,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 123.25000312842151,
+      "time_taken": 0.07368206977844238
+    },
+    {
+      "sample_id": 119,
+      "expected_topic": 88,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 107.92711546429916,
+      "time_taken": 0.04732155799865723
+    },
+    {
+      "sample_id": 120,
+      "expected_topic": 79,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 132.53903509154523,
+      "time_taken": 0.060804128646850586
+    },
+    {
+      "sample_id": 121,
+      "expected_topic": 79,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 106.76685321448117,
+      "time_taken": 0.04952383041381836
+    },
+    {
+      "sample_id": 122,
+      "expected_topic": 99,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 83.80308080825307,
+      "time_taken": 0.045911550521850586
+    },
+    {
+      "sample_id": 123,
+      "expected_topic": 59,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 58.64746379391164,
+      "time_taken": 0.053375959396362305
+    },
+    {
+      "sample_id": 124,
+      "expected_topic": 24,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 92.20174943220526,
+      "time_taken": 0.06036233901977539
+    },
+    {
+      "sample_id": 125,
+      "expected_topic": 111,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 107.28549949353118,
+      "time_taken": 0.06610250473022461
+    },
+    {
+      "sample_id": 126,
+      "expected_topic": 28,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 68.39369289648427,
+      "time_taken": 0.04902458190917969
+    },
+    {
+      "sample_id": 127,
+      "expected_topic": 48,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 53.66813883337517,
+      "time_taken": 0.05603504180908203
+    },
+    {
+      "sample_id": 128,
+      "expected_topic": 112,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 116.16382790679185,
+      "time_taken": 0.06701302528381348
+    },
+    {
+      "sample_id": 129,
+      "expected_topic": 63,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 57.32342300890223,
+      "time_taken": 0.05296039581298828
+    },
+    {
+      "sample_id": 130,
+      "expected_topic": 28,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 135.78196980920325,
+      "time_taken": 0.05840158462524414
+    },
+    {
+      "sample_id": 131,
+      "expected_topic": 62,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 97.18145281810601,
+      "time_taken": 0.06187725067138672
+    },
+    {
+      "sample_id": 132,
+      "expected_topic": 48,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 91.64831667074482,
+      "time_taken": 0.07231330871582031
+    },
+    {
+      "sample_id": 133,
+      "expected_topic": 8,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 132.92039518628732,
+      "time_taken": 0.08048176765441895
+    },
+    {
+      "sample_id": 134,
+      "expected_topic": 48,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 55.20520515217732,
+      "time_taken": 0.055670738220214844
+    },
+    {
+      "sample_id": 135,
+      "expected_topic": 14,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 94.05721004661517,
+      "time_taken": 0.06465888023376465
+    },
+    {
+      "sample_id": 136,
+      "expected_topic": 68,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 69.15914758798186,
+      "time_taken": 0.04030323028564453
+    },
+    {
+      "sample_id": 137,
+      "expected_topic": 81,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 52.813004448800825,
+      "time_taken": 0.04926323890686035
+    },
+    {
+      "sample_id": 138,
+      "expected_topic": 4,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 55.91542416550845,
+      "time_taken": 0.058402061462402344
+    },
+    {
+      "sample_id": 139,
+      "expected_topic": 62,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 135.77458891850804,
+      "time_taken": 0.09171366691589355
+    },
+    {
+      "sample_id": 140,
+      "expected_topic": 84,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 144.29592404688748,
+      "time_taken": 0.06227731704711914
+    },
+    {
+      "sample_id": 141,
+      "expected_topic": 93,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 95.84178964114818,
+      "time_taken": 0.04796338081359863
+    },
+    {
+      "sample_id": 142,
+      "expected_topic": 76,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 90.17423148396136,
+      "time_taken": 0.0646660327911377
+    },
+    {
+      "sample_id": 143,
+      "expected_topic": 109,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 91.49950324044569,
+      "time_taken": 0.06361174583435059
+    },
+    {
+      "sample_id": 144,
+      "expected_topic": 106,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 112.20476949271861,
+      "time_taken": 0.0483548641204834
+    },
+    {
+      "sample_id": 145,
+      "expected_topic": 26,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 79.87361389344348,
+      "time_taken": 0.05210065841674805
+    },
+    {
+      "sample_id": 146,
+      "expected_topic": 33,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 81.55496436060169,
+      "time_taken": 0.04353761672973633
+    },
+    {
+      "sample_id": 147,
+      "expected_topic": 73,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 79.14754222425056,
+      "time_taken": 0.06321072578430176
+    },
+    {
+      "sample_id": 148,
+      "expected_topic": 113,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 118.06109048572445,
+      "time_taken": 0.06510591506958008
+    },
+    {
+      "sample_id": 149,
+      "expected_topic": 102,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 75.08655703747229,
+      "time_taken": 0.06888818740844727
+    },
+    {
+      "sample_id": 150,
+      "expected_topic": 105,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 70.19819238183791,
+      "time_taken": 0.058066368103027344
+    },
+    {
+      "sample_id": 151,
+      "expected_topic": 80,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 68.94322813961531,
+      "time_taken": 0.04976224899291992
+    },
+    {
+      "sample_id": 152,
+      "expected_topic": 61,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 95.64634993152991,
+      "time_taken": 0.06345820426940918
+    },
+    {
+      "sample_id": 153,
+      "expected_topic": 90,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 61.66931272645729,
+      "time_taken": 0.04825544357299805
+    },
+    {
+      "sample_id": 154,
+      "expected_topic": 15,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 49.472255772352455,
+      "time_taken": 0.047972679138183594
+    },
+    {
+      "sample_id": 155,
+      "expected_topic": 80,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 44.03346581770069,
+      "time_taken": 0.03676772117614746
+    },
+    {
+      "sample_id": 156,
+      "expected_topic": 99,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 125.02844343576037,
+      "time_taken": 0.06336593627929688
+    },
+    {
+      "sample_id": 157,
+      "expected_topic": 55,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 108.12914912046402,
+      "time_taken": 0.06807112693786621
+    },
+    {
+      "sample_id": 158,
+      "expected_topic": 30,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 101.37802550030133,
+      "time_taken": 0.07661914825439453
+    },
+    {
+      "sample_id": 159,
+      "expected_topic": 29,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 71.69837334890924,
+      "time_taken": 0.04867744445800781
+    },
+    {
+      "sample_id": 160,
+      "expected_topic": 47,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 57.896815749223855,
+      "time_taken": 0.04781341552734375
+    },
+    {
+      "sample_id": 161,
+      "expected_topic": 10,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 123.95332142004973,
+      "time_taken": 0.059175968170166016
+    },
+    {
+      "sample_id": 162,
+      "expected_topic": 39,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 77.95181374400629,
+      "time_taken": 0.055104970932006836
+    },
+    {
+      "sample_id": 163,
+      "expected_topic": 11,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 71.29736039313042,
+      "time_taken": 0.040611982345581055
+    },
+    {
+      "sample_id": 164,
+      "expected_topic": 3,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 60.789781685359976,
+      "time_taken": 0.058717966079711914
+    },
+    {
+      "sample_id": 165,
+      "expected_topic": 108,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 100.86680259893194,
+      "time_taken": 0.07241129875183105
+    },
+    {
+      "sample_id": 166,
+      "expected_topic": 19,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 53.65946186775661,
+      "time_taken": 0.0350193977355957
+    },
+    {
+      "sample_id": 167,
+      "expected_topic": 70,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 93.1722333609778,
+      "time_taken": 0.07763528823852539
+    },
+    {
+      "sample_id": 168,
+      "expected_topic": 23,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 59.51565252296382,
+      "time_taken": 0.05486631393432617
+    },
+    {
+      "sample_id": 169,
+      "expected_topic": 41,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 40.66329139897563,
+      "time_taken": 0.048461198806762695
+    },
+    {
+      "sample_id": 170,
+      "expected_topic": 55,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 99.17682496094432,
+      "time_taken": 0.07190418243408203
+    },
+    {
+      "sample_id": 171,
+      "expected_topic": 38,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.94610368231665,
+      "time_taken": 0.0637974739074707
+    },
+    {
+      "sample_id": 172,
+      "expected_topic": 69,
+      "expected_topic_rank": 3,
+      "expected_topic_score": 50.929999087969065,
+      "time_taken": 0.058324337005615234
+    },
+    {
+      "sample_id": 173,
+      "expected_topic": 71,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.010829260462025,
+      "time_taken": 0.047059059143066406
+    },
+    {
+      "sample_id": 174,
+      "expected_topic": 6,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 104.39570518619203,
+      "time_taken": 0.07956933975219727
+    },
+    {
+      "sample_id": 175,
+      "expected_topic": 45,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.23527086003543,
+      "time_taken": 0.04728078842163086
+    },
+    {
+      "sample_id": 176,
+      "expected_topic": 35,
+      "expected_topic_rank": 18,
+      "expected_topic_score": 27.681876639315274,
+      "time_taken": 0.04370379447937012
+    },
+    {
+      "sample_id": 177,
+      "expected_topic": 30,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 102.8347199422033,
+      "time_taken": 0.05712461471557617
+    },
+    {
+      "sample_id": 178,
+      "expected_topic": 74,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 183.6920471006645,
+      "time_taken": 0.09430718421936035
+    },
+    {
+      "sample_id": 179,
+      "expected_topic": 2,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 73.28911380898357,
+      "time_taken": 0.061658620834350586
+    },
+    {
+      "sample_id": 180,
+      "expected_topic": 104,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 87.93416798083054,
+      "time_taken": 0.05385899543762207
+    },
+    {
+      "sample_id": 181,
+      "expected_topic": 5,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 105.1710896850721,
+      "time_taken": 0.06664705276489258
+    },
+    {
+      "sample_id": 182,
+      "expected_topic": 21,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 79.04889589728192,
+      "time_taken": 0.05243635177612305
+    },
+    {
+      "sample_id": 183,
+      "expected_topic": 56,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 54.699584685897,
+      "time_taken": 0.042879581451416016
+    },
+    {
+      "sample_id": 184,
+      "expected_topic": 21,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 98.16957206558799,
+      "time_taken": 0.07048416137695312
+    },
+    {
+      "sample_id": 185,
+      "expected_topic": 92,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.227635357416666,
+      "time_taken": 0.06577277183532715
+    },
+    {
+      "sample_id": 186,
+      "expected_topic": 34,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 79.64071158549041,
+      "time_taken": 0.045246124267578125
+    },
+    {
+      "sample_id": 187,
+      "expected_topic": 55,
+      "expected_topic_rank": 2,
+      "expected_topic_score": 118.36334250173408,
+      "time_taken": 0.06249880790710449
+    },
+    {
+      "sample_id": 188,
+      "expected_topic": 40,
+      "expected_topic_rank": -1,
+      "expected_topic_score": 0.0,
+      "time_taken": 0.05344438552856445
+    },
+    {
+      "sample_id": 189,
+      "expected_topic": 30,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 92.9577615911953,
+      "time_taken": 0.0699760913848877
+    },
+    {
+      "sample_id": 190,
+      "expected_topic": 44,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 67.32589510040087,
+      "time_taken": 0.042209625244140625
+    },
+    {
+      "sample_id": 191,
+      "expected_topic": 93,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 97.23581129319527,
+      "time_taken": 0.05459284782409668
+    },
+    {
+      "sample_id": 192,
+      "expected_topic": 85,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 62.06093057274624,
+      "time_taken": 0.05297112464904785
+    },
+    {
+      "sample_id": 193,
+      "expected_topic": 7,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 53.92661749559753,
+      "time_taken": 0.04699993133544922
+    },
+    {
+      "sample_id": 194,
+      "expected_topic": 84,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 55.074213296348404,
+      "time_taken": 0.04240846633911133
+    },
+    {
+      "sample_id": 195,
+      "expected_topic": 88,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 86.5932583240324,
+      "time_taken": 0.047435760498046875
+    },
+    {
+      "sample_id": 196,
+      "expected_topic": 99,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 94.5053635333831,
+      "time_taken": 0.0641481876373291
+    },
+    {
+      "sample_id": 197,
+      "expected_topic": 12,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 95.47110616862408,
+      "time_taken": 0.05738949775695801
+    },
+    {
+      "sample_id": 198,
+      "expected_topic": 49,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 57.52373394815976,
+      "time_taken": 0.03994894027709961
+    },
+    {
+      "sample_id": 199,
+      "expected_topic": 76,
+      "expected_topic_rank": 1,
+      "expected_topic_score": 103.89706988337652,
+      "time_taken": 0.06321597099304199
+    }
+  ]
+}
