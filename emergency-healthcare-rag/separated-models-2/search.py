@@ -225,17 +225,26 @@ def evaluate_bm25_performance():
     print(f"Configuration: chunk_size={CHUNK_SIZE}, overlap={OVERLAP}")
     print("-" * 50)
     
-    # Test top-k performance
+    # Test top-k performance - optimized to do one search per statement
     top_k_values = range(1, 11)
+    search_results = {}
     
+    # Initialize counters for each top-k
     for top_k in top_k_values:
-        correct = 0
-        for stmt, true_topic in tqdm(statements, desc=f"Top-{top_k}", leave=False):
-            results = bm25_search(stmt, top_k=top_k)
-            # Check if true topic is in any of the top-k results
-            if any(result['topic_id'] == true_topic for result in results):
-                correct += 1
+        search_results[top_k] = 0
+    
+    for stmt, true_topic in tqdm(statements, desc="Search evaluation"):
+        # Do one search with top-10 to get all results
+        results = bm25_search(stmt, top_k=10)
         
+        # Check each top-k value
+        for top_k in top_k_values:
+            if any(result['topic_id'] == true_topic for result in results[:top_k]):
+                search_results[top_k] += 1
+    
+    # Print results
+    for top_k in top_k_values:
+        correct = search_results[top_k]
         accuracy = correct / len(statements)
         print(f"Top-{top_k:2d}: {accuracy:.3f} ({correct}/{len(statements)})")
     

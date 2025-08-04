@@ -1,71 +1,41 @@
 #!/usr/bin/env python3
 """
 Evaluation script for separated-models-2
-Tests BM25-only search performance
+BM25-only search with optimized chunking
 """
 
+import sys
 import json
 import time
+import random
 import argparse
+import os
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Dict, Tuple
 from tqdm import tqdm
-import re
+
+# Add current directory to path for relative imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from model import predict
 from search import bm25_search, get_best_topic
-from model import create_rag_model
-
-def parse_arguments():
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description='Evaluate separated-models-2 RAG system')
-    parser.add_argument('--samples', type=int, default=200, help='Number of samples to evaluate')
-    parser.add_argument('--model', type=str, default=None, help='LLM model to use')
-    parser.add_argument('--search-only', action='store_true', help='Evaluate only search component')
-    parser.add_argument('--full-pipeline', action='store_true', help='Evaluate only full pipeline')
-    return parser.parse_args()
-
-def load_test_data() -> List[Tuple[str, int, bool]]:
-    """Load test statements with their true topic and truth value"""
-    statements = []
-    statement_dir = Path("data/train/statements")
-    answer_dir = Path("data/train/answers")
-    
-    for path in sorted(statement_dir.glob("*.txt")):
-        sid = path.stem.split("_")[1]
-        statement = path.read_text().strip()
-        ans = json.loads((answer_dir / f"statement_{sid}.json").read_text())
-        
-        statements.append((
-            statement,
-            ans["statement_topic"],
-            bool(ans["statement_is_true"])
-        ))
-    
-    return statements
-
-def extract_truth_from_response(response: str) -> bool:
-    """Extract TRUE/FALSE from LLM response (expects only a number: 1 for TRUE, 0 for FALSE)"""
-    response_text = response.strip()
-    
-    # Handle direct numeric responses
-    if response_text in ['0', '1']:
-        return int(response_text) == 1
-    
-    # Fallback: try to extract number from response
-    import re
-    numbers = re.findall(r'\d+', response_text)
-    if numbers:
-        return int(numbers[0]) == 1
-        
-    # Default fallback
-    print(f"Warning: Could not parse response: {response_text}")
-    return False  # Default to false for safety
 
 def evaluate_search_only():
     """Evaluate only the search component (BM25) - optimized version"""
     print("🔍 EVALUATING BM25 SEARCH COMPONENT")
     print("=" * 60)
     
-    statements = load_test_data()
+    # Load all statements
+    statements_dir = Path("data/train/statements")
+    answers_dir = Path("data/train/answers")
+    
+    statements = []
+    for path in sorted(statements_dir.glob("*.txt")):
+        sid = path.stem.split("_")[1]
+        statement = path.read_text().strip()
+        ans = json.loads((answers_dir / f"statement_{sid}.json").read_text())
+        statements.append((statement, ans["statement_topic"]))
+    
     print(f"Testing on {len(statements)} statements")
     
     # Do one search per statement and check all top-k values
@@ -76,7 +46,7 @@ def evaluate_search_only():
     for top_k in top_k_values:
         search_results[top_k] = 0
     
-    for stmt, true_topic, _ in tqdm(statements, desc="Search evaluation"):
+    for stmt, true_topic in tqdm(statements, desc="Search evaluation"):
         # Do one search with top-10 to get all results
         results = bm25_search(stmt, top_k=10)
         
@@ -94,133 +64,188 @@ def evaluate_search_only():
     print("-" * 60)
     return search_results
 
-def evaluate_full_pipeline(model_name: str = None):
-    """Evaluate the full RAG pipeline"""
-    print("🤖 EVALUATING FULL RAG PIPELINE")
-    print("=" * 60)
+def load_train_data(n_samples: int = 20) -> List[Dict]:
+    """Load first n samples from train data"""
+    statements_dir = Path("data/train/statements")
+    answers_dir = Path("data/train/answers")
     
-    statements = load_test_data()
-    print(f"Testing on {len(statements)} statements")
+    # Get all available statement files
+    statement_files = sorted(list(statements_dir.glob("statement_*.txt")))
     
-    # Create RAG model with specified model
-    rag_model = create_rag_model(model_name)
-    print(f"Using model: {rag_model.get_model_info()['llm_model']}")
+    samples = []
+    for i, statement_file in enumerate(statement_files[:n_samples]):
+        # Extract the statement number from filename
+        statement_num = statement_file.stem.split('_')[1]
+        answer_file = answers_dir / f"statement_{statement_num}.json"
+        
+        if answer_file.exists():
+            with open(statement_file, 'r') as f:
+                statement = f.read().strip()
+            
+            with open(answer_file, 'r') as f:
+                answer_data = json.load(f)
+            
+            samples.append({
+                'statement': statement,
+                'expected_truth': answer_data['statement_is_true'],
+                'expected_topic': answer_data['statement_topic'],
+                'sample_id': int(statement_num)
+            })
     
-    # Evaluation metrics
-    truth_correct = 0
-    topic_correct = 0
-    total_time = 0
+    return samples
+
+def evaluate_sample(sample: Dict, sample_num: int, total_samples: int) -> Dict:
+    """Evaluate a single sample"""
+    statement = sample['statement']
+    expected_truth = sample['expected_truth']
+    expected_topic = sample['expected_topic']
     
-    results = []
+    print(f"Sample {sample_num}/{total_samples}: {statement[:50]}...")
     
-    for i, (statement, true_topic, true_truth) in enumerate(tqdm(statements, desc="Processing")):
-        start_time = time.time()
-        
-        # Process through RAG pipeline
-        result = rag_model.process_statement(statement)
-        
-        end_time = time.time()
-        processing_time = end_time - start_time
-        total_time += processing_time
-        
-        # Extract predicted truth
-        predicted_truth = extract_truth_from_response(result['response'])
-        
-        # Check accuracy
-        topic_accuracy = (result['topic_id'] == true_topic)
-        truth_accuracy = (predicted_truth == true_truth)
-        
-        if topic_accuracy:
-            topic_correct += 1
-        if truth_accuracy:
-            truth_correct += 1
-        
-        # Store detailed results
-        results.append({
-            'statement': statement,
-            'true_topic': true_topic,
-            'predicted_topic': result['topic_id'],
-            'true_truth': true_truth,
-            'predicted_truth': predicted_truth,
-            'response': result['response'],
-            'topic_correct': topic_accuracy,
-            'truth_correct': truth_accuracy,
-            'processing_time': processing_time
-        })
+    # Time the prediction
+    start_time = time.time()
+    predicted_truth, predicted_topic = predict(statement)
+    end_time = time.time()
     
-    # Calculate metrics
-    total_samples = len(statements)
-    truth_accuracy = truth_correct / total_samples
-    topic_accuracy = topic_correct / total_samples
-    overall_accuracy = (truth_correct + topic_correct) / (total_samples * 2)
-    avg_time = total_time / total_samples
+    # Calculate accuracy
+    truth_correct = predicted_truth == expected_truth
+    topic_correct = predicted_topic == expected_topic
     
     # Print results
-    print("\n" + "=" * 60)
-    print("📊 EVALUATION RESULTS")
-    print("=" * 60)
-    print(f"Total Samples: {total_samples}")
-    print(f"Truth Accuracy: {truth_accuracy:.1%} ({truth_correct}/{total_samples})")
-    print(f"Topic Accuracy: {topic_accuracy:.1%} ({topic_correct}/{total_samples})")
-    print(f"Overall Accuracy: {overall_accuracy:.1%} ({truth_correct + topic_correct}/{total_samples * 2})")
-    print(f"Average Time per Sample: {avg_time:.2f}s")
-    print(f"Total Time: {total_time:.2f}s")
-    print(f"Score / 400: {int((truth_correct + topic_correct) / 2)}/400")
-    print("=" * 60)
+    truth_symbol = "✅" if truth_correct else "❌"
+    topic_symbol = "✅" if topic_correct else "❌"
     
-    # Save detailed results
-    output_file = "separated-models-2/search_evaluation_results.json"
-    with open(output_file, 'w') as f:
-        json.dump({
-            'summary': {
-                'total_samples': total_samples,
-                'truth_accuracy': truth_accuracy,
-                'topic_accuracy': topic_accuracy,
-                'overall_accuracy': overall_accuracy,
-                'avg_time': avg_time,
-                'total_time': total_time,
-                'score_400': int((truth_correct + topic_correct) / 2)
-            },
-            'detailed_results': results
-        }, f, indent=2)
-    
-    print(f"Detailed results saved to: {output_file}")
+    print(f"  {truth_symbol} Truth: {predicted_truth} (expected {expected_truth})")
+    print(f"  {topic_symbol} Topic: {predicted_topic} (expected {expected_topic})")
+    print(f"  ⏱️  Time: {end_time - start_time:.2f}s")
+    print()
     
     return {
-        'truth_accuracy': truth_accuracy,
-        'topic_accuracy': topic_accuracy,
-        'overall_accuracy': overall_accuracy,
-        'avg_time': avg_time,
-        'results': results
+        'sample_id': sample['sample_id'],
+        'statement': statement,
+        'expected_truth': expected_truth,
+        'expected_topic': expected_topic,
+        'predicted_truth': predicted_truth,
+        'predicted_topic': predicted_topic,
+        'truth_correct': truth_correct,
+        'topic_correct': topic_correct,
+        'time_taken': end_time - start_time
     }
 
 def main():
     """Main evaluation function"""
-    args = parse_arguments()
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Evaluate separated-models-2')
+    parser.add_argument('--samples', type=int, default=20, 
+                       help='Number of samples to evaluate (default: 20)')
+    parser.add_argument('--model', type=str, default=None,
+                       help='LLM model to use (e.g., gemma3:27b, llama3.1:8b)')
+    parser.add_argument('--search-only', action='store_true', 
+                       help='Evaluate only search component')
+    parser.add_argument('--full-pipeline', action='store_true', 
+                       help='Evaluate only full pipeline')
+    args = parser.parse_args()
     
-    print("🚑 EMERGENCY HEALTHCARE RAG - SEPARATED MODELS 2 EVALUATION")
-    print("=" * 80)
-    print("BM25-only search with optimized chunking (chunk_size=128, overlap=12)")
+    # Set model if specified
     if args.model:
-        print(f"Using model: {args.model}")
-    print("=" * 80)
+        os.environ['LLM_MODEL'] = args.model
+        print(f"🔧 Using specified model: {args.model}")
+    else:
+        print(f"🔧 Using default model: {os.getenv('LLM_MODEL', 'gemma3n:e4b')}")
     
     # Determine what to evaluate
     if args.search_only:
         # Evaluate search component only
+        print("🚑 EMERGENCY HEALTHCARE RAG - SEPARATED MODELS 2")
+        print("=" * 80)
+        print("BM25-only search with optimized chunking (chunk_size=128, overlap=12)")
+        print("=" * 80)
         search_results = evaluate_search_only()
+        print("\n" + "=" * 80)
+        print("✅ SEARCH EVALUATION COMPLETE")
+        print("=" * 80)
+        return
     elif args.full_pipeline:
         # Evaluate full pipeline only
-        pipeline_results = evaluate_full_pipeline(args.model)
+        print("📚 Loading train data...")
+        samples = load_train_data(n_samples=args.samples)
+        
+        if not samples:
+            print("❌ No samples loaded. Check if train data exists.")
+            return
+        
+        print(f"📚 Loaded {len(samples)} samples from train data\n")
+        print(f"🧪 Evaluating Separated Models 2 Full Pipeline on {args.samples} samples...\n")
     else:
         # Evaluate both (default)
+        print("🚑 EMERGENCY HEALTHCARE RAG - SEPARATED MODELS 2")
+        print("=" * 80)
+        print("BM25-only search with optimized chunking (chunk_size=128, overlap=12)")
+        print("=" * 80)
+        
+        # First evaluate search
         search_results = evaluate_search_only()
         print("\n")
-        pipeline_results = evaluate_full_pipeline(args.model)
+        
+        # Then evaluate full pipeline
+        print("📚 Loading train data...")
+        samples = load_train_data(n_samples=args.samples)
+        
+        if not samples:
+            print("❌ No samples loaded. Check if train data exists.")
+            return
+        
+        print(f"📚 Loaded {len(samples)} samples from train data\n")
+        print(f"🧪 Evaluating Separated Models 2 Full Pipeline on {args.samples} samples...\n")
     
-    print("\n" + "=" * 80)
-    print("✅ EVALUATION COMPLETE")
+    results = []
+    total_time = 0
+    
+    for i, sample in enumerate(samples, 1):
+        result = evaluate_sample(sample, i, len(samples))
+        results.append(result)
+        total_time += result['time_taken']
+    
+    # Calculate summary statistics
+    truth_correct = sum(1 for r in results if r['truth_correct'])
+    topic_correct = sum(1 for r in results if r['topic_correct'])
+    total_correct = truth_correct + topic_correct
+    
+    truth_accuracy = (truth_correct / len(results)) * 100
+    topic_accuracy = (topic_correct / len(results)) * 100
+    overall_accuracy = (total_correct / (len(results) * 2)) * 100
+    avg_time = total_time / len(results)
+    
+    # Print summary
     print("=" * 80)
+    print("📊 EVALUATION SUMMARY")
+    print("=" * 80)
+    print(f"Total Samples: {len(results)}")
+    print(f"Truth Accuracy: {truth_accuracy:.1f}% ({truth_correct}/{len(results)})")
+    print(f"Topic Accuracy: {topic_accuracy:.1f}% ({topic_correct}/{len(results)})")
+    print(f"Overall Accuracy: {overall_accuracy:.1f}% ({total_correct}/{len(results) * 2})")
+    print(f"Average Time per Sample: {avg_time:.2f}s")
+    print(f"Total Time: {total_time:.2f}s")
+    print(f"Score / {len(results) * 2}: {total_correct}/{len(results) * 2}")
+    print("=" * 80)
+    
+    # Save detailed results
+    output_file = "separated-models-2/evaluation_results.json"
+    with open(output_file, 'w') as f:
+        json.dump({
+            'summary': {
+                'total_samples': len(results),
+                'truth_accuracy': truth_accuracy,
+                'topic_accuracy': topic_accuracy,
+                'overall_accuracy': overall_accuracy,
+                'avg_time_per_sample': avg_time,
+                'total_time': total_time,
+                'score': f"{total_correct}/{len(results) * 2}"
+            },
+            'detailed_results': results
+        }, f, indent=2)
+    
+    print(f"📄 Detailed results saved to {output_file}")
 
 if __name__ == "__main__":
     main() 

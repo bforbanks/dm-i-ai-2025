@@ -1,55 +1,78 @@
 #!/usr/bin/env python3
 """
-LLM module for separated-models-2
-Model-agnostic LLM interface using Ollama
+LLM interaction for separated-models-1
+Focused on truth determination using rich context
 """
 
-import os
 import json
-from typing import Dict, Any, Optional
-from config import get_llm_model, get_model_info
+import os
 import ollama
+from typing import Tuple, List, Dict
 
-class LLMInterface:
-    def __init__(self, model_name: Optional[str] = None):
-        self.model_name = model_name or get_llm_model()
-        self.model_info = get_model_info(self.model_name)
+try:
+    from .config import get_llm_model, get_model_info
+except ImportError:
+    from config import get_llm_model, get_model_info
+
+def generate_truth_prompt(statement: str, context: str) -> str:
+    """Generate the truth determination prompt with rich context"""
+    
+    return f"""You are a medical expert. Determine if the following statement is TRUE or FALSE based on the provided medical context.
+
+STATEMENT: {statement}
+
+MEDICAL CONTEXT:
+{context}
+
+TASK: Determine if the statement is TRUE (1) or FALSE (0) based on the medical context above.
+
+The chance of a statement being true or false is roughly 50/50. Previous tests indicate that you rate true too much, so lean towards false unless you know otherwise or the medical context supports true.
+Common patterns in FALSE statements include:
+    - Incorrect numerical values (e.g., drug doses, lab cutoffs, time durations)
+    - Reversed or false causation (e.g., misattributed physiological effects)
+    - Anatomical or pathophysiological errors
+
+Respond with ONLY a single number: 1 for TRUE or 0 for FALSE.
+
+NEVER SAY ANYTHING BUT A SINGLE NUMBER."""
+
+def classify_truth_only(statement: str, context: str, model: str = None) -> int:
+    """
+    Determine if a statement is true or false using rich medical context
+    """
+    if model is None:
+        model = get_llm_model()
+    
+    # Log which model is being used
+    model_info = get_model_info(model)
+    print(f"Using LLM model: {model_info['name']} ({model_info['description']})")
+    
+    # Generate prompt
+    prompt = generate_truth_prompt(statement, context)
+
+    try:
+        response = ollama.chat(
+            model=model,
+            messages=[{'role': 'user', 'content': prompt}]
+        )
         
-    def generate_response(self, prompt: str, max_tokens: int = 2048, temperature: float = 0.1) -> str:
-        """
-        Generate response using the configured LLM model
-        """
-        try:
-            response = ollama.generate(
-                model=self.model_name,
-                prompt=prompt,
-                options={
-                    'num_predict': max_tokens,
-                    'temperature': temperature,
-                    'top_p': 0.9,
-                    'repeat_penalty': 1.1
-                }
-            )
-            return response['response'].strip()
+        # Parse response
+        response_text = response['message']['content'].strip()
+        
+        # Handle different response formats
+        if response_text in ['0', '1']:
+            return int(response_text)
+        
+        # Fallback: try to extract number from response
+        import re
+        numbers = re.findall(r'\d+', response_text)
+        if numbers:
+            return int(numbers[0])
             
-        except Exception as e:
-            print(f"Error generating response with {self.model_name}: {e}")
-            return f"Error: Unable to generate response with {self.model_name}"
-    
-    def get_model_name(self) -> str:
-        """Get the current model name"""
-        return self.model_name
-    
-    def get_model_info(self) -> Dict[str, Any]:
-        """Get information about the current model"""
-        return self.model_info
-    
-    def set_model(self, model_name: str):
-        """Change the model being used"""
-        self.model_name = model_name
-        self.model_info = get_model_info(model_name)
-        print(f"Switched to model: {model_name}")
-
-def create_llm_interface(model_name: Optional[str] = None) -> LLMInterface:
-    """Factory function to create LLM interface"""
-    return LLMInterface(model_name) 
+        # Default fallback
+        print(f"Warning: Could not parse response: {response_text}")
+        return 0  # Default to false for safety
+        
+    except Exception as e:
+        print(f"Error calling LLM: {e}")
+        return 0  # Default to false for safety 

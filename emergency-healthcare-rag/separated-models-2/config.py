@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Configuration for separated-models-2
+Configuration for separated-models-1
 Model-agnostic LLM selection and settings
 """
 

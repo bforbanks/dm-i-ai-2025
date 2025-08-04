@@ -37,24 +37,14 @@ Statement → BM25 Search → Topic ID → Context Retrieval → LLM → Respons
 ### Basic Usage
 
 ```python
-from model import create_rag_model
+from model import predict
 
-# Create RAG model
-rag_model = create_rag_model()
-
-# Process a statement
-result = rag_model.process_statement("Chest pain radiating to left arm indicates MI.")
-print(result['response'])  # Returns 1 for TRUE, 0 for FALSE
+# Predict truth value and topic
+truth_value, topic_id = predict("Chest pain radiating to left arm indicates MI.")
+print(f"Truth: {truth_value} (1=TRUE, 0=FALSE), Topic: {topic_id}")
 ```
 
 ### Running Examples
-
-```bash
-# From emergency-healthcare-rag/ directory
-python separated-models-2/example.py
-```
-
-### Evaluation
 
 ```bash
 # Test search functionality (no LLM required)
@@ -63,14 +53,27 @@ python separated-models-2/test_search.py
 # Evaluate search component only
 python separated-models-2/search.py
 
-# Evaluate full pipeline (requires LLM)
+# Evaluate full pipeline
 python separated-models-2/evaluate.py
+```
 
-# Command-line options for evaluation
-python separated-models-2/evaluate.py --model gemma3:27b                    # Use specific model
-python separated-models-2/evaluate.py --search-only                        # Evaluate only search
-python separated-models-2/evaluate.py --full-pipeline --model llama3.1:8b  # Evaluate only pipeline with specific model
-python separated-models-2/evaluate.py --samples 50                         # Evaluate on subset of samples
+### Command-Line Options
+
+```bash
+# Use specific model
+python separated-models-2/evaluate.py --model gemma3:27b
+
+# Evaluate only search component (fast, no LLM needed)
+python separated-models-2/evaluate.py --search-only
+
+# Evaluate only full pipeline with specific model
+python separated-models-2/evaluate.py --full-pipeline --model llama3.1:8b
+
+# Evaluate on subset of samples
+python separated-models-2/evaluate.py --samples 50
+
+# Show help
+python separated-models-2/evaluate.py --help
 ```
 
 ## Configuration
@@ -95,8 +98,9 @@ Available models (configurable via `LLM_MODEL` environment variable):
 - `llm.py` - LLM interface using Ollama
 - `model.py` - Main RAG pipeline
 - `config.py` - Configuration management
-- `evaluate.py` - Evaluation script
-- `example.py` - Usage examples
+- `evaluate.py` - Evaluation script with command-line options
+- `test_search.py` - Search testing (no LLM required)
+- `README.md` - This documentation
 
 ## Caching
 
