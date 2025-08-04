@@ -7,6 +7,10 @@ python trainer.py fit --config models/config_base.yaml --config models/SimpleUNe
 """
 
 import warnings
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 warnings.filterwarnings("ignore")
 
@@ -42,6 +46,22 @@ if __name__ == "__main__":
         python train_gnn_optimized.py fit --model.class_path=src.model.eq_gnn.EquivariantGNN --data.class_path=PointCloudData \
             --trainer.fast_dev_run=true
     """
+    
+    # # Set wandb API key from environment variable or use a default
+    # # Option 1: Set from environment variable
+    # if "WANDB_API_KEY" not in os.environ:
+    #     # Option 2: Set directly (replace with your actual API key)
+    #     # os.environ["WANDB_API_KEY"] = "your_api_key_here"
+        
+    #     # Option 3: Read from file (create a .env file or similar)
+    #     wandb_key_file = Path(__file__).parent / ".wandb_key"
+    #     if wandb_key_file.exists():
+    #         with open(wandb_key_file, "r") as f:
+    #             os.environ["WANDB_API_KEY"] = f.read().strip()
+    #     else:
+    #         # Option 4: Disable wandb if no key is available
+    #         print("Warning: No WANDB_API_KEY found. Setting WANDB_MODE=disabled")
+    #         os.environ["WANDB_MODE"] = "disabled"
 
     class CustomLightningCLI(LightningCLI):
         def add_arguments_to_parser(self, parser):
@@ -68,6 +88,8 @@ if __name__ == "__main__":
     cli = CustomLightningCLI(
         save_config_kwargs={"overwrite": True},
         datamodule_class=TumorSegmentationDataModule,
+        # auto_configure_optimizers=False,  # Disable auto optimizer configuration
+        # subclass_mode_model=True,  # Enable subclass mode for model
     )
 # # %%
 # dataset = PointCloudData(use_augmentation=True, rotation_prob=1.0)
