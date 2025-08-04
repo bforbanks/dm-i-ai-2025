@@ -190,11 +190,22 @@ def evaluate_sample(sample: Dict, sample_num: int, total_samples: int, threshold
     # Print results with approach info
     truth_symbol = "✅" if truth_correct else "❌"
     topic_symbol = "✅" if topic_correct else "❌"
-    approach_symbol = "🔧" if result['decision_info']['approach_used'] == "separated" else "🤖"
+    approach_symbol = "🔧" if result['decision_info']['approach_used'] != "combined" else "🤖"
+    
+    # Format approach display with topic count for combined
+    approach_display = result['decision_info']['approach_used']
+    if result['decision_info']['approach_used'] == 'combined':
+        # Count how many topics were within threshold
+        top_topics = result['decision_info']['top_topics']
+        if top_topics and threshold is not None and threshold != 'NA':
+            first_score = top_topics[0]['score'] if top_topics else 0
+            threshold_score = first_score - threshold if isinstance(threshold, (int, float)) else first_score
+            num_candidates = sum(1 for topic in top_topics if topic['score'] >= threshold_score)
+            approach_display = f"combined ({num_candidates} topics)"
     
     print(f"  {truth_symbol} Truth: {predicted_truth} (expected {expected_truth})")
     print(f"  {topic_symbol} Topic: {predicted_topic} (expected {expected_topic})")
-    print(f"  {approach_symbol} Approach: {result['decision_info']['approach_used']} (gap: {result['decision_info']['gap']:.3f})")
+    print(f"  {approach_symbol} Approach: {approach_display} (gap: {result['decision_info']['gap']:.3f})")
     print(f"  ⏱️  Time: {end_time - start_time:.2f}s")
     print()
     
@@ -325,7 +336,12 @@ def main():
         result = evaluate_sample(sample, i, len(samples), threshold)
         results.append(result)
         total_time += result['time_taken']
-        approach_counts[result['approach_used']] += 1
+        
+        # Count approach (handle variations of separated)
+        if result['approach_used'] == 'combined':
+            approach_counts['combined'] += 1
+        else:
+            approach_counts['separated'] += 1  # Any variant of separated
     
     # Calculate summary statistics
     truth_correct = sum(1 for r in results if r['truth_correct'])

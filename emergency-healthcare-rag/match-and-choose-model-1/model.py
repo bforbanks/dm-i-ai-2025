@@ -93,14 +93,26 @@ def predict(statement: str, threshold: Union[float, str] = None) -> Tuple[int, i
         # Low confidence gap - let LLM choose between candidates
         print(f"🤖 Using COMBINED approach (gap {gap:.3f} ≤ threshold {threshold})")
         
-        # Get top candidates (usually 2-3 when gap is small)
-        num_candidates = min(3, len(top_topics))
-        candidate_topics = top_topics[:num_candidates]
+        # Get all topics within threshold of the best score
+        # Only include topics where: score >= (1st_score - threshold)
+        first_score = top_topics[0]['score']
+        threshold_score = first_score - threshold
+        
+        candidate_topics = []
+        for topic in top_topics:
+            if topic['score'] >= threshold_score:
+                candidate_topics.append(topic)
+            else:
+                break  # Scores are sorted, so we can stop once below threshold
+        
+        # Apply hard limit of 5 to keep prompt manageable
+        candidate_topics = candidate_topics[:5]
         
         # Build context from all candidate topics
         context = get_candidates_context(statement, candidate_topics)
         
         # Let LLM choose topic and determine truth
+        print(f"LLM choosing between {len(candidate_topics)} candidates within threshold")
         truth_value, topic_id = classify_topic_and_truth(statement, candidate_topics, context)
         
         print(f"LLM chose topic {topic_id} with truth value {truth_value}")
