@@ -27,7 +27,7 @@ def load_test_data() -> List[Tuple[str, int, bool]]:
         statements.append((
             statement,
             ans["statement_topic"],
-            ans["statement_truth"]
+            bool(ans["statement_is_true"])
         ))
     
     return statements
