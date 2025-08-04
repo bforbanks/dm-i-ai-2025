@@ -5,6 +5,7 @@ from src.game.core import GameState
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 class lane_state:
     max_vel = 200 # assumed cars won't go faster than 200 but who knows
@@ -28,8 +29,8 @@ class lane_state:
         self.x_bins = len(self.x_bin_dividers)-1 # x-values ranging from -1000 to 2600
         
         # Joint probability distribution: P(position=x_bin, velocity=vel_bin)
-        self.joint_prob = {}  # {(x_bin, vel_bin): probability}
-        self.new_joint_prob = {}  # For updates
+        self.joint_prob = defaultdict(float)  # {(x_bin, vel_bin): probability}
+        self.new_joint_prob = defaultdict(float)  # For updates
 
         # for ease of use, we will calculate mean bin (average of the bounds)
         self.x_bin_means = 0.5 * (self.x_bin_dividers[:-1] + self.x_bin_dividers[1:])
@@ -46,12 +47,20 @@ class PredictionModel:
     top_wall = 1071 # Lower bound +[0;1]
     bottom_wall = -48 # Upper bound +[-1;0]
 
-    def __init__(self, x_resolution: float = 1, vel_resolution: float = 0.1):
+    def __init__(self, x_resolution: float = 1, vel_resolution: float = 0.1, live_plot: bool = True):
         self.x_resolution, self.vel_resolution = x_resolution, vel_resolution
         self.lanes = [lane_state(i, x_resolution, vel_resolution) for i in range(1, 6)]
         self.uncertain_sensors = [67.5, 112.5, 247.5, 292.5]
         self.available_sensors = []
         self.ego_y = 510
+        self.live_plot = live_plot
+        
+        # Initialize live plotting components if needed
+        if self.live_plot:
+            plt.ion()  # Enable interactive mode
+            self.fig, self.ax = plt.subplots(1, 1, figsize=(10, 4))
+            self.bar_container = None  # Will hold the bar plot
+            plt.show(block=False)
 
         self.fully_initialized = False
 
@@ -102,67 +111,43 @@ class PredictionModel:
                 continue
             
             # Iterate over all current joint probability states
-            total_prob = 0
-            total_joint_prob = 0
+            ego_velocity = state["velocity"]["x"]
+            lane_vel_resolution = lane.vel_resolution
             for (x_bin, vel_bin), joint_prob in lane.joint_prob.items():
                 if joint_prob <= 1e-7:
                     continue
                     
                 # Calculate new position based on current position and velocity
-                new_pos = lane.x_bin_means[x_bin] + lane.vel_bin_means[vel_bin] - state["velocity"]["x"] # x is relative to ego
+                new_pos = lane.x_bin_means[x_bin] + lane.vel_bin_means[vel_bin] - ego_velocity # x is relative to ego
                 
                 if new_pos < 0 or new_pos >= 3600:  # car will despawn
                     lane.new_no_car += joint_prob
                     continue
-                
                 new_x_bin = int(new_pos // lane.x_resolution)
                 if new_x_bin >= lane.x_bins:  # safety check
                     raise ValueError("New x bin is out of bounds")
-                    lane.new_no_car += joint_prob
-                    continue
 
-                # Calculate new velocity distribution (slight variation around current velocity)
+                # Calculate new velocity distribution
                 low_vel = 0.95 * lane.vel_bin_means[vel_bin]
                 hi_vel = 1.05 * lane.vel_bin_means[vel_bin]
-                low_bin = int(low_vel // lane.vel_resolution)
-                hi_bin = int(hi_vel // lane.vel_resolution)
+                low_bin = int(low_vel // lane_vel_resolution)
+                hi_bin = int(hi_vel // lane_vel_resolution)
+
+                if hi_bin == low_bin:
+                    lane.new_joint_prob[(new_x_bin, low_bin)] += joint_prob
+                    continue
                                 
                 diff = hi_vel - low_vel
                 perc_per_length = 1 / diff
-                total_joint_prob += joint_prob
-                total_new_speed=0            
 
-                full_bin_chance = perc_per_length * lane.vel_resolution
-                for new_vel_bin in range(low_bin, hi_bin + 1):
-                    if hi_bin == low_bin:
-                        length = diff
-                        new_speed_chance = perc_per_length * length
-                    elif new_vel_bin == low_bin:
-                        length = lane.velocity_bin_dividers[low_bin+1]-low_vel
-                        new_speed_chance = perc_per_length * length
-                    elif new_vel_bin == hi_bin:
-                        length = hi_vel-lane.velocity_bin_dividers[hi_bin]
-                        new_speed_chance = perc_per_length * length
-                    else: 
-                        new_speed_chance = full_bin_chance
+                lane.new_joint_prob[(new_x_bin, low_bin)] += perc_per_length * (lane.velocity_bin_dividers[low_bin+1]-low_vel) * joint_prob
+                lane.new_joint_prob[(new_x_bin, hi_bin)] += perc_per_length * (hi_vel-lane.velocity_bin_dividers[hi_bin]) * joint_prob
 
-                    total_new_speed += new_speed_chance
-                    # Add to joint probability distribution
-                    new_state = (new_x_bin, new_vel_bin)
-                    if new_state in lane.new_joint_prob:
-                        total_prob += new_speed_chance * joint_prob
-                        # total_joint_prob += joint_prob
-                        lane.new_joint_prob[new_state] += new_speed_chance * joint_prob
-                    else:
-                        # total_joint_prob += joint_prob
-                        total_prob += new_speed_chance * joint_prob
-                        lane.new_joint_prob[new_state] = new_speed_chance * joint_prob
-                        # print(lane.new_joint_prob[new_state])
-                # if total_new_speed-1 > 1e-7:
-                #     print("TOTAL NEW SPEED:", total_new_speed)
-                # print("TOTAL NEW SPEED:", total_new_speed)
+                full_bin_chance = perc_per_length * lane_vel_resolution * joint_prob
+                for new_vel_bin in range(low_bin+1, hi_bin):
+                    lane.new_joint_prob[(new_x_bin, new_vel_bin)] += full_bin_chance
 
-            the_sum=sum(lane.joint_prob.values())
+            # the_sum=sum(lane.joint_prob.values())
             # print(the_sum, the_sum+lane.no_car)
             # print("TOTAL PROB:", total_prob, total_joint_prob)
             # Handle car spawning
@@ -209,7 +194,7 @@ class PredictionModel:
             lane.new_no_car += lane.no_car - spawn_chance
 
             lane.joint_prob = lane.new_joint_prob.copy()
-            lane.new_joint_prob = {}  # Clear for next iteration
+            lane.new_joint_prob = defaultdict(float)  # Clear for next iteration
             lane.no_car = lane.new_no_car
             lane.new_no_car = 0
             if lane.lane == 1 and tick % 10 == 0:
@@ -261,24 +246,63 @@ class PredictionModel:
         self.visualization(tick)
 
     def visualization(self, tick: int):
-        print("Progress", round(tick/180*100,1))
-        if tick % 180 != 0:
-            return
-        # Plot only lane 1
-        # Simple position-only plotting (ignoring velocities for speed)
-        fig, ax = plt.subplots(1, 1, figsize=(10, 4))
-        fig.suptitle(f'Lane 1 Position Distribution (Tick {tick})')
+       
+        if self.live_plot:
+            self._live_visualization(tick)
+        else:
+            if tick % 10 != 0:
+                return
+            self._static_visualization(tick)
+
+    def _live_visualization(self, tick: int):
+        """Update the existing plot instead of creating new ones"""
+        lane = self.lanes[0]  # Get lane 1
         
-        # Get lane 1 (index 0 since lanes are numbered 1-5)
-        lane = self.lanes[0]
-        
-        # Just sum probabilities by position (ignore velocity)
+        # Calculate probabilities
         x_probs = np.zeros(lane.x_bins)
-        
         for (x_bin, vel_bin), prob in lane.joint_prob.items():
             x_probs[x_bin] += prob
         
-        # Only plot non-zero probabilities for speed
+        # Only plot non-zero probabilities
+        nonzero_indices = np.where(x_probs > 0)[0]
+        
+        if len(nonzero_indices) > 0:
+            x_positions = (lane.x_bin_means[nonzero_indices] - 1000)
+            probs = x_probs[nonzero_indices]
+            
+            # Clear previous plot
+            self.ax.clear()
+            
+            # Create new bars
+            self.ax.bar(x_positions, probs, width=lane.x_resolution, 
+                       color='blue', alpha=0.7)
+            
+            # Update labels and title
+            self.ax.set_title(f'Lane {lane.lane} (No car: {lane.no_car:.2f})')
+            self.ax.set_ylabel('Probability')
+            self.ax.set_xlabel('X Position')
+            self.fig.suptitle(f'Lane 1 Position Distribution (Tick {tick})')
+            
+            # Auto-scale y-axis
+            max_prob = np.max(probs)
+            self.ax.set_ylim(0, max_prob * 1.1)
+            
+            # Update the plot
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
+            plt.pause(0.001)  # Small pause to allow plot to update
+
+    def _static_visualization(self, tick: int):
+        """Original visualization method that creates new plots"""
+        fig, ax = plt.subplots(1, 1, figsize=(10, 4))
+        fig.suptitle(f'Lane 1 Position Distribution (Tick {tick})')
+        
+        lane = self.lanes[0]
+        
+        x_probs = np.zeros(lane.x_bins)
+        for (x_bin, vel_bin), prob in lane.joint_prob.items():
+            x_probs[x_bin] += prob
+        
         nonzero_indices = np.where(x_probs > 0)[0]
         if len(nonzero_indices) > 0:
             x_positions = (lane.x_bin_means[nonzero_indices] - 1000)
@@ -287,9 +311,8 @@ class PredictionModel:
             ax.bar(x_positions, probs, width=lane.x_resolution, 
                    color='blue', alpha=0.7)
             
-            # Auto-scale y-axis with small margin
             max_prob = np.max(probs)
-            ax.set_ylim(0, max_prob * 1.1)  # 10% margin above max
+            ax.set_ylim(0, max_prob * 1.1)
         
         ax.set_title(f'Lane {lane.lane} (No car: {lane.no_car:.2f})')
         ax.set_ylabel('Probability')
