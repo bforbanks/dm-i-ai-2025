@@ -32,9 +32,9 @@ if not checkpoint_path:
     raise ValueError("CHECKPOINT_PATH environment variable is not set")
 
 # model = SimpleUNet.load_from_checkpoint(
-# model = SimpleUNet.load_from_checkpoint(
-#     checkpoint_path, map_location="cpu"
-# )  # Force CPU loading
+model = SimpleUNet.load_from_checkpoint(
+    checkpoint_path, map_location="cpu"
+)  # Force CPU loading
 model = SimpleUNet()
 model.eval()  # Set to evaluation mode
 model.freeze()  # Freeze the model for inference

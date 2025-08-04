@@ -19,7 +19,7 @@ import sys
 # Add project root to path FIRST (parent of tumor_segmentation directory)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tumor_segmentation.data.data_default import TumorSegmentationDataModule
+from tumor_segmentation.data.tiled_data import TiledTumorDataModule
 
 if __name__ == "__main__":
     """
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # Use custom Lightning CLI
     cli = CustomLightningCLI(
         save_config_kwargs={"overwrite": True},
-        datamodule_class=TumorSegmentationDataModule,
+        # datamodule_class=TiledTumorDataModule,
     )
 # # %%
 # dataset = PointCloudData(use_augmentation=True, rotation_prob=1.0)

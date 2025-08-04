@@ -1,233 +1,121 @@
 import torch
+import os
 import torch.nn as nn
-import torch.nn.functional as F
+import timm
 from tumor_segmentation.models.base_model import BaseModel
 
-try:
-    import timm
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Only show error messages
+ON_HPC = "ON_HPC" in os.environ
 
-    TIMM_AVAILABLE = True
-except ImportError:
-    TIMM_AVAILABLE = False
-    print(
-        "Warning: timm not available. Install with 'pip install timm' to use SwinUNet"
-    )
-
-
-class SelfAttentionBlock(nn.Module):
-    """Self-attention block for feature enhancement"""
-
-    def __init__(self, in_channels):
-        super(SelfAttentionBlock, self).__init__()
-        self.in_channels = in_channels
-        self.query = nn.Conv2d(in_channels, in_channels // 8, 1)
-        self.key = nn.Conv2d(in_channels, in_channels // 8, 1)
-        self.value = nn.Conv2d(in_channels, in_channels, 1)
-        self.gamma = nn.Parameter(torch.zeros(1))
-        self.softmax = nn.Softmax(dim=-1)
-
-    def forward(self, x):
-        batch_size, channels, height, width = x.size()
-
-        # Generate query, key, value
-        proj_query = self.query(x).view(batch_size, -1, width * height).permute(0, 2, 1)
-        proj_key = self.key(x).view(batch_size, -1, width * height)
-        proj_value = self.value(x).view(batch_size, -1, width * height)
-
-        # Attention
-        energy = torch.bmm(proj_query, proj_key)
-        attention = self.softmax(energy)
-        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
-        out = out.view(batch_size, channels, height, width)
-
-        # Residual connection with learnable weight
-        out = self.gamma * out + x
-        return out
+# Import your dataset and data loading functions
+model_tag = "swin1_base_224_single_attention_augmented"
 
 
 class SwinEncoder(nn.Module):
-    """Swin Transformer encoder with pretrained weights"""
-
-    def __init__(self, pretrained=True, model_name="swin_base_patch4_window7_224"):
+    def __init__(
+        self, pretrained=True, model_name: str = "swinv2_base_window8_256.ms_in1k"
+    ):
         super(SwinEncoder, self).__init__()
-        if not TIMM_AVAILABLE:
-            raise ImportError(
-                "timm is required for SwinEncoder. Install with 'pip install timm'"
-            )
-
-        # Create Swin model for feature extraction
         self.model = timm.create_model(
             model_name,
             pretrained=pretrained,
             features_only=True,
-            out_indices=(0, 1, 2, 3),  # Get features from 4 stages
+            out_indices=(0, 1, 2, 3),
         )
 
-        # Input adaptation layer to convert single channel to RGB
-        self.input_adapter = nn.Conv2d(1, 3, 1, bias=False)
-        if pretrained:
-            # Initialize to grayscale conversion weights
-            with torch.no_grad():
-                self.input_adapter.weight.fill_(1 / 3)
-
     def forward(self, x):
-        # Convert single channel to RGB-like for pretrained model
-        x_rgb = self.input_adapter(x)
-
-        # Get multi-scale features
-        features = self.model(x_rgb)
-
-        # Convert features back to proper format (B, C, H, W)
+        features = self.model(x)
         features = [f.permute(0, 3, 1, 2) for f in features]
+        # return torch.stack(features).permute(1, 0, 4, 2, 3)
         return features
 
 
-class ChannelAttention(nn.Module):
-    """Channel attention module"""
-
-    def __init__(self, channels, reduction=16):
-        super(ChannelAttention, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.max_pool = nn.AdaptiveMaxPool2d(1)
-
-        self.fc = nn.Sequential(
-            nn.Conv2d(channels, channels // reduction, 1, bias=False),
-            nn.ReLU(),
-            nn.Conv2d(channels // reduction, channels, 1, bias=False),
-        )
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        avg_out = self.fc(self.avg_pool(x))
-        max_out = self.fc(self.max_pool(x))
-        out = avg_out + max_out
-        return self.sigmoid(out) * x
-
-
 class DecoderBlock(nn.Module):
-    """Enhanced decoder block with attention"""
-
-    def __init__(self, in_channels, skip_channels, out_channels, use_attention=True):
+    def __init__(self, in_channels, skip_channels, out_channels):
         super(DecoderBlock, self).__init__()
-        self.up = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False)
-
-        total_channels = (
-            in_channels + skip_channels if skip_channels > 0 else in_channels
+        self.up = nn.Upsample(scale_factor=2, mode="nearest")
+        self.conv1 = nn.Conv2d(
+            in_channels + skip_channels, out_channels, kernel_size=3, padding=1
         )
-
-        self.conv1 = nn.Conv2d(total_channels, out_channels, 3, padding=1)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, 3, padding=1)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        self.relu = nn.ReLU(inplace=True)
-
-        # Attention modules
-        self.use_attention = use_attention
-        if use_attention:
-            self.channel_attention = ChannelAttention(out_channels)
+        self.relu1 = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        self.relu2 = nn.ReLU(inplace=True)
 
     def forward(self, x, skip=None):
         x = self.up(x)
-
         if skip is not None:
-            # Ensure spatial dimensions match for concatenation
-            if x.shape[2:] != skip.shape[2:]:
-                x = F.interpolate(
-                    x, size=skip.shape[2:], mode="bilinear", align_corners=False
-                )
             x = torch.cat([x, skip], dim=1)
 
         x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-
+        x = self.relu1(x)
         x = self.conv2(x)
-        x = self.bn2(x)
-        x = self.relu(x)
-
-        if self.use_attention:
-            x = self.channel_attention(x)
-
+        x = self.relu2(x)
         return x
 
 
 class SimpleSwin(BaseModel):
     """
-    Enhanced U-Net with Swin Transformer encoder and attention mechanisms.
-    Combines the power of pretrained Swin transformers with attention-based decoding.
+    Swin Transformer U-Net for tumor segmentation.
+    Inherits from BaseModel for consistent training/validation logic.
     """
 
     def __init__(
         self,
         in_channels: int = 1,
         num_classes: int = 1,
-        lr=1e-4,
+        lr=1e-3,
         weight_decay=1e-5,
-        use_pretrained=True,
-        model_name="swin_base_patch4_window7_224",
+        bce_loss_weight=0.5,
+        model_name: str = "swinv2_base_window8_256.ms_in1k",
     ):
-        super().__init__(lr=lr, weight_decay=weight_decay)
-
-        if not TIMM_AVAILABLE:
-            raise ImportError(
-                "timm is required for SwinUNet. Install with 'pip install timm'"
-            )
-
-        # Swin Transformer encoder
-        self.encoder = SwinEncoder(pretrained=use_pretrained, model_name=model_name)
-
-        # Get feature dimensions based on model
-        # Typical Swin Base dimensions: [128, 256, 512, 1024]
-        if "base" in model_name:
-            self.feature_dims = [128, 256, 512, 1024]
-        elif "small" in model_name:
-            self.feature_dims = [96, 192, 384, 768]
-        elif "tiny" in model_name:
-            self.feature_dims = [96, 192, 384, 768]
-        else:
-            # Default to base
-            self.feature_dims = [128, 256, 512, 1024]
-
-        # Bottleneck with self-attention
-        self.bottleneck_attention = SelfAttentionBlock(self.feature_dims[-1])
-
-        # Decoder blocks with attention
-        self.decoder4 = DecoderBlock(self.feature_dims[-1], self.feature_dims[-2], 512)
-        self.decoder3 = DecoderBlock(512, self.feature_dims[-3], 256)
-        self.decoder2 = DecoderBlock(256, self.feature_dims[-4], 128)
-        self.decoder1 = DecoderBlock(
-            128, 0, 64
-        )  # No skip connection for final upsampling
-
-        # Final output layers
-        self.final_conv = nn.Sequential(
-            nn.Conv2d(64, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, num_classes, 1),
+        super().__init__(
+            lr=lr, weight_decay=weight_decay, bce_loss_weight=bce_loss_weight
         )
+        self.in_channels = in_channels
+        self.encoder = SwinEncoder(pretrained=True, model_name=model_name)
 
-    def forward(self, x):
-        # Store input size for final upsampling
-        input_size = x.shape[2:]
+        # Add input channel conversion if needed
+        if in_channels != 3:
+            self.input_conv = nn.Conv2d(in_channels, 3, kernel_size=1, bias=False)
+            # Initialize to repeat grayscale channel
+            with torch.no_grad():
+                self.input_conv.weight.fill_(1.0)
 
-        # Encoder path - get multi-scale features
-        features = self.encoder(x)
-
-        # Apply self-attention to bottleneck features
-        bottleneck = self.bottleneck_attention(features[-1])
-
-        # Decoder path with skip connections
-        x = self.decoder4(bottleneck, features[-2])
-        x = self.decoder3(x, features[-3])
-        x = self.decoder2(x, features[-4])
-        x = self.decoder1(x)
+        # Decoder blocks
+        self.decoder4 = DecoderBlock(
+            in_channels=1024, skip_channels=512, out_channels=512
+        )
+        self.decoder3 = DecoderBlock(
+            in_channels=512, skip_channels=256, out_channels=256
+        )
+        self.decoder2 = DecoderBlock(
+            in_channels=256, skip_channels=128, out_channels=128
+        )
+        self.decoder1 = DecoderBlock(in_channels=128, skip_channels=0, out_channels=64)
+        self.decoder0 = DecoderBlock(in_channels=64, skip_channels=0, out_channels=32)
 
         # Final convolution
-        x = self.final_conv(x)
+        self.final_conv = nn.Conv2d(32, 1, kernel_size=1)
 
-        # Ensure output matches input size
-        if x.shape[2:] != input_size:
-            x = F.interpolate(x, size=input_size, mode="bilinear", align_corners=False)
+    def forward(self, x):
+        # Convert input channels if needed (1-channel -> 3-channel)
+        if self.in_channels != 3:
+            x = self.input_conv(x)
 
-        return torch.sigmoid(x)
+        # Encoder
+        features = self.encoder(x)
+
+        # Bottleneck
+        bottleneck = features[-1]
+
+        # Decoder
+        x = self.decoder4(bottleneck, features[2])
+        x = self.decoder3(x, features[1])
+        x = self.decoder2(x, features[0])
+        x = self.decoder1(x)
+        x = self.decoder0(x)
+
+        # Final output
+        output = self.final_conv(x)
+
+        return torch.sigmoid(output)

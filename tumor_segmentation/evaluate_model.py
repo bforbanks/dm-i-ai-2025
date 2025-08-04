@@ -2,15 +2,16 @@
 """
 Model Evaluation Script for Tumor Segmentation
 
-This script evaluates a trained tumor segmentation model on:
+This script evaluates a tumor segmentation model on:
 1. Validation set (with ground truth) - computes standard metrics
 2. Evaluation set (without ground truth) - analyzes prediction statistics
 
 Usage:
-    python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/
-    python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/ --batch_size 8
+    python evaluate_model.py --data_dir data/
+    python evaluate_model.py --data_dir data/ --batch_size 8
 """
 
+import os
 from pathlib import Path
 import sys
 
@@ -24,16 +25,14 @@ import cv2
 from pathlib import Path
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import seaborn as sns
-from collections import defaultdict
 import pandas as pd
 from scipy import ndimage
 from sklearn.metrics import precision_score, recall_score, f1_score
+from dotenv import load_dotenv
 
 # Import project modules
 from data.data_default import TumorSegmentationDataModule
-from models.SimpleUNet.model import SimpleUNet
-from utils import dice_score
+from models.NNUNetStyle.model import NNUNetStyle
 
 
 class ModelEvaluator:
@@ -284,7 +283,7 @@ class ModelEvaluator:
         )
 
         # Resolution Statistics
-        print(f"\n📐 IMAGE RESOLUTION STATISTICS")
+        print("\n📐 IMAGE RESOLUTION STATISTICS")
         print("-" * 40)
         res_stats = eval_summary["resolution_stats"]
         print(
@@ -417,37 +416,28 @@ class ModelEvaluator:
             eval_df.to_csv(save_dir / "evaluation_detailed_results.csv", index=False)
 
 
-def load_model_from_checkpoint(checkpoint_path, model_class=SimpleUNet):
-    """Load model from Lightning checkpoint"""
-    print(f"Loading model from {checkpoint_path}")
+def load_model():
+    """Load model - simple initialization like in api.py"""
+    print("Initializing SimpleUNet model...")
 
-    # Load checkpoint
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
-
-    # Extract hyperparameters if available
-    hparams = checkpoint.get("hyper_parameters", {})
-    # remove _class_path from hparams
-    hparams = {
-        k: v for k, v in hparams.items() if k != "_class_path" and k != "bce_loss"
-    }
-
-    # Create model with saved hyperparameters
-    model = model_class()
-
-    # Load state dict
-    model.load_state_dict(checkpoint["state_dict"])
+    load_dotenv()
+    # Simple model initialization (same as api.py)
+    # Load the PyTorch Lightning model from checkpoint (class method)
+    checkpoint_path = os.getenv(
+        "CHECKPOINT_PATH",
+    )
+    if not checkpoint_path:
+        raise ValueError("CHECKPOINT_PATH environment variable is not set")
+    model = NNUNetStyle.load_from_checkpoint(
+        checkpoint_path, map_location="cpu"
+    )  # Force CPU loading
+    model.eval()  # Set to evaluation mode
 
     return model
 
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate tumor segmentation model")
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        required=True,
-        help="Path to model checkpoint (.ckpt file)",
-    )
     parser.add_argument(
         "--data_dir", type=str, default="data", help="Path to data directory"
     )
@@ -476,8 +466,8 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
-    # Load model
-    model = load_model_from_checkpoint(args.checkpoint)
+    # Load model (simple initialization like api.py)
+    model = load_model()
     evaluator = ModelEvaluator(model, device)
 
     # Set up data module

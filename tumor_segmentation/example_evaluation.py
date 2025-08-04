@@ -16,15 +16,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import torch
 from pathlib import Path
 from data.data_default import TumorSegmentationDataModule
-from models.SimpleUNet.model import SimpleUNet
-from evaluate_model import ModelEvaluator, load_model_from_checkpoint
+from evaluate_model import ModelEvaluator, load_model
 
 
 def example_evaluation():
     """Example of how to run model evaluation"""
 
     # Configuration
-    checkpoint_path = "path/to/your/model.ckpt"  # Update this path
     data_dir = "data"
     batch_size = 8
     image_size = 256
@@ -32,19 +30,8 @@ def example_evaluation():
     print("🚀 Starting Tumor Segmentation Model Evaluation")
     print("-" * 50)
 
-    # Check if checkpoint exists
-    if not Path(checkpoint_path).exists():
-        print("⚠️  Warning: Model checkpoint not found!")
-        print(
-            "   Please update 'checkpoint_path' in this script to point to your trained model."
-        )
-        print("   For now, creating a random model for demonstration...")
-
-        # Create a model with random weights for demonstration
-        model = SimpleUNet(in_channels=1, num_classes=1)
-    else:
-        # Load trained model
-        model = load_model_from_checkpoint(checkpoint_path)
+    # Load model (simple initialization like api.py)
+    model = load_model()
 
     # Set device
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -164,10 +151,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Error during evaluation: {str(e)}")
         print("\nThis is likely because:")
-        print("1. No trained model checkpoint is available")
-        print("2. Data directory structure is different")
-        print("3. Missing dependencies")
-        print("\nTo run evaluation with a real model:")
-        print(
-            "python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/"
-        )
+        print("1. Data directory structure is different")
+        print("2. Missing dependencies")
+        print("3. Model architecture issues")
+        print("\nTo run evaluation:")
+        print("python evaluate_model.py --data_dir data/")

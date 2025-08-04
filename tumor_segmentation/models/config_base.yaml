@@ -2,12 +2,12 @@
 # This file should be inherited by model-specific configs
 
 # Data configuration - Common for all models
-data:
-  val_split: 0.2
-  batch_size: 16
-  num_workers: 0
-  patient_control_ratio: 0.80
-  use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
+# data:
+#   val_split: 0.2
+#   batch_size: 16
+#   num_workers: 0
+#   patient_control_ratio: 0.80
+#   use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
 
 # Trainer configuration - Common for all models
 trainer:

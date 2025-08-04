@@ -1,0 +1,23 @@
+model:
+  class_path: models.OrganDetector.model.OrganDetector
+  init_args:
+    in_channels: 1
+    num_classes: 1
+    lr: 1e-4
+    weight_decay: 1e-5
+    bce_loss_weight: 0.5  # Legacy parameter (not used with weighted BCE)
+    tile_height: 128
+    intensity_threshold: 85
+    tumor_emphasis_weight: 2.5  # Emphasize tumor detection for final task
+    use_weighted_bce: true  # Use optimized weighted BCE loss
+
+data:
+  class_path: data.tiled_data.TiledTumorDataModule
+  init_args:
+    batch_size: 16
+    num_workers: 4
+    val_split: 0.2
+    random_state: 42
+    augmentation: true
+    tile_height: 128
+    intensity_threshold: 85

@@ -1,0 +1,18 @@
+trainer:
+  logger:
+    class_path: lightning.pytorch.loggers.WandbLogger
+    init_args:
+      project: "tumor-segmentation"
+      name: "optimized-tumor-detector"  # Optimized for tumor detection
+      save_dir: "wandb_logs"
+      tags: ["organ-detector", "tiled", "inverted-segmentation", "optimized-cost-function", "weighted-bce"]
+      log_model: "all"
+  callbacks+:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        dirpath: "checkpoints"
+        filename: "optimized-tumor-detector-{epoch:02d}-{val_naive_dice:.4f}"
+        monitor: "val_naive_dice"  # Monitor naive dice (tumor detection under threshold)
+        mode: "max"
+        save_top_k: 1
+        verbose: true 

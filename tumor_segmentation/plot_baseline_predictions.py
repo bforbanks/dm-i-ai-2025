@@ -11,27 +11,182 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models import SimpleUNet
+from models.OrganDetector.model import OrganDetector
 from data.data_default import TumorSegmentationDataModule
-from utils import plot_prediction, dice_score
+from data.tiled_data import TiledTumorDataModule
+from utils import dice_score
 import cv2
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 
-def plot_baseline_predictions():
-    """Plot some predictions from the BaselineModel"""
+def plot_enhanced_prediction(
+    mip, seg, seg_pred, see_organs=False, intensity_threshold=85
+):
+    """
+    Enhanced visualization function that can show either tumor or organ predictions.
 
-    print("Loading BaselineModel and data...")
+    Args:
+        mip: Input image [H, W, 3]
+        seg: True segmentation [H, W, 3]
+        seg_pred: Predicted segmentation [H, W, 3]
+        see_organs: If True, interpret predictions as organ detection. If False, as tumor detection.
+        intensity_threshold: Threshold for dark pixels (used when see_organs=True)
+    """
+    score = dice_score(seg, seg_pred)
 
-    # Create model
-    model = SimpleUNet.load_from_checkpoint(
-        "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=20-val_dice=0.3963.ckpt",
-        map_location="cpu",  # Force CPU loading to avoid device mismatch
-    )
-    model.eval()
+    if see_organs:
+        title_prefix = "Organ Detection (Threshold-Masked):"
+        pred_title = "Predicted Organs"
+        analysis_title = f"Organ Analysis (dice = {score:.02f})"
 
-    # Create data module
-    datamodule = TumorSegmentationDataModule(
-        data_dir="data", batch_size=4, num_workers=0, image_size=256, val_split=0.2
-    )
+        # For organ detection, we interpret predictions differently
+        print(f"Organ Detection - Dice Score: {score:.4f}")
+
+        # Show dark pixels for context
+        if len(mip.shape) == 3:
+            mip_gray = cv2.cvtColor(mip, cv2.COLOR_RGB2GRAY)
+        else:
+            mip_gray = mip
+        dark_pixels = (mip_gray < intensity_threshold).sum()
+        total_pixels = mip_gray.size
+
+        # For organ detection, count predictions only in dark regions
+        if len(seg_pred.shape) == 3:
+            pred_gray = cv2.cvtColor(seg_pred, cv2.COLOR_RGB2GRAY)
+        else:
+            pred_gray = seg_pred
+
+        dark_mask = mip_gray < intensity_threshold
+        bright_mask = mip_gray >= intensity_threshold
+        predicted_in_dark = (pred_gray > 127)[dark_mask].sum()
+        predicted_in_bright = (pred_gray > 127)[bright_mask].sum()
+
+        print("Threshold Analysis:")
+        print(
+            f"  Dark pixels (<{intensity_threshold}): {dark_pixels:,} / {total_pixels:,} ({dark_pixels / total_pixels * 100:.1f}%)"
+        )
+        print(
+            f"  Predicted organs in dark regions: {predicted_in_dark:,} ({predicted_in_dark / max(dark_pixels, 1) * 100:.1f}% of dark pixels)"
+        )
+        print(
+            f"  ⚠️  Predicted organs in BRIGHT regions: {predicted_in_bright:,} (should be 0!)"
+        )
+        if predicted_in_bright > 0:
+            print(
+                "    🚨 ERROR: Model is predicting in bright areas - threshold masking failed!"
+            )
+
+    else:
+        title_prefix = "Tumor Detection:"
+        pred_title = "Predicted Tumors"
+        analysis_title = f"Tumor Analysis (dice = {score:.02f})"
+        print(f"Tumor Detection - Dice Score: {score:.4f}")
+
+    plt.figure(figsize=(12, 3))
+
+    plt.subplot(1, 4, 1)
+    plt.imshow(mip)
+    plt.axis("off")
+    plt.title("Original Image")
+
+    plt.subplot(1, 4, 2)
+    plt.imshow(seg)
+    plt.axis("off")
+    if see_organs:
+        plt.title("Reference\n(Dark regions)")
+    else:
+        plt.title("True Segmentation")
+
+    plt.subplot(1, 4, 3)
+    plt.imshow(seg_pred)
+    plt.axis("off")
+    plt.title(pred_title)
+
+    # Analysis subplot - same logic but different interpretation
+    TP = ((seg_pred > 0) & (seg > 0))[:, :, :1]
+    FP = ((seg_pred > 0) & (seg == 0))[:, :, :1]
+    FN = ((seg_pred == 0) & (seg > 0))[:, :, :1]
+    img = np.concatenate((FP, TP, FN), axis=2).astype(np.uint8) * 255
+
+    plt.subplot(1, 4, 4)
+    plt.imshow(img)
+    plt.axis("off")
+    plt.title(analysis_title)
+
+    # Create legend with appropriate labels
+    if see_organs:
+        green_label = "Correctly identified organs"
+        red_label = "False organ predictions"
+        blue_label = "Missed organs"
+    else:
+        green_label = "True Positives (TP)"
+        red_label = "False Positives (FP)"
+        blue_label = "False Negatives (FN)"
+
+    green_square = mpatches.Patch(color="green", label=green_label)
+    red_square = mpatches.Patch(color="red", label=red_label)
+    blue_square = mpatches.Patch(color="blue", label=blue_label)
+
+    plt.legend(handles=[green_square, red_square, blue_square], loc="lower right")
+
+    # Add title
+    plt.suptitle(title_prefix, fontsize=14, y=1.02)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_baseline_predictions(see_organs=False, model_checkpoint=None):
+    """
+    Plot predictions from either BaselineModel (tumor detection) or OrganDetector (organ detection).
+
+    Args:
+        see_organs: If True, use OrganDetector for organ predictions. If False, use SimpleUNet for tumor predictions.
+        model_checkpoint: Optional path to model checkpoint. If None, uses default checkpoints.
+    """
+    if see_organs:
+        print("Loading OrganDetector for organ detection...")
+
+        # Default OrganDetector checkpoint - update this path as needed
+        if model_checkpoint is None:
+            model_checkpoint = "checkpoints/organ-detector-epoch=34-val_dice_patients=0.7060.ckpt"  # Update with actual path
+
+        try:
+            model = OrganDetector.load_from_checkpoint(
+                model_checkpoint, map_location="cpu", tile_height=128
+            )
+            model.eval()
+            print(f"✅ Loaded OrganDetector from {model_checkpoint}")
+        except Exception as e:
+            print(f"❌ Could not load OrganDetector: {e}")
+            print(
+                "Please provide a valid checkpoint path or train the OrganDetector model first."
+            )
+            return
+
+        # Create tiled data module
+        datamodule = TiledTumorDataModule(
+            data_dir="data", batch_size=4, num_workers=0, tile_height=128, val_split=0.2
+        )
+    else:
+        print("Loading SimpleUNet for tumor detection...")
+
+        # Default SimpleUNet checkpoint
+        if model_checkpoint is None:
+            model_checkpoint = "C:/Users/Benja/dev/dm-i-ai-2025/tumor_segmentation/checkpoints/simple-unet-epoch=20-val_dice=0.3963.ckpt"
+
+        model = SimpleUNet.load_from_checkpoint(
+            model_checkpoint,
+            map_location="cpu",
+        )
+        model.eval()
+        print(f"✅ Loaded SimpleUNet from {model_checkpoint}")
+
+        # Create regular data module
+        datamodule = TumorSegmentationDataModule(
+            data_dir="data", batch_size=4, num_workers=0, image_size=256, val_split=0.2
+        )
 
     # Setup data
     datamodule.setup()
@@ -108,7 +263,29 @@ def plot_baseline_predictions():
 
         # Make predictions
         with torch.no_grad():
-            predictions = model(images)
+            if see_organs:
+                # For organ detection, apply threshold masking to predictions
+                # The model expects individual tiles, but we need to mask predictions
+                predictions = model(images)
+
+                # CRITICAL: Apply threshold masking to organ predictions
+                # Convert images back to 255 range for threshold comparison
+                images_255 = (images * 255.0).clamp(0, 255)
+                threshold_mask = (images_255 < model.intensity_threshold).float()
+
+                # Apply threshold mask - zero out predictions in bright areas
+                predictions = predictions * threshold_mask
+
+                print(f"  Applied threshold masking (<{model.intensity_threshold}):")
+                bright_predictions = (predictions * (1 - threshold_mask)).sum().item()
+                dark_predictions = (predictions * threshold_mask).sum().item()
+                print(
+                    f"    Predictions in bright areas: {bright_predictions:.6f} (should be 0)"
+                )
+                print(f"    Predictions in dark areas: {dark_predictions:.6f}")
+            else:
+                # Regular full-image prediction
+                predictions = model(images)
 
         print(f"Prediction shape: {predictions.shape}")
         print(f"Prediction range: {predictions.min():.6f}-{predictions.max():.6f}")
@@ -177,13 +354,28 @@ def plot_baseline_predictions():
         dice_diff = abs(dice_utils - dice_basemodel.item())
         print(f"  Difference: {dice_diff:.6f}")
 
-        # Plot using utils function
+        # Plot using enhanced function
         try:
-            plot_prediction(img_hwc, mask_hwc, pred_hwc)
+            plot_enhanced_prediction(img_hwc, mask_hwc, pred_hwc, see_organs=see_organs)
         except Exception as e:
             print(f"  Error plotting: {e}")
             continue
 
 
 if __name__ == "__main__":
-    plot_baseline_predictions()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Plot model predictions")
+    parser.add_argument(
+        "--see-organs",
+        action="store_true",
+        default=False,
+        help="Use OrganDetector to visualize organ predictions instead of tumor predictions",
+    )
+    parser.add_argument("--model-checkpoint", type=str, help="Path to model checkpoint")
+
+    args = parser.parse_args()
+
+    plot_baseline_predictions(
+        see_organs=args.see_organs, model_checkpoint=args.model_checkpoint
+    )

@@ -6,12 +6,11 @@ This directory contains comprehensive evaluation tools for tumor segmentation mo
 
 ### Basic Evaluation
 ```bash
-# Run complete evaluation with a trained model
-python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/
+# Run complete evaluation
+python evaluate_model.py --data_dir data/
 
 # Custom settings
 python evaluate_model.py \
-    --checkpoint path/to/model.ckpt \
     --data_dir data/ \
     --batch_size 8 \
     --save_dir my_evaluation_results/
@@ -151,7 +150,6 @@ def _create_visualizations(self, val_summary, eval_summary, save_dir):
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `--checkpoint` | str | Required | Path to model checkpoint (.ckpt file) |
 | `--data_dir` | str | `data` | Path to data directory |
 | `--batch_size` | int | `16` | Batch size for evaluation |
 | `--num_workers` | int | `4` | Number of worker threads |
@@ -162,21 +160,14 @@ def _create_visualizations(self, val_summary, eval_summary, save_dir):
 
 ### Common Issues
 
-1. **Model Loading Error**
-   ```
-   Error: Failed to load checkpoint
-   ```
-   - Check checkpoint path exists
-   - Ensure model architecture matches checkpoint
-
-2. **Data Directory Not Found**
+1. **Data Directory Not Found**
    ```
    Warning: Evaluation directory does not exist
    ```
    - Check data directory structure
    - Ensure evaluation_set folder exists
 
-3. **Out of Memory**
+2. **Out of Memory**
    ```
    CUDA out of memory
    ```

@@ -1,10 +1,14 @@
 model:
   class_path: models.SimpleSwin.model.SimpleSwin
   init_args:
-    in_channels: 1
-    num_classes: 1
-    lr: 1e-4
-    weight_decay: 1e-5
-    use_pretrained: true
-    # model_name: "swin_base_patch4_window7_224"  # Options: swin_tiny, swin_small, swin_base
+    bce_loss_weight: 0.4
     model_name: "swinv2_base_window8_256.ms_in1k"
+
+data:
+  class_path: data.data_default.TumorSegmentationDataModule
+  init_args:
+    val_split: 0.2
+    batch_size: 16
+    num_workers: 0
+    patient_control_ratio: 0.80
+    use_oversampling: False  # Toggle between oversampling (true) and previous dataloading (false)
