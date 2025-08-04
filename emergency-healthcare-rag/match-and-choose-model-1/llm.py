@@ -44,16 +44,17 @@ NEVER SAY ANYTHING BUT A SINGLE NUMBER."""
 def generate_topic_and_truth_prompt(statement: str, candidate_topics: List[Dict], context: str) -> str:
     """Generate topic+truth prompt (when below threshold - LLM chooses between candidates)"""
     
+    # Format candidates with ranking and topic model confidence scores
     candidates_text = "\n".join([
-        f"{topic['topic_id']}: {topic['topic_name']} (score: {topic['score']:.2f})" 
-        for topic in candidate_topics
+        f"#{rank}: Topic {topic['topic_id']} - {topic['topic_name']} (Topic Model Score: {topic['score']:.3f})" 
+        for rank, topic in enumerate(candidate_topics, 1)
     ])
     
     return f"""You are a medical expert. Analyze this statement and provide two determinations.
 
 STATEMENT: {statement}
 
-TOPIC CANDIDATES (with their relevance scores to help you decide):
+TOPIC MODEL RANKINGS (ordered by topic model confidence):
 {candidates_text}
 
 MEDICAL CONTEXT (chunks that matched these topics):
@@ -63,7 +64,7 @@ TASKS:
 1. Choose the most relevant topic from the candidates above
 2. Determine if the statement is TRUE (1) or FALSE (0) based on your medical knowledge and the context
 
-IMPORTANT: The topic candidates shown have very similar relevance scores, which is why we need your expert judgment to choose between them.
+IMPORTANT: The topic model found these candidates have very similar confidence scores (within threshold), which is why we need your expert medical judgment to choose between them. The topic model scores show how well each topic's content matched the statement keywords, but you should use your medical expertise to determine the most accurate topic.
 
 The chance of a statement being true or false is roughly 50/50. Be skeptical of medical claims unless you are confident they are correct.
 According to our stats, you rate true WAY too often. Thus, you should purposely try to rate more claims false. In other words, lean towards rating statements false.
