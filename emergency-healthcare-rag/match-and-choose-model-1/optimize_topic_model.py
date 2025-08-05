@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """
-Hierarchical Topic Model Optimizer (concise, ucloud-friendly)
+Hierarchical Topic Model Optimizer (downloads models at start; offline thereafter)
 
-- No live-results; only writes:
-    models_90_plus.json   (all configs with acc >= 0.90, metrics+config only)
-    top_5_models.json     (current best five with metrics+config)
-- Correct metrics: not-found => rank=11; accurate top-3; mean margin@1.
-- Topic-level ranking by aggregating chunk scores (max).
-- Overlap handled as ratio everywhere (no truncation).
-- Paths: --data-dir or env EHR_DATA_DIR; fallback probe: <script>/data then ../data.
-- Optional on-disk embedding cache (npz). No online API calls at inference time.
+What it does
+- Immediately downloads the embedding models to a local folder at startup (or reuses cached copies).
+- Evaluates BM25, Semantic (SentenceTransformers), and Hybrid (linear, RRF) with topic-level aggregation (max over chunks).
+- Metrics: top1, top2, top3, avg_rank, mean margin@1 (gap between top-1 and top-2). Misses are recorded as rank=11.
+- Writes ONLY two small files, updated after every config:
+    models_90_plus.json  (all configs with acc >= 0.90; metrics + config)
+    top_5_models.json    (best five so far; metrics + config)
+- Optional randomized search order and minutes budget. Safe to stop at any time; files reflect best-so-far.
+
+Run example
+python match-and-choose-model-1/optimize_topic_model.py \
+  --data-dir /path/to/data \
+  --models-dir /path/to/local_models \
+  --random-search --max-samples 50 --minutes-budget 60
 """
 
-import json, time, warnings, argparse
+import os, json, time, warnings, argparse, random
 from pathlib import Path
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 import numpy as np
 
 warnings.filterwarnings("ignore", category=FutureWarning, module="torch.*")
@@ -39,8 +45,10 @@ except Exception:
                 print(f"{desc}: {i+1}/{total} ({100*(i+1)/total:.0f}%)")
             yield x
 
+# ---------------------------- Paths ----------------------------
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR: Path  # set in main after resolution
+DATA_DIR: Path                 # set in __main__
+MODELS_DIR: Path               # set in __main__
 OUT_90P = BASE_DIR / "models_90_plus.json"
 OUT_TOP5 = BASE_DIR / "top_5_models.json"
 CACHE_DIR = BASE_DIR / "cache"
@@ -54,30 +62,35 @@ class OptimizationConfig:
     embedding_models: List[str] = None
     embedding_chunk_sizes: List[int] = None
     embedding_overlap_ratios: List[float] = None
+    fusion_strategies: List[str] = None
     top_bm25_configs: int = 5
     top_embedding_configs: int = 5
-    fusion_strategies: List[str] = None
-    zoom_enabled: bool = True
+    zoom_enabled: bool = False
     zoom_radius: int = 2
     use_condensed_topics: bool = True
     max_samples: int = 50
     cache_embeddings: bool = True
     save_detailed_results: bool = False
     display_every: int = 20
+    random_search: bool = False
+    max_configs_phase1: Optional[int] = None
+    max_configs_phase2: Optional[int] = None
+    max_configs_phase3: Optional[int] = None
+    seed: int = 42
     def __post_init__(self):
-        self.bm25_chunk_sizes = self.bm25_chunk_sizes or [96,112,128,144,160]
+        self.bm25_chunk_sizes = self.bm25_chunk_sizes or [96,112,128,144,160,176]
         self.bm25_overlap_ratios = self.bm25_overlap_ratios or [0.0]
         self.embedding_models = self.embedding_models or [
             "sentence-transformers/all-MiniLM-L6-v2",
             "sentence-transformers/all-mpnet-base-v2",
         ]
-        self.embedding_chunk_sizes = self.embedding_chunk_sizes or [112,128,144]
+        self.embedding_chunk_sizes = self.embedding_chunk_sizes or [96,112,128,144,160]
         self.embedding_overlap_ratios = self.embedding_overlap_ratios or [0.0]
-        self.fusion_strategies = self.fusion_strategies or ["bm25_only","semantic_only","linear_0.5","rrf"]
+        self.fusion_strategies = self.fusion_strategies or ["bm25_only","semantic_only","linear_0.3","linear_0.5","linear_0.7","rrf"]
 
 config = OptimizationConfig()
 
-# ---------------------------- IO ----------------------------
+# ---------------------------- IO helpers ----------------------------
 def _read_json(p: Path, default):
     try: return json.loads(p.read_text())
     except Exception: return default
@@ -85,7 +98,29 @@ def _read_json(p: Path, default):
 def _write_json(p: Path, obj):
     p.write_text(json.dumps(obj, indent=2))
 
+def update_high_performance_models(result: Dict):
+    """Append any >=0.90 accuracy config (metrics + config) and highlight in terminal."""
+    acc = result.get('metrics', {}).get('accuracy', 0.0)
+    if acc < 0.90: return
+    entries = _read_json(OUT_90P, [])
+    m, c = result['metrics'], result['config']
+    entry = {
+        "timestamp": int(time.time()),
+        "accuracy": m['accuracy'],
+        "top2_accuracy": m['top2_accuracy'],
+        "top3_accuracy": m['top3_accuracy'],
+        "avg_rank": m['avg_rank'],
+        "mean_margin_at_1": m.get('mean_margin_at_1'),
+        "config": c
+    }
+    key = (json.dumps(c, sort_keys=True), round(m['accuracy'], 6))
+    if not any((json.dumps(e["config"], sort_keys=True), round(e["accuracy"],6)) == key for e in entries):
+        entries.append(entry)
+        _write_json(OUT_90P, entries)
+    print("\033[92m" + "🎯  ACCURACY ≥ 0.90 — saved to models_90_plus.json" + "\033[0m")
+
 def update_top_5_models(all_results: List[Dict]):
+    """Rewrite current top five"""
     if not all_results: return None
     s = sorted(all_results, key=lambda x: x['metrics']['accuracy'], reverse=True)[:5]
     out = {"last_updated": int(time.time()),
@@ -96,8 +131,9 @@ def update_top_5_models(all_results: List[Dict]):
         out["top_5_models"].append({
             "rank": i,
             "accuracy": m['accuracy'],
-            "avg_rank": m['avg_rank'],
+            "top2_accuracy": m['top2_accuracy'],
             "top3_accuracy": m['top3_accuracy'],
+            "avg_rank": m['avg_rank'],
             "mean_margin_at_1": m.get('mean_margin_at_1'),
             "config": c
         })
@@ -107,31 +143,24 @@ def update_top_5_models(all_results: List[Dict]):
 def display_top_5_models(all_results: List[Dict], i: int, total: int, force=False):
     if not force and (i % config.display_every != 0): return
     top = update_top_5_models(all_results)
-    if not top: 
-        print("No results yet; top-5 unavailable."); 
+    if not top:
+        print("No results yet; top-5 unavailable.")
         return
     print(f"\nTOP 5 at {time.strftime('%H:%M:%S')} [{i}/{total} = {100*i/total:.1f}%]")
     for t in top["top_5_models"]:
-        print(f"{t['rank']}. acc={t['accuracy']:.3f} avg_rank={t['avg_rank']:.2f} top3={t['top3_accuracy']:.3f} margin@1={t['mean_margin_at_1']}")
+        print(f"{t['rank']}. acc={t['accuracy']:.3f} top2={t['top2_accuracy']:.3f} top3={t['top3_accuracy']:.3f} avg_rank={t['avg_rank']:.2f} margin@1={t['mean_margin_at_1']}")
     print(f"Saved to {OUT_TOP5.name}")
 
-def update_high_performance_models(result: Dict):
-    acc = result.get('metrics', {}).get('accuracy', 0.0)
-    if acc < 0.90: return
-    entries = _read_json(OUT_90P, [])
-    m, c = result['metrics'], result['config']
-    entries.append({
-        "timestamp": int(time.time()),
-        "accuracy": m['accuracy'],
-        "avg_rank": m['avg_rank'],
-        "top3_accuracy": m['top3_accuracy'],
-        "mean_margin_at_1": m.get('mean_margin_at_1'),
-        "config": c
-    })
-    _write_json(OUT_90P, entries)
-    print(f"≥90% model saved: acc={acc:.3f} -> {OUT_90P.name}")
-
 # ---------------------------- Data & metrics ----------------------------
+def _resolve_data_dir(cli_path: Optional[str]) -> Path:
+    if cli_path: return Path(cli_path).resolve()
+    env = os.environ.get("EHR_DATA_DIR")
+    if env: return Path(env).resolve()
+    cands = [BASE_DIR/"data", BASE_DIR.parent/"data", Path.cwd()/"data"]
+    for c in cands:
+        if (c/"topics.json").exists(): return c.resolve()
+    raise FileNotFoundError("Provide --data-dir or set EHR_DATA_DIR to folder containing topics.json")
+
 def _require_data_layout():
     need = [DATA_DIR / "topics.json", DATA_DIR / "train" / "statements", DATA_DIR / "train" / "answers"]
     miss = [str(p) for p in need if not p.exists()]
@@ -169,18 +198,41 @@ def _rank_and_margin(topic_scores: Dict[int, float], true_topic: int) -> Tuple[i
     return rank, float(s1 - s2)
 
 def calculate_metrics(results: List[Dict]) -> Dict:
-    if not results: return {"accuracy":0.0,"avg_rank":0.0,"top3_accuracy":0.0,"total_samples":0}
+    if not results:
+        return {"accuracy":0.0,"top2_accuracy":0.0,"top3_accuracy":0.0,"avg_rank":0.0,"total_samples":0}
     total = len(results)
-    correct = sum(1 for r in results if r['rank_correct']==1)
+    top1 = sum(1 for r in results if r['rank_correct']==1)
+    top2 = sum(1 for r in results if 1 <= r['rank_correct'] <= 2)
     top3 = sum(1 for r in results if 1 <= r['rank_correct'] <= 3)
     avg_rank = sum(r['rank_correct'] for r in results)/total
     mean_margin = float(np.mean([r['margin_at_1'] for r in results]))
-    return {"accuracy":correct/total,"avg_rank":avg_rank,"top3_accuracy":top3/total,"total_samples":total,"mean_margin_at_1":mean_margin}
+    return {"accuracy":top1/total,"top2_accuracy":top2/total,"top3_accuracy":top3/total,
+            "avg_rank":avg_rank,"total_samples":total,"mean_margin_at_1":mean_margin}
 
 def _norm(v: np.ndarray) -> np.ndarray:
     v = np.asarray(v, dtype=np.float32)
     mn, mx = float(v.min()), float(v.max())
     return (v - mn)/(mx - mn) if mx - mn > 1e-8 else np.zeros_like(v)
+
+# ---------------------------- Models: download at start; load from cache thereafter ----------------------------
+def download_models_at_start(model_names: List[str]):
+    """Download models to MODELS_DIR if missing; reuse cache if present.
+       After this, we always load by repo id with cache_folder=MODELS_DIR (offline-safe)."""
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    for name in model_names:
+        try:
+            # Attempt to instantiate with cache_folder; if cached it won't hit the network.
+            _ = SentenceTransformer(name, cache_folder=str(MODELS_DIR))
+            print(f"✔ Model available: {name}")
+        except Exception as e:
+            # Retry once verbosely
+            print(f"Attempting download for {name} → {MODELS_DIR}")
+            _ = SentenceTransformer(name, cache_folder=str(MODELS_DIR))
+            print(f"✔ Downloaded: {name}")
+
+def _cache_path(model: str, chunk: int, ov: float, cond: bool) -> Path:
+    key = f"{model.replace('/','_')}__c{chunk}__o{ov:.3f}__cond{int(cond)}.npz"
+    return CACHE_DIR / key
 
 # ---------------------------- Phase 1: BM25 ----------------------------
 def build_bm25_index(chunk_size: int, overlap_ratio: float, use_condensed_topics: bool=True) -> Dict:
@@ -218,40 +270,46 @@ def evaluate_bm25_config(bm25_data: Dict, statements: List[Tuple[str,int]]) -> D
     return {"config":{"chunk_size":bm25_data["chunk_size"],"overlap":bm25_data["overlap"],"strategy":"bm25_only"},
             "metrics":metrics, "results": results if config.save_detailed_results else []}
 
-def run_bm25_optimization() -> List[Dict]:
-    stmts = load_statements()
-    all_results, total, k = [], len(config.bm25_chunk_sizes)*len(config.bm25_overlap_ratios), 0
+def run_bm25_optimization(statements: List[Tuple[str,int]], deadline: Optional[float]) -> List[Dict]:
+    grid = [(cs, ov) for cs in config.bm25_chunk_sizes for ov in config.bm25_overlap_ratios]
+    if config.random_search:
+        random.Random(config.seed).shuffle(grid)
+    if config.max_configs_phase1:
+        grid = grid[:config.max_configs_phase1]
+
+    all_results, total = [], len(grid)
     print("PHASE 1: BM25")
-    for cs in config.bm25_chunk_sizes:
-        for ov in config.bm25_overlap_ratios:
-            k += 1
-            print(f"\nBM25 {k}/{total}: chunk={cs} overlap_ratio={ov:.2f}")
-            try:
-                data = build_bm25_index(cs, ov, config.use_condensed_topics)
-                res = evaluate_bm25_config(data, stmts)
-                all_results.append(res)
-                print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
-                update_top_5_models(all_results); display_top_5_models(all_results, k, total)
-                update_high_performance_models(res)
-            except Exception as e:
-                print(f"Error: {e}")
+    for k, (cs, ov) in enumerate(grid, 1):
+        print(f"\nBM25 {k}/{total}: chunk={cs} overlap_ratio={ov:.2f}")
+        try:
+            data = build_bm25_index(cs, ov, config.use_condensed_topics)
+            res = evaluate_bm25_config(data, statements)
+            all_results.append(res)
+            m = res['metrics']
+            print(f"✅ acc={m['accuracy']:.3f} top2={m['top2_accuracy']:.3f} top3={m['top3_accuracy']:.3f} avg_rank={m['avg_rank']:.2f}")
+            if m['accuracy'] >= 0.90: update_high_performance_models(res)
+            update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+        except Exception as e:
+            print(f"Error: {e}")
+        if deadline and time.time() > deadline:
+            print("Time budget reached during Phase 1.")
+            break
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    display_top_5_models(all_results, k, total, force=True)
-    return all_results[:config.top_bm25_configs]
+    display_top_5_models(all_results, min(len(grid), k), total, force=True)
+    return all_results[:config.top_bm25_configs] if all_results else []
 
 # ---------------------------- Phase 2: Embeddings ----------------------------
-def _cache_path(model: str, chunk: int, ov: float, cond: bool) -> Path:
-    key = f"{model.replace('/','_')}__c{chunk}__o{ov:.3f}__cond{int(cond)}.npz"
-    return CACHE_DIR / key
-
 def build_semantic_index(model_name: str, chunk_size: int, overlap_ratio: float, use_condensed_topics: bool=True) -> Dict:
     cp = _cache_path(model_name, chunk_size, overlap_ratio, use_condensed_topics)
     if config.cache_embeddings and cp.exists():
         nz = np.load(cp, allow_pickle=True)
         return {"model": None, "embeddings": nz["embeddings"], "doc_ids": nz["doc_ids"].tolist(),
                 "chunk_size": chunk_size, "overlap": overlap_ratio, "model_name": model_name}
+
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = SentenceTransformer(model_name, device=device)
+    # Load by repo id from our MODELS_DIR cache (offline-safe if already downloaded)
+    model = SentenceTransformer(model_name, device=device, cache_folder=str(MODELS_DIR))
+
     tdir = DATA_DIR / ("condensed_topics" if use_condensed_topics else "topics")
     tmap = json.loads((DATA_DIR / "topics.json").read_text())
     docs, doc_ids = [], []
@@ -269,8 +327,9 @@ def build_semantic_index(model_name: str, chunk_size: int, overlap_ratio: float,
                 words = p.read_text().split()
                 chunks = chunk_words(words, chunk_size, int(chunk_size*overlap_ratio))
                 docs.extend(chunks); doc_ids.extend([tid]*len(chunks))
+
     if not docs: raise ValueError("No documents for embeddings")
-    print(f"Embedding {len(docs)} chunks with {model_name} on {device}...")
+    print(f"Embedding {len(docs)} chunks with {model_name.split('/')[-1]} on {device}...")
     emb = model.encode(docs, convert_to_numpy=True, show_progress_bar=USE_TQDM)
     if config.cache_embeddings:
         np.savez_compressed(cp, embeddings=emb, doc_ids=np.array(doc_ids))
@@ -278,7 +337,10 @@ def build_semantic_index(model_name: str, chunk_size: int, overlap_ratio: float,
             "chunk_size": chunk_size, "overlap": overlap_ratio, "model_name": model_name}
 
 def evaluate_semantic_config(sd: Dict, statements: List[Tuple[str,int]]) -> Dict:
-    model = sd["model"] or SentenceTransformer(sd["model_name"], device='cpu')
+    if sd["model"] is None:
+        model = SentenceTransformer(sd["model_name"], device='cpu', cache_folder=str(MODELS_DIR))
+    else:
+        model = sd["model"]
     emb, doc_ids = sd["embeddings"], sd["doc_ids"]
     results = []
     for s, true_t in tqdm(statements, desc="Semantic", disable=not USE_TQDM):
@@ -291,34 +353,45 @@ def evaluate_semantic_config(sd: Dict, statements: List[Tuple[str,int]]) -> Dict
     return {"config":{"model_name":sd["model_name"],"chunk_size":sd["chunk_size"],"overlap":sd["overlap"],"strategy":"semantic_only"},
             "metrics":metrics, "results": results if config.save_detailed_results else []}
 
-def run_embedding_optimization() -> List[Dict]:
-    stmts = load_statements()
-    all_results, total, k = [], len(config.embedding_models)*len(config.embedding_chunk_sizes)*len(config.embedding_overlap_ratios), 0
+def run_embedding_optimization(statements: List[Tuple[str,int]], deadline: Optional[float]) -> List[Dict]:
+    grid = [(mn, cs, ov) for mn in config.embedding_models
+                         for cs in config.embedding_chunk_sizes
+                         for ov in config.embedding_overlap_ratios]
+    if config.random_search:
+        random.Random(config.seed).shuffle(grid)
+    if config.max_configs_phase2:
+        grid = grid[:config.max_configs_phase2]
+
+    all_results, total = [], len(grid)
     print("\nPHASE 2: Embeddings")
-    for mn in config.embedding_models:
-        for cs in config.embedding_chunk_sizes:
-            for ov in config.embedding_overlap_ratios:
-                k += 1
-                print(f"\nEMB {k}/{total}: {mn} chunk={cs} overlap_ratio={ov:.2f}")
-                try:
-                    sd = build_semantic_index(mn, cs, ov, config.use_condensed_topics)
-                    res = evaluate_semantic_config(sd, stmts)
-                    all_results.append(res)
-                    print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
-                    update_top_5_models(all_results); display_top_5_models(all_results, k, total)
-                    update_high_performance_models(res)
-                except Exception as e:
-                    print(f"Error: {e}")
+    for k, (mn, cs, ov) in enumerate(grid, 1):
+        print(f"\nEMB {k}/{total}: {mn.split('/')[-1]} chunk={cs} overlap_ratio={ov:.2f}")
+        try:
+            sd = build_semantic_index(mn, cs, ov, config.use_condensed_topics)
+            res = evaluate_semantic_config(sd, statements)
+            all_results.append(res)
+            m = res['metrics']
+            print(f"✅ acc={m['accuracy']:.3f} top2={m['top2_accuracy']:.3f} top3={m['top3_accuracy']:.3f} avg_rank={m['avg_rank']:.2f}")
+            if m['accuracy'] >= 0.90: update_high_performance_models(res)
+            update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+        except Exception as e:
+            print(f"Error: {e}")
+        if deadline and time.time() > deadline:
+            print("Time budget reached during Phase 2.")
+            break
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    display_top_5_models(all_results, k, total, force=True)
-    return all_results[:config.top_embedding_configs]
+    display_top_5_models(all_results, min(len(grid), k), total, force=True)
+    return all_results[:config.top_embedding_configs] if all_results else []
 
 # ---------------------------- Phase 3: Hybrid ----------------------------
 class HybridSearcher:
     def __init__(self, bm25_data: Dict, sem_data: Dict):
         self.bm25 = bm25_data["bm25"]
         self.doc_ids = bm25_data["doc_ids"]
-        self.model = sem_data["model"] or SentenceTransformer(sem_data["model_name"], device='cpu')
+        if sem_data["model"] is None:
+            self.model = SentenceTransformer(sem_data["model_name"], device='cpu', cache_folder=str(MODELS_DIR))
+        else:
+            self.model = sem_data["model"]
         self.emb = sem_data["embeddings"]
     def linear(self, q: str, w: float=0.5) -> Dict[int,float]:
         b = _norm(self.bm25.get_scores(q.split()))
@@ -341,7 +414,8 @@ def evaluate_hybrid_config(bc: Dict, sc: Dict, strat: str, statements: List[Tupl
         if strat == "bm25_only":
             topic_scores = _aggregate_topic_scores(_norm(bd["bm25"].get_scores(s.split())), bd["doc_ids"])
         elif strat == "semantic_only":
-            topic_scores = _aggregate_topic_scores(_norm(cosine_similarity((sd["model"] or SentenceTransformer(sc['model_name'], device='cpu')).encode([s], convert_to_numpy=True), sd["embeddings"])[0]), sd["doc_ids"])
+            sims = _norm(cosine_similarity(hs.model.encode([s], convert_to_numpy=True), sd["embeddings"])[0])
+            topic_scores = _aggregate_topic_scores(sims, sd["doc_ids"])
         elif strat.startswith("linear_"):
             topic_scores = hs.linear(s, float(strat.split("_")[1]))
         elif strat == "rrf":
@@ -354,30 +428,37 @@ def evaluate_hybrid_config(bc: Dict, sc: Dict, strat: str, statements: List[Tupl
     return {"config":{"bm25_config":bc,"semantic_config":sc,"fusion_strategy":strat},
             "metrics":metrics, "results": results if config.save_detailed_results else []}
 
-def run_hybrid_optimization(bm25_results: List[Dict], sem_results: List[Dict]) -> List[Dict]:
-    stmts = load_statements()
-    all_results, total, k = [], len(bm25_results)*len(sem_results)*len(config.fusion_strategies), 0
+def run_hybrid_optimization(bm25_results: List[Dict], sem_results: List[Dict],
+                            statements: List[Tuple[str,int]], deadline: Optional[float]) -> List[Dict]:
+    if not bm25_results or not sem_results: return []
+    combos = [(b['config'], s['config'], strat)
+              for b in bm25_results for s in sem_results for strat in config.fusion_strategies]
+    if config.random_search:
+        random.Random(config.seed).shuffle(combos)
+    if config.max_configs_phase3:
+        combos = combos[:config.max_configs_phase3]
+
+    all_results, total = [], len(combos)
     print("\nPHASE 3: Hybrid")
-    for br in bm25_results:
-        bc = br['config']
-        for sr in sem_results:
-            sc = sr['config']
-            for strat in config.fusion_strategies:
-                k += 1
-                print(f"\nHYB {k}/{total}: {strat} | BM25 chunk={bc['chunk_size']} ov={bc['overlap']:.2f} | SEM {sc['model_name']} chunk={sc['chunk_size']} ov={sc['overlap']:.2f}")
-                try:
-                    res = evaluate_hybrid_config(bc, sc, strat, stmts)
-                    all_results.append(res)
-                    print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
-                    update_top_5_models(all_results); display_top_5_models(all_results, k, total)
-                    update_high_performance_models(res)
-                except Exception as e:
-                    print(f"Error: {e}")
+    for k, (bc, sc, strat) in enumerate(combos, 1):
+        print(f"\nHYB {k}/{total}: {strat} | BM25 chunk={bc['chunk_size']} ov={bc['overlap']:.2f} | SEM {sc['model_name'].split('/')[-1]} chunk={sc['chunk_size']} ov={sc['overlap']:.2f}")
+        try:
+            res = evaluate_hybrid_config(bc, sc, strat, statements)
+            all_results.append(res)
+            m = res['metrics']
+            print(f"✅ acc={m['accuracy']:.3f} top2={m['top2_accuracy']:.3f} top3={m['top3_accuracy']:.3f} avg_rank={m['avg_rank']:.2f}")
+            if m['accuracy'] >= 0.90: update_high_performance_models(res)
+            update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+        except Exception as e:
+            print(f"Error: {e}")
+        if deadline and time.time() > deadline:
+            print("Time budget reached during Phase 3.")
+            break
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    display_top_5_models(all_results, k, total, force=True)
+    display_top_5_models(all_results, min(len(combos), k), total, force=True)
     return all_results
 
-# ---------------------------- Phase 4: Zoom ----------------------------
+# ---------------------------- Phase 4: Zoom (optional, off by default) ----------------------------
 def generate_zoom_configs(prom: Dict, radius: int=2) -> List[Dict]:
     base = prom['config']; bc, bo = base['bm25_config']['chunk_size'], base['bm25_config']['overlap']
     out = []
@@ -390,10 +471,9 @@ def generate_zoom_configs(prom: Dict, radius: int=2) -> List[Dict]:
                             "fusion_strategy":base['fusion_strategy']})
     return out
 
-def run_zoom_optimization(promising: List[Dict]) -> List[Dict]:
+def run_zoom_optimization(promising: List[Dict], statements: List[Tuple[str,int]], deadline: Optional[float]) -> List[Dict]:
     if not config.zoom_enabled or not promising: return promising or []
     print("\nPHASE 4: Zoom")
-    stmts = load_statements()
     zoom_results = []
     for i, pr in enumerate(promising[:3], 1):
         print(f"\nZoom {i}: {pr['config']['fusion_strategy']} acc={pr['metrics']['accuracy']:.3f}")
@@ -401,75 +481,103 @@ def run_zoom_optimization(promising: List[Dict]) -> List[Dict]:
         print(f"variants={len(zcfgs)}")
         for j, zc in enumerate(zcfgs, 1):
             try:
-                res = evaluate_hybrid_config(zc['bm25_config'], zc['semantic_config'], zc['fusion_strategy'], stmts)
+                res = evaluate_hybrid_config(zc['bm25_config'], zc['semantic_config'], zc['fusion_strategy'], statements)
                 zoom_results.append(res)
                 if j % 10 == 0:
                     print(f"  {j}/{len(zcfgs)} acc={res['metrics']['accuracy']:.3f}")
                     update_top_5_models(zoom_results)
             except Exception as e:
                 print(f"  Zoom error {j}: {e}")
+            if deadline and time.time() > deadline:
+                print("Time budget reached during Zoom.")
+                break
+        if deadline and time.time() > deadline:
+            break
     all_results = (promising + zoom_results)
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
     return all_results
 
 # ---------------------------- Main ----------------------------
-def _resolve_data_dir(cli_path: str|None) -> Path:
-    if cli_path:
-        return Path(cli_path).resolve()
-    env = os.environ.get("EHR_DATA_DIR")
-    if env:
-        return Path(env).resolve()
-    cands = [BASE_DIR/"data", BASE_DIR.parent/"data", Path.cwd()/"data"]
-    for c in cands:
-        if (c/"topics.json").exists():
-            return c.resolve()
-    # last resort: show helpful error
-    raise FileNotFoundError(
-        "Could not locate data directory. Provide --data-dir or set EHR_DATA_DIR.\n"
-        f"Tried: {', '.join(str(c) for c in cands)}"
-    )
+def run_optimization(minutes_budget: Optional[int]):
+    start = time.time()
+    deadline = start + 60*minutes_budget if minutes_budget else None
 
-def run_optimization():
+    _require_data_layout()
+    statements = load_statements()
+
     print("Starting optimization")
-    t0 = time.time()
 
-    print("\n-- Phase 1")
-    bm25_results = run_bm25_optimization()
+    # Phase 1
+    bm25_results = run_bm25_optimization(statements, deadline)
 
-    print("\n-- Phase 2")
-    sem_results = run_embedding_optimization()
+    # Phase 2
+    if deadline and time.time() > deadline:
+        print("Budget exhausted after Phase 1.")
+        return bm25_results
+    sem_results = run_embedding_optimization(statements, deadline)
 
-    print("\n-- Phase 3")
-    hybrid_results = run_hybrid_optimization(bm25_results, sem_results)
+    # Phase 3
+    if deadline and time.time() > deadline:
+        print("Budget exhausted after Phase 2.")
+        return sem_results
+    hybrid_results = run_hybrid_optimization(bm25_results, sem_results, statements, deadline)
 
-    print("\n-- Phase 4")
-    final_results = run_zoom_optimization(hybrid_results)
+    # Phase 4 (optional; disabled by default)
+    if config.zoom_enabled and (not deadline or time.time() < deadline):
+        final_results = run_zoom_optimization(hybrid_results, statements, deadline)
+    else:
+        final_results = hybrid_results
 
-    elapsed = time.time() - t0
+    elapsed = time.time() - start
     print(f"\nDone in {elapsed/3600:.2f} h")
     if final_results:
         best = final_results[0]
         m = best['metrics']
-        print("\nBEST:")
-        print(f" strategy={best['config']['fusion_strategy']}")
-        print(f" acc={m['accuracy']:.3f} avg_rank={m['avg_rank']:.2f} top3={m['top3_accuracy']:.3f} margin@1={m.get('mean_margin_at_1')}")
+        print("\nBEST CONFIG:")
+        print(f" strategy={best['config']['fusion_strategy'] if 'fusion_strategy' in best['config'] else best['config'].get('strategy','')}")
+        print(f" acc={m['accuracy']:.3f} top2={m['top2_accuracy']:.3f} top3={m['top3_accuracy']:.3f} avg_rank={m['avg_rank']:.2f} margin@1={m.get('mean_margin_at_1')}")
         update_high_performance_models(best)
         update_top_5_models(final_results)
     else:
         print("No results generated.")
+    return final_results
 
 if __name__ == "__main__":
-    import os
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", type=str, default=None, help="Path to data/ containing topics.json")
+    parser.add_argument("--data-dir", type=str, default=None, help="Directory containing topics.json and train/")
+    parser.add_argument("--models-dir", type=str, default=None, help="Directory to store/load SentenceTransformer models (will download here)")
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--display-every", type=int, default=None)
+    parser.add_argument("--random-search", action="store_true")
+    parser.add_argument("--max-configs-phase1", type=int, default=None)
+    parser.add_argument("--max-configs-phase2", type=int, default=None)
+    parser.add_argument("--max-configs-phase3", type=int, default=None)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--minutes-budget", type=int, default=None, help="Stop after this many minutes")
     args = parser.parse_args()
 
-    # Resolve data dir and apply simple overrides
+    # Apply CLI -> globals
     DATA_DIR = _resolve_data_dir(args.data_dir)
-    _require_data_layout()
+    MODELS_DIR = Path(args.models_dir).resolve() if args.models_dir else (BASE_DIR / "models")
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Config overrides
     if args.max_samples is not None: config.max_samples = args.max_samples
     if args.display_every is not None: config.display_every = args.display_every
+    config.random_search = bool(args.random_search)
+    config.max_configs_phase1 = args.max_configs_phase1
+    config.max_configs_phase2 = args.max_configs_phase2
+    config.max_configs_phase3 = args.max_configs_phase3
+    config.seed = args.seed
+    random.seed(config.seed); np.random.seed(config.seed)
 
-    run_optimization()
+    # 1) Download models at start (or reuse local cache)
+    print(f"Ensuring models in: {MODELS_DIR}")
+    download_models_at_start(config.embedding_models)
+
+    # 2) After download, force offline mode for the remainder of the run (will load from cache_folder)
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"
+    os.environ["HF_HUB_OFFLINE"] = "1"
+
+    # 3) Run optimization under optional budget
+    run_optimization(args.minutes_budget)
