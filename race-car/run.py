@@ -30,7 +30,7 @@ Within game_loop, change get_action() to your custom models prediction for local
 
 
 # Just change this string to use different models! (remember capitalization)
-model_name = "ImprovedExpertSystem"  # Our improved expert system
+model_name = "LaneShift"  # Our improved expert system
 
 # Dynamic import
 module = importlib.import_module(f"models.{model_name}")
@@ -58,9 +58,11 @@ if __name__ == "__main__":
     # Initialize the expert system
     expert_model = MODEL()
     print(f"Using model: {MODEL.__name__}")
+    # expert_model = None
 
-    for i in range(5):  # Reduced to 5 races for easier watching
-        print(f"\n🏁 Starting Race {i + 1}/5 with OptimalExpertSystem")
+    runs = 10
+    for i in range(10):
+        print(f"\n🏁 Starting Race {i + 1}/{runs} with OptimalExpertSystem")
         initialize_game_state(
             api_url="http://example.com/api/predict", seed_value=seed_value
         )

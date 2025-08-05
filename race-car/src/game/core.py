@@ -18,7 +18,7 @@ SCREEN_HEIGHT = 1200
 LANE_COUNT = 5
 CAR_COLORS = ["yellow", "blue", "red"]
 MAX_TICKS = 60 * 60  # 60 seconds @ 60 fps
-MAX_MS = 60 * 1000600  # 60 seconds flat
+MAX_MS = 60 * 1000600 # 60 seconds flat
 
 
 # Define game state
@@ -335,6 +335,7 @@ def game_loop(
             else:
                 actions.append(action_result)
 
+
         # Process only one action per tick
         action = actions.pop(0) if actions else "NOTHING"
 
@@ -380,18 +381,18 @@ def game_loop(
 
             # Draw only the ego car (hide other cars)
             for car in STATE.cars:
-                if car == STATE.ego:  # Only draw the ego car
-                    if car.sprite:
-                        screen.blit(car.sprite, (car.x, car.y))
-                        bounds = car.get_bounds()
-                        color = (255, 0, 0)  # Red for ego car
-                        pygame.draw.rect(screen, color, bounds, width=2)
-                    else:
-                        pygame.draw.rect(
-                            screen,
-                            (255, 255, 0),  # Yellow for ego car
-                            car.rect,
-                        )
+                # if car == STATE.ego:  # Only draw the ego car
+                if car.sprite:
+                    screen.blit(car.sprite, (car.x, car.y))
+                    bounds = car.get_bounds()
+                    color = (255, 0, 0)  # Red for ego car
+                    pygame.draw.rect(screen, color, bounds, width=2)
+                else:
+                    pygame.draw.rect(
+                        screen,
+                        (255, 255, 0),  # Yellow for ego car
+                        car.rect,
+                    )
 
             # Draw sensors if enabled
             if STATE.sensors_enabled:
