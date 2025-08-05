@@ -101,6 +101,10 @@ def parse_args():
         default=None,
         help='Threshold to use (float or "NA", default: config default)'
     )
+    parser.add_argument('--use-condensed-topics', action='store_true', default=True,
+                       help='Use condensed_topics (default: True, set --no-use-condensed-topics for regular topics)')
+    parser.add_argument('--no-use-condensed-topics', dest='use_condensed_topics', action='store_false',
+                       help='Use regular topics instead of condensed_topics')
     parser.add_argument('--host', type=str, default=HOST, help=f'Host to bind to (default: {HOST})')
     parser.add_argument('--port', type=int, default=PORT, help=f'Port to bind to (default: {PORT})')
     return parser.parse_args()
@@ -129,6 +133,25 @@ if __name__ == '__main__':
             logger.info(f"🎯 Threshold set to: {threshold}")
         except Exception as e:
             logger.warning(f"⚠️  Failed to set threshold '{args.threshold}': {e}")
+    
+    # Set topic configuration if provided
+    if hasattr(args, 'use_condensed_topics'):
+        try:
+            # Import threshold setting function from the active model's config
+            current_model = get_active_model()
+            
+            # For match-and-choose-model-1, we need to set the topic_model configuration
+            if current_model == "match-and-choose-model-1":
+                topic_model_module = importlib.import_module(f"{current_model}.topic_model")
+                topic_model_module.USE_CONDENSED_TOPICS = args.use_condensed_topics
+                topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
+                logger.info(f"📚 Using {topic_type} for knowledge base")
+            else:
+                # For other models, we might need different handling
+                logger.info(f"📚 Topic configuration not yet implemented for {current_model}")
+                
+        except Exception as e:
+            logger.warning(f"⚠️  Failed to set topic configuration: {e}")
     
     # Log current model
     current_model = get_active_model()

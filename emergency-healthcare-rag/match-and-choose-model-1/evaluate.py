@@ -241,6 +241,10 @@ def main():
                        help='Analyze threshold behavior on full dataset')
     parser.add_argument('--full-pipeline', action='store_true', 
                        help='Evaluate only full pipeline')
+    parser.add_argument('--use-condensed-topics', action='store_true', default=True,
+                       help='Use condensed_topics (default: True, set --no-use-condensed-topics for regular topics)')
+    parser.add_argument('--no-use-condensed-topics', dest='use_condensed_topics', action='store_false',
+                       help='Use regular topics instead of condensed_topics')
     args = parser.parse_args()
     
     # Set model if specified
@@ -262,6 +266,20 @@ def main():
         print(f"🎯 Using specified threshold: {threshold}")
     else:
         threshold = None  # Use config default
+    
+    # Set topic configuration if specified
+    if hasattr(args, 'use_condensed_topics'):
+        try:
+            # Import the topic_model module to set the configuration
+            from topic_model import USE_CONDENSED_TOPICS
+            import topic_model
+            
+            # Update the configuration
+            topic_model.USE_CONDENSED_TOPICS = args.use_condensed_topics
+            topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
+            print(f"📚 Using {topic_type} for knowledge base")
+        except Exception as e:
+            print(f"⚠️  Warning: Failed to set topic configuration: {e}")
     
     # Get current configuration
     config = get_config_summary()

@@ -19,6 +19,7 @@ CHUNK_SIZE = 96
 OVERLAP = 12
 BM25_K1 = 2.0
 BM25_B = 1.2
+USE_CONDENSED_TOPICS = True  # True for condensed_topics, False for topics
 CACHE_ROOT = Path(".cache")
 CACHE_ROOT.mkdir(exist_ok=True)
 
@@ -40,7 +41,8 @@ def chunk_words(words: List[str], size: int, overlap: int) -> List[str]:
 
 def build_bm25_index() -> Dict:
     """Build BM25 index with optimized parameters."""
-    cache_path = CACHE_ROOT / f"bm25_index_condensed_{CHUNK_SIZE}_{OVERLAP}.pkl"
+    topic_type = "condensed" if USE_CONDENSED_TOPICS else "regular"
+    cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{CHUNK_SIZE}_{OVERLAP}.pkl"
     
     if cache_path.exists():
         print(f"Loading cached BM25 index from {cache_path}")
@@ -54,9 +56,10 @@ def build_bm25_index() -> Dict:
     # Load topics mapping
     topics_data = load_topics_mapping()
     
-    print(f"[bm25] Building index — condensed_topics size={CHUNK_SIZE} overlap={OVERLAP}")
+    topic_type = "condensed_topics" if USE_CONDENSED_TOPICS else "topics"
+    print(f"[bm25] Building index — {topic_type} size={CHUNK_SIZE} overlap={OVERLAP}")
     
-    topic_dir = Path("data/condensed_topics")
+    topic_dir = Path(f"data/{topic_type}")
     for md_file in topic_dir.rglob("*.md"):
         topic_name = md_file.parent.name
         topic_id = topics_data.get(topic_name, -1)
@@ -83,6 +86,7 @@ def build_bm25_index() -> Dict:
         'bm25': bm25,
         'chunk_size': CHUNK_SIZE,
         'overlap': OVERLAP,
+        'use_condensed_topics': USE_CONDENSED_TOPICS,
         'topics_data': topics_data
     }
     
@@ -191,7 +195,8 @@ def get_full_document_for_topic(topic_name: str) -> str:
     """
     Get the full document content for a specific topic
     """
-    topics_dir = Path("data/condensed_topics")
+    topic_type = "condensed_topics" if USE_CONDENSED_TOPICS else "topics"
+    topics_dir = Path(f"data/{topic_type}")
     topic_dir = topics_dir / topic_name
     
     if not topic_dir.exists():
