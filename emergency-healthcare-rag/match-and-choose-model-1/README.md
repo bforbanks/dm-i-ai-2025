@@ -82,10 +82,31 @@ The optimization saves results for each phase:
 - `optimization_results_phase3_hybrid_<timestamp>.json`
 - `optimization_results_phase4_final_<timestamp>.json`
 
+**Live Progress Tracking:**
+- `optimization_live_results.json` - Continuously updated with current progress
+- `top_5_models.json` - Always contains the current top 5 best models
+
 Each file contains:
 - Configuration parameters
 - Performance metrics (accuracy, average rank, top-3 accuracy)
 - Timestamp for tracking
+
+## Monitoring Progress
+
+### View Current Top 5 Models
+```bash
+python match-and-choose-model-1/view_top_models.py
+```
+
+### Monitor Live Progress
+```bash
+python match-and-choose-model-1/monitor_results.py
+```
+
+### Files Generated
+- `top_5_models.json` - Always updated with best 5 models so far
+- `optimization_live_results.json` - Real-time progress updates
+- `optimization_results_phase*_<timestamp>.json` - Phase-specific results
 
 ## Key Features
 

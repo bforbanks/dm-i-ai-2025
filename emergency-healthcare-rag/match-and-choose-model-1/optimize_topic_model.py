@@ -276,6 +276,14 @@ def evaluate_bm25_config(bm25_data: Dict, statements: List[Tuple[str, int]]) -> 
         "results": results
     }
 
+def display_top_models_periodic(all_results: List[Dict], config_count: int, total_configs: int, force_display: bool = False):
+    """Display top 5 models periodically during optimization"""
+    # Display every 10 configurations or when forced
+    if force_display or config_count % 10 == 0:
+        update_top_models(all_results)
+        print(f"📊 Progress: {config_count}/{total_configs} configurations tested ({100*config_count/total_configs:.1f}%)")
+        print("=" * 60)
+
 def run_bm25_optimization() -> List[Dict]:
     """Phase 1: Extensive BM25 optimization"""
     print("🔍 PHASE 1: Extensive BM25 Optimization")
@@ -310,6 +318,9 @@ def run_bm25_optimization() -> List[Dict]:
                 # Update live results after each successful config
                 update_live_results(all_results, "phase1_bm25", current_config, "running")
                 
+                # Display top models periodically
+                display_top_models_periodic(all_results, config_count, total_configs)
+                
             except Exception as e:
                 print(f"❌ Error: {e}")
                 continue
@@ -326,6 +337,9 @@ def run_bm25_optimization() -> List[Dict]:
     
     # Update live results with final results
     update_live_results(all_results, "phase1_bm25", status="completed")
+    
+    # Display final top 5 models
+    display_top_models_periodic(all_results, config_count, total_configs, force_display=True)
     
     return top_results
 
@@ -488,6 +502,9 @@ def run_embedding_optimization() -> List[Dict]:
                     # Update live results after each successful config
                     update_live_results(all_results, "phase2_semantic", current_config, "running")
                     
+                    # Display top models periodically
+                    display_top_models_periodic(all_results, config_count, total_configs)
+                    
                 except Exception as e:
                     print(f"❌ Error: {e}")
                     continue
@@ -504,6 +521,9 @@ def run_embedding_optimization() -> List[Dict]:
     
     # Update live results with final results
     update_live_results(all_results, "phase2_semantic", status="completed")
+    
+    # Display final top 5 models
+    display_top_models_periodic(all_results, config_count, total_configs, force_display=True)
     
     return top_results
 
@@ -679,6 +699,9 @@ def run_hybrid_optimization(bm25_results: List[Dict], semantic_results: List[Dic
                     # Update live results after each successful config
                     update_live_results(all_results, "phase3_hybrid", current_config, "running")
                     
+                    # Display top models periodically
+                    display_top_models_periodic(all_results, combination_count, total_combinations)
+                    
                 except Exception as e:
                     print(f"❌ Error: {e}")
                     continue
@@ -696,6 +719,9 @@ def run_hybrid_optimization(bm25_results: List[Dict], semantic_results: List[Dic
     
     # Update live results with final results
     update_live_results(all_results, "phase3_hybrid", status="completed")
+    
+    # Display final top 5 models
+    display_top_models_periodic(all_results, combination_count, total_combinations, force_display=True)
     
     return all_results
 
@@ -779,6 +805,82 @@ def run_zoom_optimization(promising_results: List[Dict]) -> List[Dict]:
 # MAIN OPTIMIZATION PIPELINE
 # -----------------------------------------------------------------------
 
+def update_top_models(all_results: List[Dict], top_models_file: str = "top_5_models.json"):
+    """Update and save the top 5 models so far"""
+    if not all_results:
+        return
+    
+    # Sort all results by accuracy (T1 score)
+    sorted_results = sorted(all_results, key=lambda x: x.get('metrics', {}).get('accuracy', 0), reverse=True)
+    
+    # Take top 5
+    top_5 = sorted_results[:5]
+    
+    # Create a clean summary for the top 5
+    top_models_summary = {
+        "last_updated": int(time.time()),
+        "total_configurations_tested": len(all_results),
+        "top_5_models": []
+    }
+    
+    for i, result in enumerate(top_5, 1):
+        config = result.get('config', {})
+        metrics = result.get('metrics', {})
+        
+        model_summary = {
+            "rank": i,
+            "accuracy": metrics.get('accuracy', 0),
+            "avg_rank": metrics.get('avg_rank', 0),
+            "top3_accuracy": metrics.get('top3_accuracy', 0),
+            "config": config,
+            "model_type": config.get('strategy', 'unknown')
+        }
+        
+        # Add specific details based on model type
+        if 'model_name' in config:
+            model_summary["embedding_model"] = config['model_name']
+            model_summary["chunk_size"] = config.get('chunk_size')
+            model_summary["overlap"] = config.get('overlap')
+        elif 'chunk_size' in config:
+            model_summary["chunk_size"] = config['chunk_size']
+            model_summary["overlap"] = config.get('overlap')
+        elif 'fusion_strategy' in config:
+            model_summary["fusion_strategy"] = config['fusion_strategy']
+            model_summary["bm25_config"] = config.get('bm25_config', {})
+            model_summary["semantic_config"] = config.get('semantic_config', {})
+        
+        top_models_summary["top_5_models"].append(model_summary)
+    
+    # Save to file
+    with open(top_models_file, 'w') as f:
+        json.dump(top_models_summary, f, indent=2)
+    
+    # Print current top 5
+    print(f"\n🏆 TOP 5 MODELS SO FAR (Updated at {time.strftime('%H:%M:%S')}):")
+    print(f"   Total configurations tested: {len(all_results)}")
+    print("-" * 60)
+    
+    for i, model in enumerate(top_models_summary["top_5_models"], 1):
+        acc = model["accuracy"]
+        config = model["config"]
+        
+        if 'model_name' in config:
+            print(f"{i}. {config['model_name']} | {config.get('strategy', 'unknown')} | Accuracy: {acc:.3f}")
+            print(f"   Chunk: {config.get('chunk_size')}, Overlap: {config.get('overlap')}")
+        elif 'fusion_strategy' in config:
+            print(f"{i}. {config['fusion_strategy']} | Accuracy: {acc:.3f}")
+            bm25_cfg = config.get('bm25_config', {})
+            semantic_cfg = config.get('semantic_config', {})
+            print(f"   BM25: chunk={bm25_cfg.get('chunk_size')}, overlap={bm25_cfg.get('overlap')}")
+            print(f"   Semantic: {semantic_cfg.get('model_name')}, chunk={semantic_cfg.get('chunk_size')}")
+        else:
+            print(f"{i}. {config.get('strategy', 'unknown')} | Accuracy: {acc:.3f}")
+            print(f"   Chunk: {config.get('chunk_size')}, Overlap: {config.get('overlap')}")
+        print()
+    
+    print(f"💾 Top 5 models saved to: {top_models_file}")
+    return top_models_summary
+
 def update_live_results(all_results: List[Dict], phase: str, current_config: Dict = None, status: str = "running"):
     """Update a single live results file with current progress"""
     timestamp = int(time.time())
@@ -799,6 +901,10 @@ def update_live_results(all_results: List[Dict], phase: str, current_config: Dic
         json.dump(live_results, f, indent=2)
     
     print(f"💾 Updated live results: {filename}")
+    
+    # Also update top 5 models
+    update_top_models(all_results)
+    
     return filename
 
 def save_results(results: List[Dict], phase: str):
