@@ -1,0 +1,579 @@
+{
+  "results": [
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 12,
+        "use_condensed_topics": true,
+        "name": "baseline_bm25"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.98,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.025234886407852174,
+      "total_build_time": 7.795050144195557,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 196,
+        "5": 196,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 96,
+        "overlap": 8,
+        "use_condensed_topics": true,
+        "name": "bm25_96_8"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.86,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.030617142915725707,
+      "total_build_time": 0.25145387649536133,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 172,
+        "3": 196,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 192,
+        "overlap": 16,
+        "use_condensed_topics": true,
+        "name": "bm25_192_16"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.014311656951904297,
+      "total_build_time": 0.23503351211547852,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 197,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 12,
+        "use_condensed_topics": false,
+        "name": "bm25_regular"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.88,
+        "top_3_accuracy": 1.0,
+        "top_5_accuracy": 1.0,
+        "top_10_accuracy": 1.0
+      },
+      "avg_search_time": 0.04354540586471558,
+      "total_build_time": 6.891942739486694,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 176,
+        "3": 200,
+        "5": 200,
+        "10": 200
+      }
+    },
+    {
+      "config": {
+        "search_type": "hybrid",
+        "chunk_size": 256,
+        "overlap": 24,
+        "rrf_k": 60,
+        "embedding": "all-mpnet-base-v2",
+        "use_condensed_topics": true,
+        "name": "hybrid_256_24"
+      },
+      "error": "CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 22.05 GiB of which 1024.00 KiB is free. Process 5360 has 18.52 GiB memory in use. Including non-PyTorch memory, this process has 3.51 GiB memory in use. Of the allocated memory 3.11 GiB is allocated by PyTorch, and 186.10 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+      "accuracy_metrics": {
+        "top_1_accuracy": 0
+      }
+    },
+    {
+      "config": {
+        "search_type": "hybrid",
+        "chunk_size": 384,
+        "overlap": 32,
+        "rrf_k": 60,
+        "embedding": "all-mpnet-base-v2",
+        "use_condensed_topics": true,
+        "name": "hybrid_384_32"
+      },
+      "error": "CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 22.05 GiB of which 1024.00 KiB is free. Process 5360 has 18.52 GiB memory in use. Including non-PyTorch memory, this process has 3.51 GiB memory in use. Of the allocated memory 3.11 GiB is allocated by PyTorch, and 186.10 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+      "accuracy_metrics": {
+        "top_1_accuracy": 0
+      }
+    },
+    {
+      "config": {
+        "search_type": "hybrid",
+        "chunk_size": 256,
+        "overlap": 24,
+        "rrf_k": 30,
+        "embedding": "all-mpnet-base-v2",
+        "use_condensed_topics": true,
+        "name": "hybrid_rrf_30"
+      },
+      "error": "CUDA out of memory. Tried to allocate 20.00 MiB. GPU 0 has a total capacity of 22.05 GiB of which 1024.00 KiB is free. Process 5360 has 18.52 GiB memory in use. Including non-PyTorch memory, this process has 3.51 GiB memory in use. Of the allocated memory 3.11 GiB is allocated by PyTorch, and 186.10 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+      "accuracy_metrics": {
+        "top_1_accuracy": 0
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 64,
+        "overlap": 6,
+        "use_condensed_topics": true,
+        "name": "bm25_64_6"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.985
+      },
+      "avg_search_time": 0.044687145948410036,
+      "total_build_time": 0.5264978408813477,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 197,
+        "5": 197,
+        "10": 197
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 80,
+        "overlap": 8,
+        "use_condensed_topics": true,
+        "name": "bm25_80_8"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.88,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.985
+      },
+      "avg_search_time": 0.03645232081413269,
+      "total_build_time": 0.262310266494751,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 176,
+        "3": 196,
+        "5": 197,
+        "10": 197
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 112,
+        "overlap": 10,
+        "use_condensed_topics": true,
+        "name": "bm25_112_10"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.855,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.985
+      },
+      "avg_search_time": 0.02788377642631531,
+      "total_build_time": 0.25463199615478516,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 171,
+        "3": 196,
+        "5": 197,
+        "10": 197
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 144,
+        "overlap": 14,
+        "use_condensed_topics": true,
+        "name": "bm25_144_14"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.88,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.98,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.018955365419387818,
+      "total_build_time": 0.25510573387145996,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 176,
+        "3": 196,
+        "5": 196,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 160,
+        "overlap": 16,
+        "use_condensed_topics": true,
+        "name": "bm25_160_16"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.017383465766906737,
+      "total_build_time": 0.25453639030456543,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 196,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 224,
+        "overlap": 20,
+        "use_condensed_topics": true,
+        "name": "bm25_224_20"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.86,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.99,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.013867748975753784,
+      "total_build_time": 0.2280724048614502,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 172,
+        "3": 196,
+        "5": 198,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 256,
+        "overlap": 24,
+        "use_condensed_topics": true,
+        "name": "bm25_256_24"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.88,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.012380651235580444,
+      "total_build_time": 0.2335805892944336,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 176,
+        "3": 197,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 320,
+        "overlap": 32,
+        "use_condensed_topics": true,
+        "name": "bm25_320_32"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.99,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.009221004247665405,
+      "total_build_time": 0.29833078384399414,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 197,
+        "5": 198,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 384,
+        "overlap": 32,
+        "use_condensed_topics": true,
+        "name": "bm25_384_32"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.845,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.007711390256881714,
+      "total_build_time": 0.23500800132751465,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 169,
+        "3": 196,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 8,
+        "use_condensed_topics": true,
+        "name": "bm25_128_8"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.86,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.02234562039375305,
+      "total_build_time": 0.2530224323272705,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 172,
+        "3": 197,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 16,
+        "use_condensed_topics": true,
+        "name": "bm25_128_16"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.875,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.985
+      },
+      "avg_search_time": 0.024556608200073243,
+      "total_build_time": 0.2667121887207031,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 175,
+        "3": 196,
+        "5": 197,
+        "10": 197
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 20,
+        "use_condensed_topics": true,
+        "name": "bm25_128_20"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.87,
+        "top_3_accuracy": 0.975,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.02552282452583313,
+      "total_build_time": 0.3765981197357178,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 174,
+        "3": 195,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 24,
+        "use_condensed_topics": true,
+        "name": "bm25_128_24"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.88,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.02742160677909851,
+      "total_build_time": 0.27948856353759766,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 176,
+        "3": 196,
+        "5": 197,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 96,
+        "overlap": 8,
+        "use_condensed_topics": false,
+        "name": "bm25_regular_96_8"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.875,
+        "top_3_accuracy": 0.99,
+        "top_5_accuracy": 0.995,
+        "top_10_accuracy": 1.0
+      },
+      "avg_search_time": 0.06919053077697754,
+      "total_build_time": 0.4069547653198242,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 175,
+        "3": 198,
+        "5": 199,
+        "10": 200
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 192,
+        "overlap": 16,
+        "use_condensed_topics": false,
+        "name": "bm25_regular_192_16"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.865,
+        "top_3_accuracy": 0.995,
+        "top_5_accuracy": 0.995,
+        "top_10_accuracy": 1.0
+      },
+      "avg_search_time": 0.031243528127670287,
+      "total_build_time": 0.40895628929138184,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 173,
+        "3": 199,
+        "5": 199,
+        "10": 200
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 256,
+        "overlap": 24,
+        "use_condensed_topics": false,
+        "name": "bm25_regular_256_24"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.86,
+        "top_3_accuracy": 0.995,
+        "top_5_accuracy": 1.0,
+        "top_10_accuracy": 1.0
+      },
+      "avg_search_time": 0.023096169233322143,
+      "total_build_time": 0.3936741352081299,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 172,
+        "3": 199,
+        "5": 200,
+        "10": 200
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 128,
+        "overlap": 0,
+        "use_condensed_topics": true,
+        "name": "bm25_128_0"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.865,
+        "top_3_accuracy": 0.98,
+        "top_5_accuracy": 0.98,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.019065852165222167,
+      "total_build_time": 0.23563385009765625,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 173,
+        "3": 196,
+        "5": 196,
+        "10": 198
+      }
+    },
+    {
+      "config": {
+        "search_type": "bm25",
+        "chunk_size": 256,
+        "overlap": 0,
+        "use_condensed_topics": true,
+        "name": "bm25_256_0"
+      },
+      "accuracy_metrics": {
+        "top_1_accuracy": 0.855,
+        "top_3_accuracy": 0.985,
+        "top_5_accuracy": 0.985,
+        "top_10_accuracy": 0.99
+      },
+      "avg_search_time": 0.010532569885253907,
+      "total_build_time": 0.22008681297302246,
+      "total_statements": 200,
+      "detailed_results": {
+        "1": 171,
+        "3": 197,
+        "5": 197,
+        "10": 198
+      }
+    }
+  ],
+  "timestamp": "2025-08-05 14:14:57",
+  "total_configs": 25
+}

@@ -1,0 +1,706 @@
+{
+  "config": {
+    "llm_model": "gemma3:27b",
+    "threshold": 0.0,
+    "model_info": {
+      "name": "Gemma 3 27B",
+      "description": "Most capable model for match-and-choose decisions",
+      "size": "27B parameters"
+    }
+  },
+  "summary": {
+    "total_samples": 20,
+    "truth_accuracy": 100.0,
+    "topic_accuracy": 85.0,
+    "overall_accuracy": 92.5,
+    "avg_time_per_sample": 2.0298508405685425,
+    "total_time": 40.59701681137085,
+    "score": "37/40",
+    "approach_counts": {
+      "separated": 17,
+      "combined": 3
+    }
+  },
+  "detailed_results": [
+    {
+      "sample_id": 0,
+      "statement": "Coronary heart disease affects approximately 15.5 million people in the United States, with the American Heart Association estimating that a person experiences a heart attack every 41 seconds.",
+      "expected_truth": 1,
+      "expected_topic": 4,
+      "predicted_truth": 1,
+      "predicted_topic": 4,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 8.790866613388062,
+      "approach_used": "separated",
+      "gap": 25.094616656080817,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 4,
+          "topic_name": "Acute Coronary Syndrome",
+          "score": 86.47519058108561,
+          "best_chunk": "CHD can be asymptomatic, but ACS is always symptomatic.[1][2][3] ## Etiology ACS is a manifestation of CHD (coronary heart disease) and usually a result of plaque disruption in coronary arteries (atherosclerosis). The common risk factors for the disease are smoking, hypertension, diabetes, hyperlipidemia, male sex, physical inactivity, family obesity, and poor nutritional practices. Cocaine abuse can also lead to vasospasm. [4][5][6]A family history of early myocardial infarction (55 years of age) is also a high-risk factor. ## Epidemiology CHD affects about 15.5 million in the United States. The American Heart Association estimates a person has a heart attack every 41 seconds. Heart disease is the leading cause of death in the United States. Chest pain is among the top reasons for emergency department visits. ## Pathophysiology The underlying"
+        },
+        {
+          "topic_id": 83,
+          "topic_name": "12-lead ECG",
+          "score": 61.380573925004796,
+          "best_chunk": "the opposite of the major deflection of the QRS. Diffuse T wave inversions on an ECG can be associated with pericarditis. The changes on an ECG for pericarditis occur over 2-3 weeks, initially with ST-elevation, then T wave inversion, with eventual resolution of the ST segment.[7] Massive pulmonary embolism can cause right ventricular strain, manifesting as the classic S1Q3T3 (deep S wave in the lead I, Q wave, and T wave inversion in the lead III). ## Epidemiology Approximately 15.5 million Americans over the age of 20 have coronary heart disease, according to the 2016 Heart Disease and Stroke Statistics update from the American Heart Association (AHA). It is estimated that a myocardial infarction occurs about every 42 seconds in the United States.[8] A study was done by"
+        },
+        {
+          "topic_id": 38,
+          "topic_name": "Heart Failure (Acute_Chronic)",
+          "score": 48.572022727550426,
+          "best_chunk": "in identifying HF, performing the recommended multifaceted evaluation, and implementing an appropriate interprofessional approach when managing this condition, which is essential to improve patient outcomes and quality of life. ## Introduction Heart failure (HF), as defined by the American College of Cardiology (ACC) and the American Heart Association (AHA), is a complex clinical syndrome that results from any structural or functional impairment of ventricular filling or ejection of blood. HF is a common disorder worldwide with a high morbidity and mortality rate. With an estimated prevalence of 26 million people worldwide, CHF contributes to increased healthcare costs, reduces functional capacity, and significantly affects quality of life. Accurately diagnosing and effectively treating the disease is essential to prevent recurrent hospitalizations, decrease morbidity and mortality, and enhance patient outcomes.[1] The"
+        }
+      ]
+    },
+    {
+      "sample_id": 1,
+      "statement": "Neonatal testicular torsion typically occurs as extravaginal torsion because the tunica vaginalis has not adhered to the gubernaculum, allowing both the tunica vaginalis and spermatic cord to twist together.",
+      "expected_truth": 1,
+      "expected_topic": 78,
+      "predicted_truth": 1,
+      "predicted_topic": 78,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.885143518447876,
+      "approach_used": "separated",
+      "gap": 121.79228304467695,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 78,
+          "topic_name": "Testicular Torsion",
+          "score": 167.47277865323932,
+          "best_chunk": "associated with trauma. Testicular torsion accounts for a significant number of scrotal complaints that present to the emergency department. Testicular torsion is caused by the twisting of the blood supply and spermatic cord. The tunica vaginalis is usually solidly adhered to the posterolateral aspect of the testicle, and within it, the spermatic cord is not mobile. If the attachment of the tunica vaginalis is high, then this allows the spermatic cord to twist inside, leading to intravaginal torsion. This defect is referred to as the bell clapper deformity and is bilateral in at least 2/5ths of cases. On the other hand, neonates tend to develop extravaginal torsion. This occurs because the tunica vaginalis has not adhered to the gubernaculum, and thus, both the tunica vaginalis and spermatic cord"
+        },
+        {
+          "topic_id": 52,
+          "topic_name": "Ovarian Torsion",
+          "score": 45.68049560856237,
+          "best_chunk": "# Ovarian Torsion ## Continuing Education Activity Ovarian torsion is caused by twisting of the ligaments that support the adnexa, cutting off the blood flow to the organ and represents a true surgical emergency. In order to avoid the high morbidity associated with this condition, it must be promptly diagnosed and treated. This activity reviews the evaluation and treatment of ovarian torsion and highlights the role of an interprofessional team in evaluating and treating patients with this condition. ## Introduction Ovarian torsion is a process that occurs when the ovary twists over the ligaments that support it in the adnexa. The fallopian tube often twists with the ovary and is then referred to as adnexal torsion. The ovary is supported by multiple structures in the pelvis. One ligament"
+        },
+        {
+          "topic_id": 67,
+          "topic_name": "Respiratory Failure",
+          "score": 44.85404242499121,
+          "best_chunk": "of worsening pain after medical instrumentation should alert the clinician to the possibility of perforation. Associated symptoms depend on the organ affected and the contents released. Patients can develop peritonitis, a fistula, or an abscess if the fluid remains contained. Splenic rupture:**** Splenic rupture is typically due to trauma. Patients may complain of left upper abdominal, left chest wall, or left shoulder pain. Pain referred to the left shoulder that worsens with inspiration is called Kehr's sign and is due to blood adjacent to the left hemidiaphragm irritating the phrenic nerve. Testicular torsion:**** Testicular torsion typically presents in children and adolescents with severe testicular and lower abdominal pain. Commonly associated symptoms are nausea and vomiting. ## Evaluation The history and physical examination guide the diagnostic evaluation of acute"
+        }
+      ]
+    },
+    {
+      "sample_id": 2,
+      "statement": "The Gurd and Wilson criteria for fat embolism syndrome require either 2 major criteria or at least 1 major criterion plus 4 minor criteria, with major criteria including petechial rash, respiratory insufficiency, and cerebral involvement in non-head injury patients.",
+      "expected_truth": 1,
+      "expected_topic": 33,
+      "predicted_truth": 1,
+      "predicted_topic": 33,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.3370435237884521,
+      "approach_used": "separated",
+      "gap": 32.30624026412279,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 33,
+          "topic_name": "Embolism",
+          "score": 109.47852352740493,
+          "best_chunk": "signs and symptoms can be vague. There are no universally accepted diagnostic criteria. Based on experience and research, several authors have proposed diagnostic criteria for FES.[3][4][5] Gurd et al in 1970 and later Wilson in 1974 put forward the following diagnostic criteria: 2 major criteria or at least one major criteria and 4 minor criteria. **Major Criteria** * Petechial rash * Respiratory insufficiency * Cerebral involvement in non-head injury patients **Minor Criteria** * Fever greater than 38.5 C * Tachycardia heart rate greater than 110 beats per minute * Retinal involvement * Jaundice * Renal signs * Anemia * Thrombocytopenia * High erythrocyte sedimentation rate * Fat macroglobulinemia **Schoenfeld Criteria** Another report by Schoenfeld et al proposed a quantitative means for diagnosing FES. A cumulative score greater than"
+        },
+        {
+          "topic_id": 36,
+          "topic_name": "Endocarditis",
+          "score": 77.17228326328214,
+          "best_chunk": "evaluation of patients suspected of infective endocarditis. Three categories include definite infective endocarditis, possible infective endocarditis, or rejected infective endocarditis.[5] Definite infective endocarditis further subclassifies into[6][5][7]: * Definite infective endocarditis by pathological criteria: where microorganisms are present on culture or histologic examination of the vegetation, embolized vegetation or an intracardiac abscess, or pathological lesions demonstrating active endocarditis * Definite infective endocarditis by clinical criteria: defined by the presence of two major criteria, one major criterion plus three minor criteria, or five minor criteria in The Modified Duke Criteria Major clinical criteria are defined as follows[5]: * Multiple positive blood cultures, single positive culture for _Coxiella burnetii_ or antiphase I IgG antibody titer greater than 1 to 800 * Endocardial involvement (presence of new valvular regurgitation) * Presence of"
+        },
+        {
+          "topic_id": 38,
+          "topic_name": "Heart Failure (Acute_Chronic)",
+          "score": 69.72254367762639,
+          "best_chunk": "and splitting of the second heart sound. An S3 gallop is the most significant and early finding associated with HF.[38] Patients with hypertensive heart disease may have an S4 or loud A2. Patients with HF with preserved EF may have an S4 gallop related to ventricular noncompliance. **Framingham Clinical Diagnostic Criteria for Heart Failure** The commonly used Framingham Diagnostic Criteria for Heart Failure require the presence of 2 major criteria or 1 major and 2 minor criteria to make the diagnosis. This clinical diagnostic tool is highly sensitive for the diagnosis of HF but has a relatively low specificity. The Framingham Diagnostic criteria are as follows:[37] The major criteria of HF include: * Acute pulmonary edema * Cardiomegaly * Hepatojugular reflex * Neck vein distention * Paroxysmal nocturnal"
+        }
+      ]
+    },
+    {
+      "sample_id": 3,
+      "statement": "The ureter receives segmental blood supply from the renal arteries proximally, common iliac and gonadal arteries in the middle segment, and external iliac artery branches distally.",
+      "expected_truth": 0,
+      "expected_topic": 91,
+      "predicted_truth": 0,
+      "predicted_topic": 91,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.0357098579406738,
+      "approach_used": "separated",
+      "gap": 18.553522576225788,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 91,
+          "topic_name": "CT Other",
+          "score": 90.43752155415913,
+          "best_chunk": "ureter and kidneys. The ureter's blood supply is segmental. The ureteral portion closest to the kidneys receives blood directly from the renal arteries. Abdominal aortic branches and the common iliac and gonadal arteries supply the middle part. The ureters' most distal segment receives circulation from internal iliac artery branches. The T12 to L2 roots create a ureteric plexus and innervate the ureters. Ureteral pain typically refers to T12-L2 dermatomes. The ureters lack reliable anatomical landmarks to mark their location besides the 3 physiologic constrictions. Colorectal and gynecologic procedures, particularly laparoscopic hysterectomies, are highly likely to damage these structures.[8] ## Structure and Function The ureteral wall comprises 3 main tissue layers: the inner mucosa, middle muscle layer, and outer serosa. Stratified transitional epithelium lines the inner ureteral mucosal lining."
+        },
+        {
+          "topic_id": 84,
+          "topic_name": "Angiography (invasive)",
+          "score": 71.88399897793335,
+          "best_chunk": "first rib and supplies the upper extremity. The abdominal aorta has three anterior unpaired branches to the viscera: coeliac axis (giving off the hepatic artery, splenic artery, and left gastric artery); the superior mesenteric artery; and the inferior mesenteric artery. The abdominal aorta also has three important lateral paired branches to the viscera: the suprarenal artery, the renal artery, and the testicular or ovarian artery. The abdominal aorta terminates as common iliac arteries, which further bifurcates to form internal and external iliac arteries. The internal iliac artery divides into the anterior and posterior divisions to supply the pelvic and perineal organs, while the external iliac artery courses below the inguinal ligament to form the femoral artery. The femoral artery supplies the lower extremity. The femoral and radial arteries"
+        },
+        {
+          "topic_id": 90,
+          "topic_name": "CT Angiogram",
+          "score": 71.88399897793335,
+          "best_chunk": "first rib and supplies the upper extremity. The abdominal aorta has three anterior unpaired branches to the viscera: coeliac axis (giving off the hepatic artery, splenic artery, and left gastric artery); the superior mesenteric artery; and the inferior mesenteric artery. The abdominal aorta also has three important lateral paired branches to the viscera: the suprarenal artery, the renal artery, and the testicular or ovarian artery. The abdominal aorta terminates as common iliac arteries, which further bifurcates to form internal and external iliac arteries. The internal iliac artery divides into the anterior and posterior divisions to supply the pelvic and perineal organs, while the external iliac artery courses below the inguinal ligament to form the femoral artery. The femoral artery supplies the lower extremity. The femoral and radial arteries"
+        }
+      ]
+    },
+    {
+      "sample_id": 4,
+      "statement": "Intravesicular catheter pressure measurement using a Foley catheter requires injection of 50 cc of sterile saline with the transducer zeroed at the level of the xiphoid process to obtain accurate intra-abdominal pressure readings.",
+      "expected_truth": 0,
+      "expected_topic": 41,
+      "predicted_truth": 0,
+      "predicted_topic": 28,
+      "truth_correct": true,
+      "topic_correct": false,
+      "time_taken": 2.0864295959472656,
+      "approach_used": "combined",
+      "gap": 0.0,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 41,
+          "topic_name": "Hyperventilation Syndrome",
+          "score": 93.12055573860081,
+          "best_chunk": "to confirm the diagnosis is measuring the intra-abdominal pressure. The IAP should be measured anytime there is a known IAH risk. IAP measurement can be achieved using both direct and indirect methods. Direct methods include using pressure transducers (eg, Veress needle during laparoscopic surgery) or intraperitoneal catheters (eg, peritoneal dialysis catheter). These methods are highly accurate but are invasive. The most accepted method of measuring IAP is the use of indirect IAP measurements through intravesicular catheter pressures. This is the most practical approach due to its widespread availability and limited invasiveness. This technique involves aseptic clamping of the Foley catheter and connecting the Foley to a 3-way stopcock adjusted to the level of the mid-axillary line at the iliac crest to zero the transducer. 25 cc of sterile"
+        },
+        {
+          "topic_id": 28,
+          "topic_name": "Compartment Syndrome",
+          "score": 93.12055573860081,
+          "best_chunk": "to confirm the diagnosis is measuring the intra-abdominal pressure. The IAP should be measured anytime there is a known IAH risk. IAP measurement can be achieved using both direct and indirect methods. Direct methods include using pressure transducers (eg, Veress needle during laparoscopic surgery) or intraperitoneal catheters (eg, peritoneal dialysis catheter). These methods are highly accurate but are invasive. The most accepted method of measuring IAP is the use of indirect IAP measurements through intravesicular catheter pressures. This is the most practical approach due to its widespread availability and limited invasiveness. This technique involves aseptic clamping of the Foley catheter and connecting the Foley to a 3-way stopcock adjusted to the level of the mid-axillary line at the iliac crest to zero the transducer. 25 cc of sterile"
+        },
+        {
+          "topic_id": 93,
+          "topic_name": "Central Venous Pressure",
+          "score": 62.14245235978415,
+          "best_chunk": "change in total volume would have a greater effect on the amount of blood present in the veins. The venous tone is regulated by the sympathetic nervous system as well as external compression forces. Under normal physiologic conditions, the right and left ventricular output are equal. The central venous pressure influences cardiac (left ventricle) output - this is driven by changes in central venous pressure which lead to changes in the filling pressures of the left heart. ## Related Testing The central venous pressure is measured by a central venous catheter placed through either the subclavian or internal jugular veins. The central venous pressure can be monitored using a pressure transducer or amplifier. First, the transducer or amplifier must be zeroed to atmospheric pressure. Then, the transducer must"
+        }
+      ]
+    },
+    {
+      "sample_id": 5,
+      "statement": "Right-sided heart catheterization diagnostic criteria for pulmonary hypertension at high altitude requires a mean pulmonary artery pressure greater than 25 mmHg or systolic PAP greater than 40 mmHg.",
+      "expected_truth": 0,
+      "expected_topic": 65,
+      "predicted_truth": 0,
+      "predicted_topic": 65,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 2.0763015747070312,
+      "approach_used": "combined",
+      "gap": 0.0,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 40,
+          "topic_name": "Hypertensive Emergency",
+          "score": 71.4389916884749,
+          "best_chunk": "diagnostic tools for establishing a definitive diagnosis. A mean pulmonary artery pressure (mPAP) greater than 30 mmHg or systolic PAP of greater than 50 mmHg is diagnostic for pulmonary hypertension.[1] If possible, it is important to attempt catheterization and angiography at the altitude of residence. ## Treatment / Management Limited data is currently available to guide the long-term management of HAPH. Several studies have shown that some treatments recommended for managing other causes of pulmonary hypertension have improved symptoms and mPAPs. Patients suffering from HAPH should be advised to move to lower altitudes. Some studies have shown that mPAPs for patients have normalized within 2 years of returning to lower altitudes.[11] Pharmacological treatments for HAPH can include phosphodiesterase and carbonic anhydrase inhibitors. * Phosphodiesterase inhibitors (ie, Sildenafil) block"
+        },
+        {
+          "topic_id": 65,
+          "topic_name": "Pulmonary Hypertension",
+          "score": 71.4389916884749,
+          "best_chunk": "diagnostic tools for establishing a definitive diagnosis. A mean pulmonary artery pressure (mPAP) greater than 30 mmHg or systolic PAP of greater than 50 mmHg is diagnostic for pulmonary hypertension.[1] If possible, it is important to attempt catheterization and angiography at the altitude of residence. ## Treatment / Management Limited data is currently available to guide the long-term management of HAPH. Several studies have shown that some treatments recommended for managing other causes of pulmonary hypertension have improved symptoms and mPAPs. Patients suffering from HAPH should be advised to move to lower altitudes. Some studies have shown that mPAPs for patients have normalized within 2 years of returning to lower altitudes.[11] Pharmacological treatments for HAPH can include phosphodiesterase and carbonic anhydrase inhibitors. * Phosphodiesterase inhibitors (ie, Sildenafil) block"
+        },
+        {
+          "topic_id": 69,
+          "topic_name": "Right Heart Failure",
+          "score": 47.62933498741516,
+          "best_chunk": "# Anesthesia for Patients With Pulmonary Hypertension or Right Heart Failure ## Continuing Education Activity Patients with pulmonary hypertension require special anesthetic considerations when undergoing anesthesia and surgery because of their increased morbidity and mortality. The anesthesiologist needs to understand the disease process to avoid potential complications, including myocardial infarction, respiratory failure, and death. This review focuses on the preoperative evaluation for patients with pulmonary hypertension and the appropriate intraoperative monitoring and ventilator management, pain control, and pharmacologic therapies for non-cardiac surgery. ## Introduction The pulmonary vasculature system is normally a low-pressure, low-resistance circuit. Pulmonary hypertension is classified as a mean pulmonary artery pressure greater than or equal to 25 mm Hg at rest and is definitively diagnosed by right heart catheterization.[1][2] It is caused by a combination"
+        }
+      ]
+    },
+    {
+      "sample_id": 6,
+      "statement": "In acute ischemic stroke patients eligible for thrombolysis, blood pressure should be maintained at systolic BP below 180 mmHg and diastolic BP below 105 mmHg for the first 24 hours after treatment.",
+      "expected_truth": 1,
+      "expected_topic": 40,
+      "predicted_truth": 1,
+      "predicted_topic": 75,
+      "truth_correct": true,
+      "topic_correct": false,
+      "time_taken": 2.2180933952331543,
+      "approach_used": "separated",
+      "gap": 36.23316835544341,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 75,
+          "topic_name": "Stroke (Ischemic_Hemorrhagic)",
+          "score": 84.10236457798916,
+          "best_chunk": "Patients with elevated BP should have their BP carefully reduced to a systolic BP (SBP) below 185 mm Hg and diastolic BP below 110 mm Hg before initiating IV fibrinolytic therapy. Following the treatment, the BP should be maintained below 180/105 mm Hg for at least 24 hours. Suppose a mechanical thrombectomy is planned, and the patient has not received IV fibrinolytic therapy. In that case, it is reasonable to maintain their BP at or below 185/110 mm Hg before the procedure and at or below 180/105 mm Hg during and for 24 hours after the procedure. * Temperature: In patients with AIS, hyperthermia (body temperature >38\u00b0C or 100.4\u00b0F) should be addressed by administering antipyretic medication. * Blood glucose: Both hypoglycemia (blood glucose level <60 mg/dL) and hyperglycemia"
+        },
+        {
+          "topic_id": 40,
+          "topic_name": "Hypertensive Emergency",
+          "score": 47.86919622254575,
+          "best_chunk": "labetalol during pregnancy; these women should not be treated with ACE inhibitors or ARBs. During the acute event, IV hydralazine or oral nifedipine can be used to lower blood pressure. **Current Guidelines** 1. Patients with a hypertensive emergency need admission with continuous blood pressure monitoring. 2. Assess for target organ injury and start parenteral medications as needed 3. If the patient has an acute emergency like aortic dissection, lower the blood pressure to below 140 mmHg in the first hour 4. for adults with no organ damage, lower the blood pressure by 25% in the first hour and then to 160/100 over the next 2-6 hours, and then gradually to normal over 2 days. ## Differential Diagnosis * Acute kidney injury * Aortic coarctation * Aortic dissection *"
+        },
+        {
+          "topic_id": 28,
+          "topic_name": "Compartment Syndrome",
+          "score": 46.24334463444129,
+          "best_chunk": "indicates compartment syndrome** **and a need for fasciotomy.**[21] * When intra-compartmental pressure increases to within 10 mmHg to 30 mmHg of the patient's diastolic blood pressure, this indicates inadequate perfusion and relative ischemia of the involved extremity. * The perfusion pressure __ of a compartment, also known as the compartment **delta pressure** , is defined as the difference between the diastolic blood pressure and the intra-compartmental pressure: * delta pressure = diastolic pressure - measured intracompartmental pressure * clinicians often utilize delta pressure less than or equal to 30 mmHg as indicative of the need for fasciotomy. * Ultrasound with Doppler can be used to look for occlusion or thrombus. * Elevations in creatine phosphokinase (CPK) may suggest muscle breakdown from ischemia, damage, or rhabdomyolysis. * If rhabdomyolysis"
+        }
+      ]
+    },
+    {
+      "sample_id": 7,
+      "statement": "Among emergency department visits related to drug exposure, 51% involve illicit drug use with 25% of these cases including alcohol co-ingestion, while drug-related suicide attempts account for 8% of visits and primarily involve over-the-counter or prescription medications.",
+      "expected_truth": 1,
+      "expected_topic": 108,
+      "predicted_truth": 1,
+      "predicted_topic": 108,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.3273072242736816,
+      "approach_used": "separated",
+      "gap": 76.6943065230723,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 108,
+          "topic_name": "Toxicology Screen",
+          "score": 127.69974927223753,
+          "best_chunk": "number of acute care visits to medical providers are associated with the presence of drug exposures based purely on history. Alcohol intoxication has long been and remains the most common reason for a substance-related patient visit. However, there are rising rates of opioids, cocaine, marijuana, and synthetic drug-related visits over the past 30 years. Fifty-one percent of drug-related emergency department visits in the United States involved illicit drug use, with co-ingestions being common, 25% of which involved co-ingestion with alcohol. 8% of visits were drug-related suicide attempts and the majority of these involved over-the-counter or prescription medications. Accidental ingestions accounted for 4% of all visits and were primarily pediatric exposures. The highest rates of drug-related visits occurred among patients between the ages of 18 and 35. ## Specimen"
+        },
+        {
+          "topic_id": 53,
+          "topic_name": "Overdose_Poisoning",
+          "score": 51.00544274916523,
+          "best_chunk": "of Health and Human Services acknowledged the expanded use of naloxone among healthcare professionals to counter opiate overdoses nationwide. Now, pharmacists, EMS personnel, and physicians can all play an active role in preventing opiate overdoses. Current recommendations also suggest coprescribing naloxone to patients taking opiates. Several studies show that patients who receive naloxone alongside an opiate prescription have fewer opiate-related emergency room visits than those who do not. Today, some healthcare workers have started prescribing naloxone to patients on high doses of opiates. Recently, the U.S. Food and Drug Administration approved the use of a handheld autoinjector that can be prescribed to caregivers or family members for managing suspected opiate overdoses. Additionally, numerous naloxone organizations have emerged across the country to fight the opiate overdose epidemic, including efforts"
+        },
+        {
+          "topic_id": 26,
+          "topic_name": "Cervical Spine Injury",
+          "score": 50.7223265520367,
+          "best_chunk": "# Geriatric Cervical Spine Injury ## Continuing Education Activity According to the National Hospital Ambulatory Medical Care Survey, there are 12 injury-related emergency department visits for every 100 persons over the age of 65 annually. Geriatric patients account for a quarter of trauma admissions nationally. Cervical spine injuries are relatively common in the elderly population. These injuries are associated with high morbidity and mortality rates. This activity examines when this condition should be considered in differential diagnosis and how to properly evaluate these conditions. This activity also highlights the role of the interprofessional team in evaluating and caring for patients with this condition. ## Introduction According to the National Hospital Ambulatory Medical Care Survey, there are 12 injury-related emergency department visits for every 100 persons over the age"
+        }
+      ]
+    },
+    {
+      "sample_id": 8,
+      "statement": "Hypochromic anemia with low MCHC can result from reticulocytosis because mature reticulocytes contain higher concentrations of hemoglobin compared to fully mature red blood cells, leading to an overall increase in mean cellular hemoglobin density.",
+      "expected_truth": 0,
+      "expected_topic": 96,
+      "predicted_truth": 0,
+      "predicted_topic": 96,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.9960322380065918,
+      "approach_used": "separated",
+      "gap": 29.040930219380016,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 96,
+          "topic_name": "Complete Blood Count (CBC) with differential",
+          "score": 83.32968406496808,
+          "best_chunk": "is useful in evaluating anemia. **Mean corpuscular hemoglobin concentrate** MCHC is the mean hemoglobin concentration per unit volume of red blood cells, expressed as a gram per deciliter (g/dl) or percentage of Hb per cell. The value is calculated by dividing the hemoglobin by the hematocrit. While MCH quantifies the amount of hemoglobin, MCHC indicates the hemoglobin density in each red cell, controlling for MCV. Red blood cell quantity of Hb is regulated and is normally limited to an optimal density of approximately 34% Hb/cell. Hypochromia refers to a low MCHC, while normochromic describes a normal MCHC. Hypochromic anemia may be due to decreased Hb production, the most common cause being iron deficiency (less commonly copper deficiency, pyridoxine deficiency, or lead poisoning), or due to reticulocytosis, as reticulocytes"
+        },
+        {
+          "topic_id": 99,
+          "topic_name": "Hemoglobin A1C",
+          "score": 54.28875384558806,
+          "best_chunk": "# Hemoglobin A1C ## Introduction The hemoglobin A1c test\u2014also known as glycated hemoglobin, glycosylated hemoglobin, HbA1c, or simply A1c\u2014is used to measure an individual's glucose control levels. The test shows average blood sugar levels over the past 90 days, expressed as a percentage. In addition, it can be used to diagnose diabetes mellitus.[1] Hemoglobin is a protein found exclusively in red blood cells, giving blood its bright red color. The primary role of hemoglobin is to carry oxygen from the lungs to all the cells in the body. Hemoglobin becomes glycated or coated with glucose from the bloodstream. As blood glucose levels increase, more glucose attaches to the hemoglobin protein, resulting in a higher A1c value.[2] Since red blood cells have an average lifespan of about 3 months,"
+        },
+        {
+          "topic_id": 100,
+          "topic_name": "Lactate",
+          "score": 40.72798726485713,
+          "best_chunk": "Thus it can be a non-specific tumor marker not useful in identifying the type of cancer. Because LDH is non-specific and routine isozyme measurement is usually unavailable in clinical laboratories, LDH measurements provide incomplete information, and alternate assays such as CK for muscle, ALT for liver, troponin for heart diseases, etc. are needed. Additionally, LDH activity is affected by hemolysis of the blood sample. Since red blood cells (RBCs) contain their own LDH protein, hemolysis causes an artifactual increase leading to false-positive high results. Besides, any cellular necrosis can result in increased serum concentration, and its ubiquitous distribution throughout tissues confers a severe handicap to its wider clinical utility as a biomarker. ## Cellular Level LDH is a cytoplasmic enzyme that is present in almost all tissues but"
+        }
+      ]
+    },
+    {
+      "sample_id": 9,
+      "statement": "N-acetylcysteine (NAC) treatment for acetaminophen toxicity should be discontinued after exactly 20 hours of intravenous administration, as longer treatment provides no additional benefit and may cause adverse effects.",
+      "expected_truth": 0,
+      "expected_topic": 53,
+      "predicted_truth": 0,
+      "predicted_topic": 53,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.391484260559082,
+      "approach_used": "separated",
+      "gap": 15.426778405934918,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 53,
+          "topic_name": "Overdose_Poisoning",
+          "score": 47.8399449773238,
+          "best_chunk": "concentration from samples drawn 4 to 24 hours after ingestion surpasses the nomogram treatment line. In cases where the concentration from samples drawn 4 to 12 hours after ingestion falls below the treatment line but remains above 10 \u03bcg/mL, a follow-up measurement should be taken 4 to 6 hours after the initial assessment. In simultaneous ingestion with anticholinergic or opioid agonists, the concern is the potential for delays or prolongation of acetaminophen absorption. The management approach aligns with that of other acetaminophen products. If the initial acetaminophen concentration measured 4 to 24 hours after ingestion is 10 \u03bcg/mL or lower, further measurements are unnecessary, and N-acetylcysteine (NAC) treatment is not required. Conversely, if any concentration exceeds the treatment line, NAC is indicated. If the acetaminophen concentration measured within"
+        },
+        {
+          "topic_id": 68,
+          "topic_name": "Rhabdomyolysis",
+          "score": 32.413166571388885,
+          "best_chunk": "6.5. Bicarbonate in IV fluids should be promptly discontinued when serum pH is at 7.5.[57] Mannitol is commonly used to improve urine output in patients with a crush injury but should only be initiated after the patient maintains adequate urine output of at least 20 mL/h. There are no specific conscientious guidelines regarding mannitol administration. A trial of intravenous infusion of 60 mL of 20% mannitol given over 5 minutes can be used to assess for increased urine output. If there is an increase in urine output of 30 to 50 mL/h compared to the baseline, mannitol can be continued.[58] Mannitol should be avoided in patients with AKI, oliguria, or anuria. Adverse events associated with mannitol use are volume overload and hyperosmolality. The current literature does not support"
+        },
+        {
+          "topic_id": 75,
+          "topic_name": "Stroke (Ischemic_Hemorrhagic)",
+          "score": 32.202774315373844,
+          "best_chunk": "with aspirin and clopidogrel within 24 hours after symptom onset. **Intracerebral Hemorrhage** Initiating treatment for elevated BP within 2 hours of ICH onset and achieving the target BP within 1 hour may reduce HE risk and improve outcomes.[39] In patients with mild-to-moderate ICH and an initial SBP between 150 and 220 mm Hg, the target SBP is 140 mm Hg to maintain the SBP between 130 and 150 mm Hg.[39] It is noteworthy that if these patients present with an initial SBP above 150 mm Hg, rapidly lowering the SBP to below 130 mm Hg may cause potential harm.[39] Anticoagulation should be discontinued immediately in patients with anticoagulant-associated ICH, and rapid reversal should be performed as soon as possible.[39][52] Platelet transfusion may be considered in patients treated with"
+        }
+      ]
+    },
+    {
+      "sample_id": 10,
+      "statement": "Cancer patients with pulmonary embolism have the highest VTE recurrence risk with pancreatic cancer, hematological malignancies, lung cancer, gastric cancer, and brain cancer carrying the greatest thrombotic risk, necessitating extended anticoagulation with LMWH or direct oral anticoagulants preferred over vitamin K antagonists.",
+      "expected_truth": 1,
+      "expected_topic": 63,
+      "predicted_truth": 1,
+      "predicted_topic": 63,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 2.3004894256591797,
+      "approach_used": "combined",
+      "gap": 0.0,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 33,
+          "topic_name": "Embolism",
+          "score": 91.20913120475853,
+          "best_chunk": "is associated with a reduced likelihood.[7] Other predisposing factors for VTE include: * Fracture of lower limb * Hospitalization for heart failure or atrial fibrillation/flutter within the previous 3 months * Hip or knee replacement * Major trauma * History of previous venous thromboembolism * Central venous lines * Chemotherapy * Congestive heart failure or respiratory failure * Hormone replacement therapy * Oral contraceptive therapy * Postpartum period * Infection (specifically pneumonia, urinary tract infection, and HIV) * Cancer (highest risk in metastatic disease) * Thrombophilia * Bed rest longer than 3 days * Obesity * Pregnancy Cancer carries a high risk for thrombus formation and, hence, PE. Pancreatic cancer, hematological malignancies, lung cancer, gastric cancer, and brain cancer carry the highest risk for VTE.[8] Infection anywhere in"
+        },
+        {
+          "topic_id": 63,
+          "topic_name": "Pulmonary Embolism",
+          "score": 91.20913120475853,
+          "best_chunk": "is associated with a reduced likelihood.[7] Other predisposing factors for VTE include: * Fracture of lower limb * Hospitalization for heart failure or atrial fibrillation/flutter within the previous 3 months * Hip or knee replacement * Major trauma * History of previous venous thromboembolism * Central venous lines * Chemotherapy * Congestive heart failure or respiratory failure * Hormone replacement therapy * Oral contraceptive therapy * Postpartum period * Infection (specifically pneumonia, urinary tract infection, and HIV) * Cancer (highest risk in metastatic disease) * Thrombophilia * Bed rest longer than 3 days * Obesity * Pregnancy Cancer carries a high risk for thrombus formation and, hence, PE. Pancreatic cancer, hematological malignancies, lung cancer, gastric cancer, and brain cancer carry the highest risk for VTE.[8] Infection anywhere in"
+        },
+        {
+          "topic_id": 110,
+          "topic_name": "Ultrasound Doppler (extremities)",
+          "score": 72.90784361730663,
+          "best_chunk": "thromboembolism is low molecular weight heparin and factor Xa inhibitors, including rivaroxaban.[39] However, in the following circumstances, the higher levels of anticoagulation should be considered: 1. recently diagnosed cancer, 2. extensive VTE circumstances, and 3. cancer treatment-related adverse effects, including vomiting.[40] * In circumstances where once-daily oral therapy is the preferred management, the following options are viable; 1. rivaroxaban, 2. edoxaban, and 3. vitamin-K antagonist (VKA) * In the context of liver disease, DVT should be managed with low-molecular-weight heparin.[41] Direct oral anticoagulants (DOACs) are contraindicated in raised INR levels. * In patients with renal disease suppressed creatinine clearance to less than 30 ml/min, VKAs are recommended. DOACs and LMWH should be avoided in patients with end-stage renal disease. * In patients with a remarkable past medical history"
+        }
+      ]
+    },
+    {
+      "sample_id": 11,
+      "statement": "Drug interference causes up to 20% of false-positive results in pheochromocytoma testing, with tricyclic antidepressants and the alpha-blocker phenoxybenzamine accounting for up to 45% of these interference cases.",
+      "expected_truth": 1,
+      "expected_topic": 113,
+      "predicted_truth": 1,
+      "predicted_topic": 113,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.9269447326660156,
+      "approach_used": "separated",
+      "gap": 53.980828945193664,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 113,
+          "topic_name": "Urinalysis",
+          "score": 112.88720589844382,
+          "best_chunk": "such as acetaminophen, tricyclic antidepressants (eg, amitriptyline), serotonin-norepinephrine reuptake inhibitors (eg, buspirone), alpha-blockers (eg, tamsulosin), haloperidol, labetalol, levodopa, lamotrigine, aripiprazole, and possibly selective serotonin reuptake inhibitors can elevate plasma and urine metanephrines. Notably, it is estimated that drug interference causes up to 20% of false-positive results, with tricyclic antidepressants and the alpha-blocker phenoxybenzamine accounting for up to 45% of these cases. Therefore, when possible, these medications should be discontinued 10 to 14 days before testing.[8][13] ## Diagnostic Tests Various laboratories offer 24-hour urine testing, providing clinicians with detailed reports that stratify stone risk based on laboratory data. Typically, 24-hour urine tests for nephrolithiasis evaluation include measurements of urinary volume, pH, calcium, citrate, magnesium, phosphate, sulfate, oxalate, and uric acid. Supersaturation ratios for different stone types can then be"
+        },
+        {
+          "topic_id": 109,
+          "topic_name": "Troponin I_T",
+          "score": 58.90637695325016,
+          "best_chunk": "fall of the troponin would be more indicative of a cardiac cause of the elevated troponin.[70] One accepted recommendation is if there is a change in the troponin level of 20% during serial testing, it is likely due to a cardiac cause; the research for this recommendation is lacking.[74] Reports indicate that hemolysis can interfere with some troponin immunoassay procedures, and false-positive and false-negative results have been reported.[75] Troponin bound to heparin causes lower measured troponin plasma concentration compared to serum.[76] Other sources of interference that may affect the assay detection process and cause false-negative troponin values include ascorbic acid in immunoenzymometric assays using alkaline phosphatase, biotin in assays using a biotinylated antibody, streptokinase in the presence of streptavidin, and high titers of antibodies to ruthenium or streptavidin"
+        },
+        {
+          "topic_id": 29,
+          "topic_name": "Delirium",
+          "score": 44.61502229821381,
+          "best_chunk": "smaller disturbances such as constipation, dehydration, sleep deprivation, urinary retention, or minor medical procedures can also precipitate delirium. The nature of delirium is transient but can persist in patients with predisposing factors. A systematic review showed that hospital delirium persisted until discharge in 45% of cases and persisted one month later in 33% of cases.[8] ## Epidemiology The prevalence of delirium is higher in the elderly population. It is a common surgical complication among older adults, with an incidence reported up to 10 to 20% after major elective surgery and up to 50% after high-risk procedures. Postoperative delirium is associated with a 7 to 10% increased risk of 30-day mortality and increases hospital stay by 2 to 3 days.[9] Delirium in the general population increases healthcare utilization and"
+        }
+      ]
+    },
+    {
+      "sample_id": 12,
+      "statement": "The pathophysiology of exercise-associated hyponatremia involves both excessive hypotonic fluid consumption and inappropriate ADH secretion triggered by physical exertion stimuli including pain, emotional stress, and heat exposure.",
+      "expected_truth": 1,
+      "expected_topic": 43,
+      "predicted_truth": 1,
+      "predicted_topic": 43,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.7838904857635498,
+      "approach_used": "separated",
+      "gap": 50.54134808852101,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 43,
+          "topic_name": "Hyponatremia_Hypernatremia",
+          "score": 86.78862934023189,
+          "best_chunk": "EAH stems from both increased consumption of hypotonic fluids and inappropriate water retention. Before and throughout strenuous physical activity, athletes often over hydrate with hypotonic fluids (water, sports drinks). When intake exceeds that of water lost via urine, sweat, and insensible respiratory and gastrointestinal losses (often greater than 1.5 liters), athletes may retain free water, resulting in dilutional hyponatremia.[2][4] The contribution of sodium loss from excessive sweat is controversial and not well characterized, as sweat loss varies greatly between individual athletes.[1][2] It is postulated that stimuli related to physical exertion may result in sympathetic activation of the hypothalamus, which stimulates ADH secretion from the posterior pituitary inappropriately during low osmolar states. These stimuli include pain, emotional stress, nausea, emesis, hypoglycemia, heat exposure, and medication use (particularly NSAIDs).[2][4] Elevated"
+        },
+        {
+          "topic_id": 53,
+          "topic_name": "Overdose_Poisoning",
+          "score": 36.24728125171088,
+          "best_chunk": "undergoes metabolism via hepatic CYP2D6, severe hepatoxicity may occur, leading to fulminant liver failure.[22] Central nervous system (CNS) hyperactivity can lead to agitated delirium and seizures.[23][24] Because MDMA is a popular rave drug, the combination of intense physical activity with the sympathomimetic effects of the drug leads to an increase in body temperature that resembles heat stroke and could result in rhabdomyolysis.[25] Significant increases in fluid consumption by users coupled with the development of the syndrome of inappropriate diuretic syndrome (SIADH) may potentially contribute to the development of severe hyponatremia, leading to cerebral edema, seizures, and death.[26][27] ## Evaluation Diagnostic testing should be guided by the clinical presentation (history and physical exam). Initially, evaluation of the altered patient must include intravenous (IV) access, vital signs, rapid glucose check,"
+        },
+        {
+          "topic_id": 7,
+          "topic_name": "Acute Myocardial Infarction (STEMI_NSTEMI)",
+          "score": 33.335213394252506,
+          "best_chunk": "(waist/hip ratio) (greater than 0.90 for males and greater than 0.85 for females) 6. Psychosocial factors such as depression, loss of the locus of control, global stress, financial stress, and life events including marital separation, job loss, and family conflicts 7. Lack of daily consumption of fruits or vegetables 8. Lack of physical activity 9. Alcohol consumption (weaker association, protective) The INTERHEART study showed that all the above risk factors were significantly associated with acute myocardial infarction except for alcohol consumption, which showed a weaker association. Smoking and abnormal apolipoprotein ratio showed the strongest association with acute myocardial infarction. The increased risk associated with diabetes and hypertension were found to be higher in women, and the protective effect of exercise and alcohol was also found to be higher"
+        }
+      ]
+    },
+    {
+      "sample_id": 13,
+      "statement": "The relative index for distinguishing myocardial infarction from non-myocardial causes requires blood sampling within 4-12 hours of symptom onset, with values above 3% being diagnostic for myocardial necrosis.",
+      "expected_truth": 0,
+      "expected_topic": 97,
+      "predicted_truth": 0,
+      "predicted_topic": 97,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 0.9731485843658447,
+      "approach_used": "separated",
+      "gap": 17.693226304092462,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 97,
+          "topic_name": "Creatine Phosphokinase",
+          "score": 55.65733906128786,
+          "best_chunk": "males is 5.0 \u03bcg/L, and the value for females is lower. However, many laboratories use the male reference interval.[36] In populations who frequently exercise, such as well-trained, long-distance runners, the CK-MB content of skeletal muscle increases, which may produce abnormal serum CK-MB concentrations to separate non-myocardial infarction from myocardial infarction patients; a \u201crelative index\u201d (RI) is necessary.[37] The RI relates CK-MB mass concentration in \u03bcg/L to measured total CK activity in U/L.[38] Results are expressed as a percentage: physiological: \u22643%, equivocal: 3% to 5%, consistent with myocardial necrosis: >5%.[39] Blood sampling between 8 and 36 hours from symptom onset is necessary to use the RI. ## Clinical Significance CK activity is one of the markers of AMI.[40] The activity rises within 12 hours of AMI symptoms, peaks at"
+        },
+        {
+          "topic_id": 7,
+          "topic_name": "Acute Myocardial Infarction (STEMI_NSTEMI)",
+          "score": 37.964112757195394,
+          "best_chunk": "Acute myocardial infarction (AMI) is one of the leading causes of death in the developed world. The prevalence of the disease approaches 3 million people worldwide, with more than 1 million deaths in the United States annually. AMI can be divided into 2 categories: non\u2013ST-segment elevation myocardial infarction (NSTEMI) and ST-segment elevation myocardial infarction (STEMI). Unstable angina resembles an NSTEMI, but normal cardiac markers distinguish it.[1][2][3] Myocardial infarction (MI) causes permanent damage to the heart muscle due to inadequate oxygen supply. MI can impair diastolic and systolic function, increasing the risk of arrhythmias. Additionally, an MI can lead to various serious complications. Prompt reperfusion and restoration of blood flow to the heart are crucial. Early treatment within 6 hours of symptom onset significantly improves prognosis. An MI is"
+        },
+        {
+          "topic_id": 75,
+          "topic_name": "Stroke (Ischemic_Hemorrhagic)",
+          "score": 34.63452735943984,
+          "best_chunk": "MRI (DW-MRI) with or without MR perfusion or CT perfusion for evaluation.[45][46] For patients experiencing a \"wake-up\" stroke or with an uncertain time of symptom onset, obtaining an MRI is crucial in identifying diffusion-positive fluid-attenuated inversion recovery (FLAIR)-negative lesions. This imaging technique assists in determining whether the patient would benefit from thrombolytic therapy.[47] In patients diagnosed with ICH, performing a CTA within the first few hours of symptom onset can help identify individuals at risk of experiencing hematoma expansion (HE). Furthermore, serial head CT scans within the first 24 hours can assess for any HE.[39] The diagnosis of SAH is primarily based on NCCT imaging. A lumbar puncture is recommended if the CT scan yields negative results despite a high clinical suspicion. A recent study found that when"
+        }
+      ]
+    },
+    {
+      "sample_id": 14,
+      "statement": "The histopathologic findings in mid-ventricular Takotsubo cardiomyopathy consistently show evidence of myocarditis with significant inflammatory cell infiltration and myocyte necrosis.",
+      "expected_truth": 0,
+      "expected_topic": 77,
+      "predicted_truth": 0,
+      "predicted_topic": 77,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.7340490818023682,
+      "approach_used": "separated",
+      "gap": 18.757921815520753,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 77,
+          "topic_name": "Takotsubo Cardiomyopathy",
+          "score": 55.42409144096861,
+          "best_chunk": "with suspected mid-ventricular Takotsubo cardiomyopathy are as follows: * An acute coronary syndrome due to cocaine abuse * Myocarditis * Acute brain injury in patients with pheochromocytoma Detailed history, physical exam, and toxicology assays can help narrow our differential diagnoses. Myocarditis is diagnosed with cardiac magnetic resonance imaging, which will show myocardial inflammation and scar. Patients with pheochromocytoma will have clinical findings and symptoms of tachycardia, hypertension, diaphoresis, and headache.[14][15][16] ## Prognosis Patients with mid-ventricular Takotsubo cardiomyopathy mostly recover with conservative management; patients who survive the acute phase of this syndrome recover their LV ejection fraction within four weeks.[17][9][18] ## Complications The risk of in-hospital complications in patients with mid-ventricular Takotsubo cardiomyopathy is similar to that in patients with acute coronary syndrome. The combined risk of CPR, ventilatory"
+        },
+        {
+          "topic_id": 2,
+          "topic_name": "Acute Appendicitis",
+          "score": 36.66616962544786,
+          "best_chunk": "the mucosa, submucosa, and muscularis propria indicate a widespread inflammatory response. Extensive ulceration, signifying tissue damage and loss of epithelial lining, is commonly observed. Intramural microabscesses may also be present. Vascular thrombosis, resulting from the inflammatory process, is not uncommon. Complicated nonperforated appendicitis includes two distinct histopathologic categories: severe phlegmonous appendicitis and gangrenous non-perforated appendicitis. The histopathological findings of severe phlegmonous appendicitis are complex and are characterized by severe phlegmonous inflammation accompanied by obstruction and extraluminal fluid. The obstruction is usually caused by a fecalith, resulting in significant distal luminal dilation and adjacent fluid accumulation. The histological examination reveals pronounced transmural edema and infiltration of neutrophils throughout the appendiceal wall.[17] The histopathological examination of gangrenous appendicitis reveals a friable appendix with purple, green, or black discoloration. In addition,"
+        },
+        {
+          "topic_id": 31,
+          "topic_name": "Eclampsia",
+          "score": 34.65327386567066,
+          "best_chunk": "factor and oxidized low-density lipoprotein, which may exacerbate BBB dysfunction through oxidative stress and inflammation. Additionally, theories involving cerebral vasospasm and overregulation have been proposed, though studies indicate that overperfusion, rather than vasospasm, might be more relevant to the onset of eclamptic seizures.[11] ## Histopathology Autopsy findings in eclampsia often reveal significant gross cerebral pathology, including extensive brain swelling, white matter hemorrhages, and tissue necrosis. Histologic findings observed in patients with eclampsia include perivascular edema, hemorrhage, hemosiderin deposits, small vessel thrombosis, and parenchymal necrosis. However, these histopathologic characteristics are not diagnostic of eclampsia, as they are also associated with other conditions involving systemic endothelial damage, such as atypical hemolytic-uremic syndrome, hypertensive urgency or emergency, and antiphospholipid antibody syndrome.[11] ## History and Physical The classic presentation of eclampsia is"
+        }
+      ]
+    },
+    {
+      "sample_id": 15,
+      "statement": "The annual incidence of peptic ulcer perforation is estimated to be 4 to 14 cases per 100,000 individuals, making it significantly less common than upper gastrointestinal bleeding from peptic ulcers, which occurs at a rate of 19 to 57 cases per 100,000 individuals.",
+      "expected_truth": 1,
+      "expected_topic": 56,
+      "predicted_truth": 1,
+      "predicted_topic": 56,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.8412911891937256,
+      "approach_used": "separated",
+      "gap": 55.89103171745546,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 56,
+          "topic_name": "Perforated Viscus",
+          "score": 131.24695104377946,
+          "best_chunk": "prevalence of peptic ulcer disease (PUD) is declining and is currently estimated to be between 5-10%. It tends to be less prevalent in developed countries. Just as there has been a downward trend in the overall incidence of peptic ulcer disease, so too has there been a decline in the overall rate of complications.[1] Even though the overall incidence of complications is declining, complications including bleeding, perforation, and obstruction are responsible for nearly 150,000 hospitalizations annually in the United States.[5] Upper GI bleeding is the most common complication of peptic ulcer disease. The next most common complication is perforation. The annual incidence of upper GI bleeding secondary to a peptic ulcer is estimated to be between 19 to 57 cases per 100,000 individuals. In comparison, ulcer perforation is"
+        },
+        {
+          "topic_id": 48,
+          "topic_name": "Meningitis",
+          "score": 75.355919326324,
+          "best_chunk": "metastasis from solid cancers or lymphoma/leukemia. Aseptic meningitis triggered by specific vaccines has been documented, notably following immunizations such as measles, mumps, rubella (MMR) and varicella, yellow fever, rabies, pertussis, and influenza vaccines.[9][10][11] Recent reports have suggested its occurrence even after the meningococcal vaccination.[12] ## Epidemiology The precise annual incidence of aseptic meningitis remains uncertain due to underreporting.[8] This condition can affect individuals of all ages but is more prevalent in children than adults.[2] In the US, the overall incidence is estimated to be 11 cases per 100,000 people per year, with a rate of 7.5 cases per 100,000 adults, and found to be 3 times more common in males than females, without any particular age or racial predilection.[2] Aseptic meningitis leads to 26,000 to 42,000 hospitalizations annually"
+        },
+        {
+          "topic_id": 51,
+          "topic_name": "Myocarditis",
+          "score": 69.32682147713759,
+          "best_chunk": "## Epidemiology The true prevalence of acute myocarditis remains uncertain due to its variable clinical presentation and the challenges associated with diagnosis. The condition is frequently underdiagnosed, complicating efforts to determine its exact incidence and prevalence. Acute myocarditis occurs more commonly in younger adults and affects individuals across all sexes and racial groups. However, notable regional variations in incidence have been reported.[10][11] According to the Global Burden of Disease Report (2019), the estimated incidence of acute myocarditis is approximately 6.1 cases per 100,000 individuals.[12] Other sources suggest a broader incidence range, from 10 to 22 cases per 100,000 population. In 2013, an estimated 1.5 million cases were reported globally.[13] Additionally, myocardial involvement is estimated to occur in up to 5% of patients with an acute viral illness. Among"
+        }
+      ]
+    },
+    {
+      "sample_id": 16,
+      "statement": "Macro-CK type 1 is predominantly found in men under 40 years of age and represents oligomeric mitochondrial CK associated with severe illness and malignancies.",
+      "expected_truth": 0,
+      "expected_topic": 97,
+      "predicted_truth": 0,
+      "predicted_topic": 97,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.4978539943695068,
+      "approach_used": "separated",
+      "gap": 21.529624032204815,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 97,
+          "topic_name": "Creatine Phosphokinase",
+          "score": 57.55523894538117,
+          "best_chunk": "to 6% of hospitalized patients, but only a small proportion of these have increased CK activities in serum.[15] The enzyme exists in 2 forms, types 1 and 2. Macro-CK type 1 is a complex of CK, typically CK-BB, and an immunoglobulin, commonly IgG.[16] Macro-CK type 1 is usually seen in women aged older than 50. Macro-CK type 2 is oligomeric Mt-CK found in severely ill adults with malignancies or children with tissue distress.[17] Both M and B subunits have a C-terminal lysine residue, but only the former is hydrolyzed by the action of carboxypeptidases present in the blood. Carboxypeptidases B or N sequentially hydrolyze the lysine residues from CKMM to produce 2 CK-MM isoforms\u2014CK-MM2 (1 lysine residue removed) and CK-MM1 (both lysine residues removed).[18] The loss of positively"
+        },
+        {
+          "topic_id": 10,
+          "topic_name": "Aortic Dissection",
+          "score": 36.025614913176355,
+          "best_chunk": "an incidence of 5 to 30 cases per 1 million people per year. This contrasts sharply with acute myocardial infarction, which has approximately 4400 cases per 1 million people annually. Aortic dissection accounts for 3 out of every 1000 emergency department presentations involving acute chest, back, or abdominal pain. The condition predominantly affects individuals between 40 and 70, with most cases occurring in patients aged 50 to 65. Approximately 75% of dissections happen in this age range, highlighting age as a key risk factor. While men are 3 times more likely to develop aortic dissection than women, women often present later in the disease course and have worse outcomes.[8] The risk profile differs between older and younger patients: older patients are more likely to have hypertension, atherosclerosis, prior"
+        },
+        {
+          "topic_id": 71,
+          "topic_name": "Seizures_Status Epilepticus",
+          "score": 33.62149772437581,
+          "best_chunk": "cancer), anti-Ma2 (germ cell tumor of testis), anti-amphiphysin (breast cancer, small cell lung cancer), and anti-VGCC (small cell lung cancer, thymoma). * **Infections** \\- Herpes simplex virus type 1 (HSV-1) is the most common etiology identified in NORSE amongst infectious agents. Enterovirus, Epstein Barr virus (EBV), Varicella zoster virus (VZV), Cytomegalovirus (CMV), Bartonella henselae, Mycoplasma pneumoniae, and arboviruses (West Nile virus) have also been detected in patients with NORSE. * Some of the rare genetic conditions (POLG131), including mitochondrial defects, have also been associated with NORSE.[12][13] ## Epidemiology NORSE and its subtype FIRES are relatively uncommon disorders, with most epidemiological data coming from case series. NORSE and FIRES have been reported in previously healthy young adults and school-aged children. However, adults \u2265 60 years have also been affected."
+        }
+      ]
+    },
+    {
+      "sample_id": 17,
+      "statement": "Pulse oximetry can accurately differentiate between oxygenated hemoglobin, carboxyhemoglobin, and methemoglobin because modern devices employ light at four different wavelengths.",
+      "expected_truth": 0,
+      "expected_topic": 105,
+      "predicted_truth": 0,
+      "predicted_topic": 105,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 1.194401502609253,
+      "approach_used": "separated",
+      "gap": 25.923759263582113,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 105,
+          "topic_name": "Pulse Oximetry_Arterial Saturation",
+          "score": 61.86168317482362,
+          "best_chunk": "Monitoring response to treatment of bronchospasm * Estimation of cardiac output * Use during cardiac arrest * Measures kinetics of carbon dioxide (CO2) elimination on a breath-by-breath basis ## Issues of Concern Pulse oximeters have some limitations. They can only employ light at two wavelengths. Thus the devices can only distinguish between hemoglobin and oxygenated hemoglobin. When carboxyhemoglobin and methemoglobin are also present, there are two additional wavelengths required for differentiation. In the presence of elevated carboxyhemoglobin levels, pulse oximetry overestimates the true saturation of oxygen as carboxyhemoglobin binds with a higher affinity than oxygen. In the case of carbon monoxide poisoning, the absorbance spectrum of carbon monoxide is very similar to hemoglobin, which results in a falsely high level of oxygen (overestimation of oxygen saturation).[7] ## Clinical"
+        },
+        {
+          "topic_id": 67,
+          "topic_name": "Respiratory Failure",
+          "score": 35.937923911241505,
+          "best_chunk": "nuclear medicine, angiography, and ultrasonography.[25] **Pulse Oximetry** Pulse oximetry relies on spectrophotometry, the process of identifying the composition of a substance via measurement of the absorption of specific wavelengths of light transmitted through the substance in question. The composition and structural configuration of hemoglobin are dependent upon molecular oxygen. In the tense state, oxygenated hemoglobin has a lower affinity for oxygen. In the relaxed state, deoxygenated hemoglobin has a higher affinity for oxygen. Pulse oximetry takes advantage of the conformational states of the hemoglobin molecule as deoxygenated hemoglobin absorbs light at wavelengths of 660 nm, and oxygenated hemoglobin absorbs light at wavelengths of 940 nm. Measurement of arterial oxygenation is ensured through the analysis of pulsatile blood. Proprietary algorithms allow for the conversion of light absorption to the"
+        },
+        {
+          "topic_id": 20,
+          "topic_name": "Burns",
+          "score": 30.685633165392442,
+          "best_chunk": "inhibiting oxygen utilization. This can block the last step of oxidative phosphorylation, preventing the conversion of pyruvate to adenosine triphosphate (ATP), resulting in cells generating ATP from anaerobic metabolism. * Cyanide toxicity is characterized by an anion gap metabolic acidosis in the presence of ample oxygen delivery. If an intraoperative patient experiences persistent hypoxia and acidosis, it may be due to carbon monoxide or cyanide toxicity. **Carbon Monoxide Poisoning** Pulse oximetry may not accurately measure oxygenation levels in cases of carbon monoxide poisoning. This is because pulse oximetry cannot differentiate between oxyhemoglobin and carboxyhemoglobin. To determine the severity of carbon monoxide poisoning, laboratory tests can measure the levels of carboxyhemoglobin present in the blood. In cases where time is crucial, one can consider using a carbon monoxide oximeter."
+        }
+      ]
+    },
+    {
+      "sample_id": 18,
+      "statement": "Immunoassay-based HbA1c methods using latex agglutination inhibition involve competition between patient HbA1c and synthetic polymers bearing HbA1c epitopes for binding to antibody-coated latex beads, with reduced agglutination measured as decreased absorbance.",
+      "expected_truth": 1,
+      "expected_topic": 99,
+      "predicted_truth": 1,
+      "predicted_topic": 99,
+      "truth_correct": true,
+      "topic_correct": true,
+      "time_taken": 2.000211000442505,
+      "approach_used": "separated",
+      "gap": 110.52437830979531,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 99,
+          "topic_name": "Hemoglobin A1C",
+          "score": 143.24156317796394,
+          "best_chunk": "HPLC systems are widely available, requiring minimal sample volumes (approximately 5 \u03bcL of whole blood). Although venous blood is standard, capillary blood from a finger prick is also acceptable. Samples are diluted with a borate-containing hemolysis reagent and incubated at 37 \u00b0C for 30 minutes to eliminate labile Schiff bases before analysis.[15][16] Immunoassay-based methods are also prevalent, using monoclonal antibodies that specifically bind to the Amadori product (ketoamine linkage) and distinct amino acid sequences at the N-terminal of the hemoglobin \u03b2-chain. A widely used format, latex agglutination inhibition, involves a synthetic polymer bearing HbA1c epitopes that competes with patient HbA1c for binding to antibody-coated latex beads. This competition reduces agglutination, which is quantifiable as decreased absorbance. Enzyme immunoassays using analogous antibodies exhibit acceptable precision and are typically calibrated"
+        },
+        {
+          "topic_id": 96,
+          "topic_name": "Complete Blood Count (CBC) with differential",
+          "score": 32.71718486816862,
+          "best_chunk": "and is not directly used to diagnose anemia. However, red cell indices are important in evaluating anemia. The RBC may be spuriously low in the setting of red cell agglutination or a sample diluted with intravenous fluid infusion.[4] **Red Cell Indices** The red cell indices are calculated parameters provided within the CBC and include red cell distribution width (RCDW), mean corpuscular volume (MCV), mean corpuscular hemoglobin (MCH), and mean corpuscular hemoglobin concentration (MCHC).**** They are calculated using the measured Hb, Hct, and RBC and help elucidate the etiology of anemia. MCH and MCHC are also often used for quality control within laboratories.[9] **Red cell distribution width** Red cell distribution width (RCDW) quantitatively assesses the degree of variation in red cell size, known as anisocytosis. The value is calculated"
+        },
+        {
+          "topic_id": 109,
+          "topic_name": "Troponin I_T",
+          "score": 32.655530048294025,
+          "best_chunk": "currently available for manufacturers to standardize cTnI assays.[59] Second, measured assay concentrations fail to be consistent because cTnI circulates in various forms; the antibodies used in the available assays recognize different epitopes of cTnI even for assays and instruments marketed by the same manufacturer.[60] ## Interfering Factors One problem with using troponins to diagnose acute myocardial infarctions is that troponins can be elevated in other conditions as well.[61] Anything that causes damage to cardiac muscle can cause troponin to spill into circulation. The most common cause of injury is oxygen supply and demand mismatch, seen in acute myocardial infarction.[62] However, many other conditions can cause this mismatch and cause elevated troponins. For example, tachycardia can cause decreased perfusion due to reduced diastolic time when coronary blood flow occurs"
+        }
+      ]
+    },
+    {
+      "sample_id": 19,
+      "statement": "Point-of-care laboratory testing during active cardiac arrest resuscitation should routinely include comprehensive metabolic panels, arterial blood gases, and cardiac enzymes to guide treatment decisions.",
+      "expected_truth": 0,
+      "expected_topic": 22,
+      "predicted_truth": 0,
+      "predicted_topic": 85,
+      "truth_correct": true,
+      "topic_correct": false,
+      "time_taken": 1.2003250122070312,
+      "approach_used": "separated",
+      "gap": 1.2600802432679643,
+      "threshold": 0.0,
+      "top_topics": [
+        {
+          "topic_id": 85,
+          "topic_name": "Arterial Blood Gas (ABG)",
+          "score": 34.398500967208314,
+          "best_chunk": "hypovolemia, diuretic use, and hypokalemia cause metabolic alkalosis.[36] ## Quality Control and Lab Safety Healthcare providers can analyze an arterial blood gas and electrolytes (often called a shock panel) as a point-of-care test. Appropriately calibrate or standardize these machines to ensure accurate and precise readings for clinical decisions. Please refer to the user manuals to ensure the appropriate device calibration during discussion with the clinical laboratory team.[37] Elements of good quality assurance of blood gas and pH measurements include the following: * Proper maintenance of the instrument * Use of control materials * Verification of electrode linearity * Checking barometer accuracy * Accurately measuring temperature.[38] External quality assurance (proficiency testing) mandated by federal law in the United States (Clinical Laboratory Improvement Amendments [CLIA] 1988) has assumed new importance"
+        },
+        {
+          "topic_id": 22,
+          "topic_name": "Cardiac Arrest",
+          "score": 33.13842072394035,
+          "best_chunk": "are unrecognized or ignored by the individual.[7] Many patients who survive cardiac arrest have amnesia, not allowing for the recollection of symptoms before an event. Data obtained from those who did not have amnesia, from family members and/or from those who witnessed the event shows that the most common symptom was chest pain.[7] Appropriately, this mirrors the most common presentations of acute coronary ischemia. An individual found to be in cardiac arrest will be unresponsive, without a pulse, and will not be breathing. A quick head-to-toe assessment will help guide treatment. ## Evaluation While treating a patient in cardiac arrest, little to no blood or imaging testing is necessary. If one can obtain point-of-care testing, a potassium and glucose level may be beneficial. Point-of-care ultrasound to look for"
+        },
+        {
+          "topic_id": 31,
+          "topic_name": "Eclampsia",
+          "score": 31.216796383767555,
+          "best_chunk": "blood count to quantify platelet counts, and a basic metabolic profile to assess kidney function. Platelet levels of 100,000/\u03bcL or less and liver transaminase levels more than 2 times the upper limit of normal with or without right upper quadrant or epigastric pain are also associated with preeclampsia with severe features. Laboratory tests to exclude differential diagnoses for seizures should also be considered, including urine drug screens, complete metabolic panels, or toxicology screens. Brain natriuretic peptide testing can help confirm the diagnosis and guide management, as it correlates well with heart function and fluid levels in cases where fluid overload is suspected.[1][11] **Additional Diagnostic Studies** Imaging studies, including chest x-rays and obstetric ultrasounds, can also be utilized to assess maternal pulmonary edema and fetal well-being, respectively. For patients"
+        }
+      ]
+    }
+  ]
+}
