@@ -273,11 +273,13 @@ def main():
     if hasattr(args, 'use_condensed_topics'):
         try:
             # Import the topic_model module to set the configuration
-            from topic_model import USE_CONDENSED_TOPICS
+            from topic_model import USE_CONDENSED_TOPICS, clear_bm25_cache
             import topic_model
             
             # Update the configuration
             topic_model.USE_CONDENSED_TOPICS = args.use_condensed_topics
+            # Clear cache to force rebuild with new topic configuration
+            clear_bm25_cache()
             topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
             print(f"📚 Using {topic_type} for knowledge base")
         except Exception as e:

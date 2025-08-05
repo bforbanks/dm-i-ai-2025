@@ -158,6 +158,8 @@ if __name__ == '__main__':
             if current_model == "match-and-choose-model-1":
                 topic_model_module = importlib.import_module(f"{current_model}.topic_model")
                 topic_model_module.USE_CONDENSED_TOPICS = args.use_condensed_topics
+                # Clear cache to force rebuild with new topic configuration
+                topic_model_module.clear_bm25_cache()
                 topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
                 logger.info(f"📚 Using {topic_type} for knowledge base")
             else:
