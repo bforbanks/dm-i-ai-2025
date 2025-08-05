@@ -155,7 +155,7 @@ class PredictionModel:
             other_lanes_car_probs = [1-other_lane.no_car for other_lane in self.lanes if other_lane.lane != lane.lane]
             four_cars = np.prod(other_lanes_car_probs)
             # if there are not 4 cars, and there is not a car in the lane already, a new one will spawn
-            spawn_chance = (1-four_cars) * lane.no_car
+            spawn_chance = (1-four_cars) * lane.no_car #TODO double-check this calculation
 
             # Spawn cars behind
             speed_chance_sum = 0
