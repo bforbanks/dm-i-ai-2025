@@ -26,31 +26,43 @@ from models.rl.dqn.DQNModel import DQNModel
 #     # 'STEER_RIGHT'
 #     # 'NOTHING''
 
-class DQNAgent:
+class DQNAgent_stacked:
     def __init__(self,
                  input_dim: int,
                  output_dim: int,
                  learning_rate=1e-4,
                  gamma=0.95,
                  batch_size: int = 128,
-                 epsilon_start: float = 0,
-                 epsilon_min: float = 0,
-                 epsilon_decay: float = 0.999999,
+                 epsilon_start: float = 0.3,
+                 epsilon_min: float = 0.1,
+                 epsilon_decay: float = 0.99999,
                  memory_size: int = 50000,
                  device: Optional[torch.device] = torch.device("cpu"),
                  dtype: Optional[torch.dtype] = torch.float32,
-                 model_path: str = "models/rl/dqn/weights/dqn.pt",
+                 model_path: str = "models/rl/dqn/weights/dqn_stacked.pt",
                  reset_epsilon: bool = True
                 ):
         # Set device and dtype
         self.device = device
         self.dtype = dtype
         print(f"Using device: {self.device}, dtype: {self.dtype}")
-        # Initialize the DQN model
-        self.model = DQNModel(input_dim=input_dim, output_dim=output_dim)
+        # Initialize the DQN model and state stack
+        save_every = 30
+        stack_size = 5
+        tick_count = 0
+        self.frame_stack = deque(maxlen=5)
+        for i in range(stack_size):
+            if i == 0:
+                self.frame_stack.append(torch.zeros(input_dim, dtype=self.dtype, device=self.device))
+            else:
+                self.frame_stack.append(self.frame_stack[0].clone())
+
+        self.model = DQNModel(input_dim=input_dim*stack_size, output_dim=output_dim)
         self.model.to(self.device)
 
         self.model_path = model_path
+
+        
 
         # Diagnostics
         self.loss_list = []
@@ -72,7 +84,7 @@ class DQNAgent:
             except (FileNotFoundError, OSError) as e:
                 print(f"No saved model found at {model_path} — starting from scratch.")
 
-        self.target_model = DQNModel(input_dim=input_dim, output_dim=output_dim)
+        self.target_model = DQNModel(input_dim=input_dim*stack_size, output_dim=output_dim)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.to(self.device)
         self.target_model.eval()
@@ -151,6 +163,15 @@ class DQNAgent:
         
         return tensor
 
+    def get_stacked_state(self, new_state: torch.Tensor) -> torch.Tensor:
+        """
+        Updates the frame stack with the new state and returns the stacked state tensor.
+        """
+        self.frame_stack.append(new_state)
+        state = torch.cat(list(self.frame_stack))
+
+        return state
+
 
     def return_action(self, state: torch.Tensor) -> str:
         # print(f"State: {state}")
@@ -170,6 +191,7 @@ class DQNAgent:
             else:
                 state = state.to(self.device, dtype=self.dtype)
 
+            state = self.get_stacked_state(state)  # Update the frame stack
             state = state.unsqueeze(0)
             q_values = self.model(state)
             string_action = self.action_dict_idx_to_str[q_values.argmax(dim=1).item()]

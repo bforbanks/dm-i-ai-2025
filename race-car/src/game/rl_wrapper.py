@@ -273,7 +273,7 @@ class RaceCarEnv:
         # print(f"Drift: {drift}, X Velocity: {x_velocity}, Distance: {distance}")
         if self.STATE.crashed:
             return -10
-        return 10* distance + 0.5*(x_velocity) - drift * 0.2
+        return 5* distance + 0.6*(x_velocity) - drift * 0.3
     
     def _render_frame(self):
         """Render the current game frame"""

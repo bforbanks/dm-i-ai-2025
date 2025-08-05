@@ -32,8 +32,9 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
     distance_list = []
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         done = False
-        state = env.state_to_state_dict(env.STATE)  # Assuming this method exists to convert the game state to a dict
+        state = env.state_to_state_dict(env.STATE)  # To convert the game state to a dict
         state = agent.state_dict_to_tensor(state)  # Convert state to tensor
+        stacked_state = agent.get_stacked_state(state)  # Get the stacked state
         
         # Uncomment if you want to track total reward
         total_reward = 0
@@ -49,8 +50,9 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             next_state, reward, done = env.step(action)
 
             next_state = agent.state_dict_to_tensor(next_state)
+            stacked_next_state = agent.get_stacked_state(next_state)
 
-            agent.memory.append((state, action, reward, next_state, done))
+            agent.memory.append((stacked_state, action, reward, stacked_next_state, done))
 
 
             if total_ticks % 1000 == 0:
@@ -63,7 +65,7 @@ def train(agent: DQNAgent, env, episodes: int = 1000):
             if not done:
                 distance = state[2]
             
-            state = next_state
+            stacked_state = stacked_next_state
 
 
         reward_list.append(total_reward)
