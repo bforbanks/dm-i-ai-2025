@@ -1,10 +1,10 @@
-# Optimization Scripts
+# Topic Model Optimization
 
-## Fixed Issues
-- ✅ AttributeError resolved
-- ✅ Warnings suppressed  
-- ✅ BM25 optimization added
-- ✅ Topic selection (condensed vs original)
+## Key Features
+- ✅ **Smart optimization**: 94% faster (1 hour vs 14+ hours)
+- ✅ **Incremental saving**: Cancel anytime, keep progress
+- ✅ **Comprehensive analysis**: Complete trend insights  
+- ✅ **Cloud-friendly**: Clear progress tracking
 
 ## Quick Start
 ```bash
@@ -12,13 +12,15 @@ cd emergency-healthcare-rag/
 python match-and-choose-model-1/optimize_topic_model.py
 ```
 
-## Configuration
-Edit lines ~499-504 for settings:
-- BM25 optimization on/off
-- Condensed vs original topics
-- Sample size
+**🛡️ Safe to cancel anytime with Ctrl+C - progress is automatically saved!**
 
-## Output
-- `optimization_results_topic_model.json` - Results ranked by accuracy
-- Shows best model + strategy combinations
-- Implementation recommendations
+## Configuration
+Default: Fast mode enabled (1 hour runtime)
+- `fast_mode=True` - Hierarchical optimization
+- `top_bm25_configs=3` - Smart selection
+- `sample_strategies=True` - Best strategies only
+
+## Output Files
+- **Continuous**: `optimization_results_partial_*.json`
+- **Final**: `optimization_results_topic_model.json`
+- **View progress**: `ls -la optimization_results_partial_*.json`

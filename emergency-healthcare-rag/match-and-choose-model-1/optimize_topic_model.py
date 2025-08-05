@@ -68,6 +68,12 @@ class OptimizationConfig:
     save_detailed_results: bool = True
     optimize_bm25: bool = True  # Whether to optimize BM25 parameters
     
+    # SMART OPTIMIZATION PARAMETERS
+    fast_mode: bool = True  # Enable hierarchical optimization for speed
+    top_bm25_configs: int = 3  # Only test top N BM25 configs for semantic fusion
+    sample_strategies: bool = True  # Sample strategies instead of exhaustive test
+    target_runtime_hours: float = 1.5  # Target total runtime
+    
     def __post_init__(self):
         if self.embedding_models is None:
             self.embedding_models = [
@@ -77,23 +83,33 @@ class OptimizationConfig:
             ]
         
         if self.fusion_strategies is None:
-            self.fusion_strategies = [
-                "bm25_only",           # Baseline
-                "semantic_only",       # Semantic baseline
-                "linear_0.3",          # 0.3*BM25 + 0.7*semantic
-                "linear_0.5",          # 0.5*BM25 + 0.5*semantic  
-                "linear_0.7",          # 0.7*BM25 + 0.3*semantic
-                "rrf",                 # Reciprocal Rank Fusion
-                "adaptive"             # Adaptive weighting
-            ]
+            if self.fast_mode and self.sample_strategies:
+                # Smart strategy sampling for fast mode - focus on most promising
+                self.fusion_strategies = [
+                    "bm25_only",           # Always include baseline
+                    "semantic_only",       # Pure semantic baseline
+                    "linear_0.5",          # Balanced fusion (often best)
+                    "rrf",                 # RRF often outperforms linear
+                ]
+            else:
+                # Full strategy testing
+                self.fusion_strategies = [
+                    "bm25_only",           # Baseline
+                    "semantic_only",       # Semantic baseline
+                    "linear_0.3",          # 0.3*BM25 + 0.7*semantic
+                    "linear_0.5",          # 0.5*BM25 + 0.5*semantic  
+                    "linear_0.7",          # 0.7*BM25 + 0.3*semantic
+                    "rrf",                 # Reciprocal Rank Fusion
+                    "adaptive"             # Adaptive weighting
+                ]
         
         if self.chunk_sizes is None:
             if self.optimize_bm25:
-                # Comprehensive BM25 optimization (longer runtime)
-                self.chunk_sizes = [96, 128, 160]
-                self.overlap_ratios = [0.0, 0.1, 0.2]
+                # DEEP BM25 optimization - test many configs since BM25 is fast
+                self.chunk_sizes = [64, 80, 96, 112, 128, 144, 160, 176, 192]
+                self.overlap_ratios = [0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3]
             else:
-                # Use optimized values from separated-models-2 (faster)
+                # Use known best config (Elias: 89.5% with chunk=128, overlap=12)
                 self.chunk_sizes = [128]
                 self.overlap_ratios = [0.094]  # 12/128 ≈ 0.094
 
@@ -202,21 +218,22 @@ def build_bm25_index(chunk_size: int, overlap: int, use_condensed_topics: bool =
     cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{chunk_size}_{overlap}.pkl"
     
     if cache_path.exists():
-        print(f"📚 Loading cached BM25 index ({topic_type}, {chunk_size}, {overlap})...")
+        print(f"   📚 Loading cached BM25 index ({topic_type}, {chunk_size}, {overlap})...")
         try:
             data = pickle.loads(cache_path.read_bytes())
             # Check if it has the expected structure
             if 'chunks' in data and 'topics' in data:
+                print(f"   ✅ Cache loaded successfully")
                 return data
             else:
-                print(f"⚠️ Old cache format detected, rebuilding...")
+                print(f"   ⚠️ Old cache format detected, rebuilding...")
                 cache_path.unlink()  # Delete old cache
         except Exception as e:
-            print(f"⚠️ Cache loading failed: {e}, rebuilding...")
+            print(f"   ⚠️ Cache loading failed: {e}, rebuilding...")
             cache_path.unlink()  # Delete corrupted cache
 
     topic_dir = CONDENSED_TOPIC_DIR if use_condensed_topics else ORIGINAL_TOPIC_DIR
-    print(f"🔨 Building BM25 index — {topic_type}_topics size={chunk_size} overlap={overlap}")
+    print(f"   🔨 Building BM25 index — {topic_type}_topics size={chunk_size} overlap={overlap}")
     
     chunks = []
     topics = []
@@ -266,20 +283,21 @@ def build_semantic_index(model_name: str, bm25_data: Dict, cache_embeddings: boo
     cache_path = CACHE_ROOT / f"semantic_index_{model_slug}_{topic_type}_{chunk_size}_{overlap}.pkl"
     
     if cache_path.exists() and cache_embeddings:
-        print(f"📚 Loading cached semantic index for {model_name} ({topic_type})...")
+        print(f"      📚 Loading cached semantic index for {model_name.split('/')[-1]}...")
         try:
             data = pickle.loads(cache_path.read_bytes())
             # Check if it has the expected structure
             if 'embeddings' in data and 'model_name' in data:
+                print(f"      ✅ Semantic cache loaded successfully")
                 return data
             else:
-                print(f"⚠️ Old cache format detected, rebuilding...")
+                print(f"      ⚠️ Old cache format detected, rebuilding...")
                 cache_path.unlink()  # Delete old cache
         except Exception as e:
-            print(f"⚠️ Cache loading failed: {e}, rebuilding...")
+            print(f"      ⚠️ Cache loading failed: {e}, rebuilding...")
             cache_path.unlink()  # Delete corrupted cache
 
-    print(f"🧠 Building semantic index for {model_name} ({topic_type})...")
+    print(f"      🤖 Building semantic index for {model_name.split('/')[-1]}...")
     
     # Load model
     try:
@@ -511,11 +529,59 @@ def evaluate_search_strategy(searcher: HybridSearcher, strategy: str, statements
     return results
 
 # -----------------------------------------------------------------------
+# INCREMENTAL SAVING FUNCTIONS
+# -----------------------------------------------------------------------
+
+def save_partial_results(all_results: Dict, best_configs: List, opt_config: OptimizationConfig, 
+                        phase: str, additional_info: Dict = None) -> str:
+    """Save partial results during optimization"""
+    timestamp = time.strftime('%Y%m%d_%H%M%S')
+    output_file = f"optimization_results_partial_{phase}_{timestamp}.json"
+    
+    # Basic results structure
+    partial_summary = {
+        'phase': phase,
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'config': {
+            'embedding_models': opt_config.embedding_models,
+            'fusion_strategies': opt_config.fusion_strategies,
+            'chunk_sizes': opt_config.chunk_sizes,
+            'overlap_ratios': opt_config.overlap_ratios,
+            'use_condensed_topics': opt_config.use_condensed_topics,
+            'optimize_bm25': opt_config.optimize_bm25,
+            'fast_mode': opt_config.fast_mode,
+            'top_bm25_configs': opt_config.top_bm25_configs,
+        },
+        'progress': {
+            'total_configs_tested': len(best_configs),
+            'best_configurations': best_configs,
+        },
+        'detailed_results': all_results
+    }
+    
+    # Add phase-specific info
+    if additional_info:
+        partial_summary.update(additional_info)
+    
+    # Save to file
+    with open(output_file, 'w') as f:
+        json.dump(partial_summary, f, indent=2, default=str)
+    
+    return output_file
+
+def print_cancel_instructions(phase: str, saved_file: str):
+    """Print instructions for accessing results if canceled"""
+    print(f"\n💾 PROGRESS SAVED: {saved_file}")
+    print(f"🛡️  SAFE TO CANCEL: Press Ctrl+C anytime to stop")
+    print(f"📂 Results so far: python -c \"import json; print(json.load(open('{saved_file}'))['progress']['total_configs_tested'], 'configs tested')\"")
+
+# -----------------------------------------------------------------------
 # MAIN OPTIMIZATION PIPELINE
 # -----------------------------------------------------------------------
 
 def run_optimization():
     """Run comprehensive optimization of topic model"""
+    start_time = time.time()
     print("🚀 Starting Topic Model Optimization")
     print("=" * 60)
     
@@ -524,7 +590,11 @@ def run_optimization():
         optimize_bm25=True,  # Find best BM25 parameters first, then test fusion strategies
         use_condensed_topics=True,  # True for condensed, False for original topics
         max_samples=200,  # Number of statements to evaluate (max 200)
-        cache_embeddings=True  # Cache embeddings for faster re-runs
+        cache_embeddings=True,  # Cache embeddings for faster re-runs
+        fast_mode=True,  # Enable hierarchical optimization for 1.5 hour runtime
+        top_bm25_configs=3,  # Test semantic fusion on top 3 BM25 configs only
+        sample_strategies=True,  # Use 4 best strategies instead of all 7
+        target_runtime_hours=1.5  # Target 1.5 hour total runtime
     )
     
     print(f"📋 Configuration:")
@@ -533,10 +603,45 @@ def run_optimization():
     print(f"   📊 Samples: {opt_config.max_samples}")
     print(f"   🧠 Models: {len(opt_config.embedding_models)}")
     print(f"   🔍 Strategies: {len(opt_config.fusion_strategies)}")
+    print(f"   💾 Auto-save: Enabled (progress saved continuously)")
+    print(f"   🛡️  Safe to cancel: Press Ctrl+C anytime - progress is preserved!")
     
-    total_configs = len(opt_config.chunk_sizes) * len(opt_config.overlap_ratios) * len(opt_config.embedding_models) * len(opt_config.fusion_strategies)
-    estimated_time = total_configs * 2  # Rough estimate: 2 minutes per config
-    print(f"   ⏱️ Estimated runtime: {estimated_time//60:.0f}-{estimated_time//60*2:.0f} minutes ({total_configs} configurations)")
+    bm25_configs_count = len(opt_config.chunk_sizes) * len(opt_config.overlap_ratios)
+    semantic_strategies = [s for s in opt_config.fusion_strategies if s != "bm25_only"]
+    
+    if opt_config.fast_mode:
+        # Fast mode: only test semantic fusion on top N BM25 configs
+        selected_bm25_count = min(opt_config.top_bm25_configs, bm25_configs_count)
+        semantic_configs = selected_bm25_count * len(opt_config.embedding_models) * len(semantic_strategies)
+        total_configs = bm25_configs_count + semantic_configs  # All BM25 + selected semantic
+        
+        # BM25 is fast (~10s per config), semantic fusion is slow (~2min per config)
+        bm25_time = bm25_configs_count * 0.2  # 10-15s per BM25-only config
+        semantic_time = semantic_configs * 1.5   # 1-2min per semantic config
+        estimated_total = bm25_time + semantic_time
+        
+        print(f"   🚀 FAST MODE ENABLED:")
+        print(f"   ⏱️ BM25-only Configs: {bm25_configs_count} (~{bm25_time:.0f} minutes)")
+        print(f"   ⏱️ Semantic Configs: {semantic_configs} (~{semantic_time//60:.0f}-{semantic_time//60*1.5:.0f} hours)")
+        print(f"   ⏱️ Total Configs: {total_configs} (~{estimated_total//60:.0f}-{estimated_total//60*1.5:.0f} hours)")
+        print(f"   ⚡ Semantic testing limited to TOP {selected_bm25_count} BM25 configs")
+        print(f"   ⚡ Target runtime: {opt_config.target_runtime_hours:.1f} hours")
+    else:
+        # Full mode: test all combinations
+        semantic_configs = bm25_configs_count * len(opt_config.embedding_models) * len(semantic_strategies)
+        total_configs = bm25_configs_count + semantic_configs
+        
+        bm25_time = bm25_configs_count * 0.2
+        semantic_time = semantic_configs * 1.5
+        estimated_total = bm25_time + semantic_time
+        
+        print(f"   🔧 FULL MODE:")
+        print(f"   ⏱️ BM25-only Configs: {bm25_configs_count} (~{bm25_time:.0f} minutes)")
+        print(f"   ⏱️ Semantic Configs: {semantic_configs} (~{semantic_time//60:.0f}-{semantic_time//60*1.5:.0f} hours)")
+        print(f"   ⏱️ Total Configs: {total_configs} (~{estimated_total//60:.0f}-{estimated_total//60*1.5:.0f} hours)")
+    
+    if opt_config.optimize_bm25:
+        print(f"   🚀 Deep BM25 search: {len(opt_config.chunk_sizes)} chunk sizes × {len(opt_config.overlap_ratios)} overlaps")
     
     # Load test data
     print("📚 Loading evaluation data...")
@@ -544,6 +649,18 @@ def run_optimization():
     if opt_config.max_samples and opt_config.max_samples < len(statements):
         statements = statements[:opt_config.max_samples]
     print(f"📊 Evaluating on {len(statements)} statements")
+    
+    # Initial save
+    initial_info = {
+        'startup_info': {
+            'total_statements': len(statements),
+            'estimated_runtime_hours': opt_config.target_runtime_hours if opt_config.fast_mode else 'unknown',
+            'fast_mode': opt_config.fast_mode
+        }
+    }
+    initial_file = save_partial_results({}, [], opt_config, "startup", initial_info)
+    print(f"💾 Initial save: {initial_file}")
+    print(f"🛡️  Safe to proceed - progress will be automatically saved!")
     
     # Store all results
     all_results = {}
@@ -566,17 +683,133 @@ def run_optimization():
     else:
         print(f"\n🔧 Using known best BM25 config: chunk_size=128, overlap=12")
     
-    # Test each BM25 configuration
+    # PHASE 1: EVALUATE ALL BM25 CONFIGURATIONS
+    print(f"\n" + "=" * 80)
+    print(f"🔥 PHASE 1: BM25 OPTIMIZATION ({len(bm25_configs)} configurations)")
+    print(f"=" * 80)
+    
+    bm25_results = []  # Store BM25 results for ranking
+    
     for bm25_idx, (chunk_size, overlap) in enumerate(bm25_configs):
-        print(f"\n🔨 BM25 Config {bm25_idx+1}/{len(bm25_configs)}: chunk_size={chunk_size}, overlap={overlap}")
+        print(f"\n📊 BM25 CONFIG {bm25_idx+1}/{len(bm25_configs)} | chunk_size={chunk_size}, overlap={overlap} | Progress: {(bm25_idx+1)/len(bm25_configs)*100:.1f}%")
+        print(f"{'='*60}")
         
         # Build BM25 index for this configuration
         bm25_data = build_bm25_index(chunk_size, overlap, opt_config.use_condensed_topics)
         print(f"   ✅ BM25 index ready with {len(bm25_data['chunks'])} chunks")
         
+        # EVALUATE BM25-ONLY ONCE (no redundancy across embedding models)
+        print(f"\n🔥 BM25-ONLY EVALUATION (independent of embedding models)")
+        bm25_searcher = HybridSearcher(bm25_data, None)
+        start_time_eval = time.time()
+        eval_results = evaluate_search_strategy(bm25_searcher, "bm25_only", statements, opt_config)
+        elapsed = time.time() - start_time_eval
+        
+        # Calculate metrics for BM25-only
+        metrics = calculate_metrics(eval_results)
+        metrics['evaluation_time'] = elapsed
+        metrics['time_per_query'] = elapsed / len(statements)
+        
+        # Store BM25-only results
+        config_key = f"BM25_ONLY_bm25_only_cs{chunk_size}_ov{overlap}"
+        all_results[config_key] = {
+            'metrics': metrics,
+            'config': {
+                'model': 'BM25_ONLY',
+                'strategy': 'bm25_only',
+                'chunk_size': chunk_size,
+                'overlap': overlap,
+                'overlap_ratio': overlap / chunk_size,
+                'use_condensed_topics': opt_config.use_condensed_topics
+            },
+            'detailed_results': eval_results if opt_config.save_detailed_results else None
+        }
+        
+        # Add to best configs
+        bm25_config_result = {
+            'config_key': config_key,
+            'model': 'BM25_ONLY',
+            'strategy': 'bm25_only',
+            'chunk_size': chunk_size,
+            'overlap': overlap,
+            'overlap_ratio': overlap / chunk_size,
+            'top1_accuracy': metrics['top1_accuracy'],
+            'top2_accuracy': metrics['top2_accuracy'],
+            'top3_accuracy': metrics['top3_accuracy'],
+            'top4_accuracy': metrics['top4_accuracy'],
+            'top5_accuracy': metrics['top5_accuracy'],
+            'mrr': metrics['mrr'],
+            'avg_separation': metrics['avg_separation_when_correct'],
+            'score_gap_p90': metrics['score_gaps']['percentiles']['p90'],
+            'time_per_query': metrics['time_per_query'],
+            'bm25_data': bm25_data  # Store for later use
+        }
+        best_configs.append(bm25_config_result)
+        bm25_results.append(bm25_config_result)
+        
+        print(f"   ✅ BM25-only: T1: {metrics['top1_accuracy']:.3f}, "
+              f"T2: {metrics['top2_accuracy']:.3f}, "
+              f"T3: {metrics['top3_accuracy']:.3f}, "
+              f"T5: {metrics['top5_accuracy']:.3f}, "
+              f"MRR: {metrics['mrr']:.3f} | {elapsed:.1f}s")
+    
+    # PHASE 1 COMPLETE - ANALYZE RESULTS
+    print(f"\n🎉 PHASE 1 COMPLETE! Evaluated {len(bm25_configs)} BM25 configurations")
+    
+    # Sort BM25 results by top-1 accuracy
+    bm25_results.sort(key=lambda x: x['top1_accuracy'], reverse=True)
+    
+    print(f"\n🏆 TOP BM25 CONFIGURATIONS:")
+    print("   Rank | CS  | OV  | T1     | T2     | T3     | MRR")
+    print("   " + "-" * 45)
+    for i, result in enumerate(bm25_results[:5], 1):
+        print(f"   {i:<4} | {result['chunk_size']:<3} | {result['overlap']:<3} | "
+              f"{result['top1_accuracy']:.3f}  | {result['top2_accuracy']:.3f}  | "
+              f"{result['top3_accuracy']:.3f}  | {result['mrr']:.3f}")
+    
+    # SAVE PHASE 1 RESULTS
+    phase1_info = {
+        'phase1_results': {
+            'bm25_rankings': [{'chunk_size': r['chunk_size'], 'overlap': r['overlap'], 
+                             'top1_accuracy': r['top1_accuracy']} for r in bm25_results[:10]],
+            'best_bm25_accuracy': bm25_results[0]['top1_accuracy'],
+            'total_bm25_configs': len(bm25_configs)
+        }
+    }
+    phase1_file = save_partial_results(all_results, best_configs, opt_config, "phase1_bm25_complete", phase1_info)
+    print_cancel_instructions("Phase 1", phase1_file)
+    
+    # SMART SELECTION: Choose top BM25 configs for semantic fusion
+    if opt_config.fast_mode:
+        selected_bm25 = bm25_results[:opt_config.top_bm25_configs]
+        print(f"\n🚀 FAST MODE: Testing semantic fusion on TOP {len(selected_bm25)} BM25 configs only")
+        print(f"   ⚡ Skipping {len(bm25_results) - len(selected_bm25)} lower-performing BM25 configs")
+    else:
+        selected_bm25 = bm25_results
+        print(f"\n🔧 FULL MODE: Testing semantic fusion on all {len(selected_bm25)} BM25 configs")
+    
+    # PHASE 2: SEMANTIC FUSION ON SELECTED BM25 CONFIGS
+    print(f"\n" + "=" * 80)
+    print(f"🧠 PHASE 2: SEMANTIC FUSION ({len(selected_bm25)} BM25 configs × {len(opt_config.embedding_models)} models × {len([s for s in opt_config.fusion_strategies if s != 'bm25_only'])} strategies)")
+    print(f"=" * 80)
+    
+    semantic_strategies = [s for s in opt_config.fusion_strategies if s != "bm25_only"]
+    total_semantic_configs = len(selected_bm25) * len(opt_config.embedding_models) * len(semantic_strategies)
+    semantic_config_idx = 0
+    
+    for bm25_rank, bm25_result in enumerate(selected_bm25, 1):
+        chunk_size = bm25_result['chunk_size']
+        overlap = bm25_result['overlap']
+        bm25_data = bm25_result['bm25_data']
+        
+        print(f"\n📊 BM25 CONFIG {bm25_rank}/{len(selected_bm25)} (RANK #{bm25_rank} overall) | chunk_size={chunk_size}, overlap={overlap}")
+        print(f"   🏆 BM25-only performance: T1={bm25_result['top1_accuracy']:.3f}")
+        print(f"{'='*70}")
+        
         # Test each embedding model with this BM25 config
-        for model_name in opt_config.embedding_models:
-            print(f"\n🧠 Processing model: {model_name}")
+        for model_idx, model_name in enumerate(opt_config.embedding_models):
+            print(f"\n🤖 MODEL {model_idx+1}/{len(opt_config.embedding_models)}: {model_name.split('/')[-1]}")
+            print(f"   BM25 Config: {bm25_rank}/{len(selected_bm25)} | Model: {model_idx+1}/{len(opt_config.embedding_models)}")
             
             # Build semantic index
             semantic_data = build_semantic_index(model_name, bm25_data, opt_config.cache_embeddings)
@@ -587,18 +820,33 @@ def run_optimization():
             # Create searcher
             searcher = HybridSearcher(bm25_data, semantic_data)
             
-            # Test each fusion strategy
-            for strategy in opt_config.fusion_strategies:
+            # Test each fusion strategy (skip BM25-only since already evaluated)
+            total_strategies = len(semantic_strategies)
+            
+            for strategy_idx, strategy in enumerate(semantic_strategies):
+                semantic_config_idx += 1
+                
+                # Calculate overall progress
+                bm25_only_configs = len(bm25_configs)  # Total BM25-only configs evaluated
+                total_all_configs = bm25_only_configs + total_semantic_configs
+                configs_completed = bm25_only_configs + semantic_config_idx
+                
+                print(f"\n🔍 STRATEGY {strategy_idx+1}/{total_strategies}: {strategy}")
+                print(f"   📊 OVERALL PROGRESS: {configs_completed}/{total_all_configs} ({configs_completed/total_all_configs*100:.1f}%)")
+                print(f"   📍 BM25: {bm25_rank}/{len(selected_bm25)} | Model: {model_idx+1}/{len(opt_config.embedding_models)} | Strategy: {strategy_idx+1}/{total_strategies}")
+                
                 config_key = f"{model_name}_{strategy}_cs{chunk_size}_ov{overlap}"
                 
                 # Skip semantic strategies if no semantic model
                 if strategy == "semantic_only" and semantic_data is None:
+                    print(f"   ⏭️  Skipping (no semantic model)")
+                    semantic_config_idx -= 1  # Don't count skipped configs
                     continue
                 
                 # Run evaluation
-                start_time = time.time()
+                start_time_eval = time.time()
                 eval_results = evaluate_search_strategy(searcher, strategy, statements, opt_config)
-                elapsed = time.time() - start_time
+                elapsed = time.time() - start_time_eval
                 
                 # Calculate metrics
                 metrics = calculate_metrics(eval_results)
@@ -639,15 +887,48 @@ def run_optimization():
                 })
                 
                 # Print summary
-                print(f"   🔍 {strategy}: T1: {metrics['top1_accuracy']:.3f}, "
+                print(f"   ✅ {strategy}: T1: {metrics['top1_accuracy']:.3f}, "
                       f"T2: {metrics['top2_accuracy']:.3f}, "
                       f"T3: {metrics['top3_accuracy']:.3f}, "
                       f"T5: {metrics['top5_accuracy']:.3f}, "
-                      f"MRR: {metrics['mrr']:.3f}")
+                      f"MRR: {metrics['mrr']:.3f} | {elapsed:.1f}s")
+        
+        # Phase completion markers  
+        print(f"\n✅ COMPLETED BM25 CONFIG {bm25_rank}/{len(selected_bm25)}")
+        print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        
+        # SAVE PROGRESS AFTER EACH BM25 CONFIG IN PHASE 2
+        if bm25_rank % 1 == 0:  # Save after each BM25 config (change to 2 or 3 for less frequent saves)
+            phase2_info = {
+                'phase2_progress': {
+                    'completed_bm25_configs': bm25_rank,
+                    'total_bm25_configs': len(selected_bm25),
+                    'completed_semantic_configs': semantic_config_idx,
+                    'current_best_accuracy': max([c['top1_accuracy'] for c in best_configs]) if best_configs else 0.0
+                }
+            }
+            phase2_file = save_partial_results(all_results, best_configs, opt_config, f"phase2_progress_bm25_{bm25_rank}", phase2_info)
+            print(f"💾 Progress saved: {phase2_file}")
+        
+        # Clean up BM25 data to save memory (keep it only in selected configs)
+        bm25_result['bm25_data'] = None  # Remove after use
+    
+    # Completion marker
+    print(f"\n" + "=" * 80)
+    print(f"🎉 OPTIMIZATION COMPLETE!")
+    print(f"   📊 Total configurations tested: {len(best_configs)}")
+    print(f"   📊 BM25-only configs: {bm25_configs_count}")
+    print(f"   📊 Semantic fusion configs: {len(best_configs) - bm25_configs_count}")
+    print(f"   ⏱️  Total runtime: {(time.time() - start_time) / 3600:.1f} hours")
+    print(f"=" * 80)
+    
+    # Clean up any remaining bm25_data references before results
+    for config in best_configs:
+        if 'bm25_data' in config:
+            del config['bm25_data']
     
     # Find and display best configurations
-    print("\n" + "=" * 60)
-    print("🏆 OPTIMIZATION RESULTS")
+    print(f"\n🏆 OPTIMIZATION RESULTS")
     print("=" * 60)
     
     # Sort by top-1 accuracy first, then MRR
@@ -665,7 +946,183 @@ def run_optimization():
               f"{config['top3_accuracy']:.3f}  {config['top4_accuracy']:.3f}  "
               f"{config['top5_accuracy']:.3f}  {config['mrr']:.3f}")
     
-    # Save complete results
+    # COMPREHENSIVE TREND ANALYSIS
+    print("\n" + "=" * 80)
+    print("📊 TREND ANALYSIS & OPTIMIZATION INSIGHTS")
+    print("=" * 80)
+    
+    # 1. EMBEDDING MODEL PERFORMANCE ANALYSIS
+    print("\n🤖 EMBEDDING MODEL PERFORMANCE:")
+    model_performance = {}
+    for config in best_configs:
+        model = config['model']
+        if model != 'BM25_ONLY':  # Skip BM25-only for model comparison
+            if model not in model_performance:
+                model_performance[model] = []
+            model_performance[model].append(config['top1_accuracy'])
+    
+    model_stats = []
+    for model, accuracies in model_performance.items():
+        model_stats.append({
+            'model': model,
+            'avg_accuracy': np.mean(accuracies),
+            'max_accuracy': np.max(accuracies),
+            'min_accuracy': np.min(accuracies),
+            'std_accuracy': np.std(accuracies),
+            'count': len(accuracies)
+        })
+    
+    model_stats.sort(key=lambda x: x['avg_accuracy'], reverse=True)
+    print("   Model                     | Avg T1  | Max T1  | Min T1  | Std    | Configs")
+    print("   " + "-" * 65)
+    for stat in model_stats:
+        model_name = stat['model'].split('/')[-1][:25]
+        print(f"   {model_name:<25} | {stat['avg_accuracy']:.3f}   | {stat['max_accuracy']:.3f}   | "
+              f"{stat['min_accuracy']:.3f}   | {stat['std_accuracy']:.3f}  | {stat['count']}")
+    
+    # 2. FUSION STRATEGY PERFORMANCE ANALYSIS
+    print("\n🔍 FUSION STRATEGY PERFORMANCE:")
+    strategy_performance = {}
+    for config in best_configs:
+        strategy = config['strategy']
+        if strategy not in strategy_performance:
+            strategy_performance[strategy] = []
+        strategy_performance[strategy].append(config['top1_accuracy'])
+    
+    strategy_stats = []
+    for strategy, accuracies in strategy_performance.items():
+        strategy_stats.append({
+            'strategy': strategy,
+            'avg_accuracy': np.mean(accuracies),
+            'max_accuracy': np.max(accuracies),
+            'min_accuracy': np.min(accuracies),
+            'std_accuracy': np.std(accuracies),
+            'count': len(accuracies)
+        })
+    
+    strategy_stats.sort(key=lambda x: x['avg_accuracy'], reverse=True)
+    print("   Strategy      | Avg T1  | Max T1  | Min T1  | Std    | Configs")
+    print("   " + "-" * 55)
+    for stat in strategy_stats:
+        print(f"   {stat['strategy']:<12} | {stat['avg_accuracy']:.3f}   | {stat['max_accuracy']:.3f}   | "
+              f"{stat['min_accuracy']:.3f}   | {stat['std_accuracy']:.3f}  | {stat['count']}")
+    
+    # 3. BM25 PARAMETER OPTIMIZATION ANALYSIS
+    print("\n🔧 BM25 PARAMETER ANALYSIS:")
+    
+    # Chunk size analysis
+    chunk_performance = {}
+    for config in best_configs:
+        chunk_size = config['chunk_size']
+        if chunk_size not in chunk_performance:
+            chunk_performance[chunk_size] = []
+        chunk_performance[chunk_size].append(config['top1_accuracy'])
+    
+    print("   📏 CHUNK SIZE PERFORMANCE:")
+    print("   Size | Avg T1  | Max T1  | Configs | Recommendation")
+    print("   " + "-" * 50)
+    chunk_stats = []
+    for chunk_size, accuracies in chunk_performance.items():
+        avg_acc = np.mean(accuracies)
+        max_acc = np.max(accuracies)
+        count = len(accuracies)
+        chunk_stats.append((chunk_size, avg_acc, max_acc, count))
+    
+    chunk_stats.sort(key=lambda x: x[1], reverse=True)  # Sort by avg accuracy
+    for i, (chunk_size, avg_acc, max_acc, count) in enumerate(chunk_stats[:5]):
+        recommendation = "⭐ BEST" if i == 0 else "✅ GOOD" if i < 3 else ""
+        print(f"   {chunk_size:<4} | {avg_acc:.3f}   | {max_acc:.3f}   | {count:<7} | {recommendation}")
+    
+    # Overlap analysis
+    overlap_performance = {}
+    for config in best_configs:
+        overlap_ratio = round(config['overlap_ratio'], 3)
+        if overlap_ratio not in overlap_performance:
+            overlap_performance[overlap_ratio] = []
+        overlap_performance[overlap_ratio].append(config['top1_accuracy'])
+    
+    print("\n   📐 OVERLAP RATIO PERFORMANCE:")
+    print("   Ratio | Avg T1  | Max T1  | Configs | Recommendation")
+    print("   " + "-" * 50)
+    overlap_stats = []
+    for overlap_ratio, accuracies in overlap_performance.items():
+        avg_acc = np.mean(accuracies)
+        max_acc = np.max(accuracies)
+        count = len(accuracies)
+        overlap_stats.append((overlap_ratio, avg_acc, max_acc, count))
+    
+    overlap_stats.sort(key=lambda x: x[1], reverse=True)  # Sort by avg accuracy
+    for i, (overlap_ratio, avg_acc, max_acc, count) in enumerate(overlap_stats[:5]):
+        recommendation = "⭐ BEST" if i == 0 else "✅ GOOD" if i < 3 else ""
+        print(f"   {overlap_ratio:.3f} | {avg_acc:.3f}   | {max_acc:.3f}   | {count:<7} | {recommendation}")
+    
+    # 4. PERFORMANCE DISTRIBUTION INSIGHTS
+    print("\n📈 PERFORMANCE DISTRIBUTION:")
+    all_accuracies = [config['top1_accuracy'] for config in best_configs]
+    bm25_only_accuracies = [config['top1_accuracy'] for config in best_configs if config['strategy'] == 'bm25_only']
+    semantic_accuracies = [config['top1_accuracy'] for config in best_configs if config['strategy'] != 'bm25_only']
+    
+    print(f"   📊 Overall Performance:")
+    print(f"      Mean: {np.mean(all_accuracies):.3f} | Std: {np.std(all_accuracies):.3f}")
+    print(f"      Best: {np.max(all_accuracies):.3f} | Worst: {np.min(all_accuracies):.3f}")
+    print(f"      95th percentile: {np.percentile(all_accuracies, 95):.3f}")
+    
+    if bm25_only_accuracies and semantic_accuracies:
+        bm25_best = np.max(bm25_only_accuracies)
+        semantic_best = np.max(semantic_accuracies)
+        fusion_benefit = (semantic_best - bm25_best) * 100
+        print(f"\n   🚀 Fusion Benefit Analysis:")
+        print(f"      Best BM25-only: {bm25_best:.3f}")
+        print(f"      Best Semantic Fusion: {semantic_best:.3f}")
+        print(f"      Fusion Benefit: +{fusion_benefit:.2f}% improvement")
+    
+    # 5. FOCUSED OPTIMIZATION RECOMMENDATIONS
+    print("\n🎯 FOCUSED OPTIMIZATION RECOMMENDATIONS:")
+    print("-" * 60)
+    
+    # Best model
+    if model_stats:
+        best_model = model_stats[0]
+        print(f"🥇 Best Embedding Model: {best_model['model'].split('/')[-1]}")
+        print(f"   📊 Avg accuracy: {best_model['avg_accuracy']:.3f} ({best_model['count']} configs)")
+        
+        # Best strategy for best model
+        best_model_configs = [c for c in best_configs if c['model'] == best_model['model']]
+        if best_model_configs:
+            best_strategy_for_model = best_model_configs[0]['strategy']
+            print(f"   🔍 Best strategy: {best_strategy_for_model}")
+    
+    # Best strategy overall
+    if strategy_stats:
+        best_strategy = strategy_stats[0]
+        print(f"\n🔍 Best Fusion Strategy: {best_strategy['strategy']}")
+        print(f"   📊 Avg accuracy: {best_strategy['avg_accuracy']:.3f} ({best_strategy['count']} configs)")
+    
+    # Optimal BM25 parameters
+    if chunk_stats and overlap_stats:
+        best_chunk = chunk_stats[0][0]
+        best_overlap = overlap_stats[0][0]
+        print(f"\n🔧 Optimal BM25 Parameters:")
+        print(f"   📏 Chunk size: {best_chunk}")
+        print(f"   📐 Overlap ratio: {best_overlap:.3f}")
+    
+    # Future optimization focus
+    print(f"\n🚀 Next Optimization Focus:")
+    if len(model_stats) > 1:
+        model_diff = model_stats[0]['avg_accuracy'] - model_stats[1]['avg_accuracy']
+        if model_diff < 0.01:  # Models are close
+            print(f"   🤖 Models perform similarly (±{model_diff:.3f}) - focus on fusion strategies")
+        else:
+            print(f"   🤖 Clear model winner ({model_diff:.3f} advantage) - focus on this model")
+    
+    if len(strategy_stats) > 1:
+        strategy_diff = strategy_stats[0]['avg_accuracy'] - strategy_stats[1]['avg_accuracy']
+        if strategy_diff < 0.01:  # Strategies are close
+            print(f"   🔍 Strategies perform similarly (±{strategy_diff:.3f}) - focus on BM25 optimization")
+        else:
+            print(f"   🔍 Clear strategy winner ({strategy_diff:.3f} advantage) - focus on this strategy")
+    
+    # Save complete results with trend analysis
     output_file = "optimization_results_topic_model.json"
     results_summary = {
         'config': {
@@ -675,9 +1132,28 @@ def run_optimization():
             'overlap_ratios': opt_config.overlap_ratios,
             'use_condensed_topics': opt_config.use_condensed_topics,
             'optimize_bm25': opt_config.optimize_bm25,
-            'evaluation_samples': len(statements)
+            'evaluation_samples': len(statements),
+            'total_configs_tested': len(best_configs),
+            'bm25_only_configs': bm25_configs_count,
+            'semantic_configs': len(best_configs) - bm25_configs_count
         },
         'best_configurations': best_configs,
+        'trend_analysis': {
+            'embedding_model_performance': model_stats,
+            'fusion_strategy_performance': strategy_stats,
+            'chunk_size_analysis': [(size, avg, max_acc, count) for size, avg, max_acc, count in chunk_stats],
+            'overlap_ratio_analysis': [(ratio, avg, max_acc, count) for ratio, avg, max_acc, count in overlap_stats],
+            'performance_distribution': {
+                'overall_mean': float(np.mean(all_accuracies)),
+                'overall_std': float(np.std(all_accuracies)),
+                'overall_max': float(np.max(all_accuracies)),
+                'overall_min': float(np.min(all_accuracies)),
+                'p95': float(np.percentile(all_accuracies, 95)),
+                'bm25_best': float(np.max(bm25_only_accuracies)) if bm25_only_accuracies else None,
+                'semantic_best': float(np.max(semantic_accuracies)) if semantic_accuracies else None,
+                'fusion_benefit_pct': float(fusion_benefit) if bm25_only_accuracies and semantic_accuracies else None
+            }
+        },
         'detailed_results': all_results,
         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
     }
@@ -728,4 +1204,27 @@ if __name__ == "__main__":
         print("💡 Install with: pip install sentence-transformers scikit-learn")
         exit(1)
     
-    run_optimization()
+    # Run optimization with graceful interrupt handling
+    try:
+        run_optimization()
+    except KeyboardInterrupt:
+        print(f"\n\n🛑 OPTIMIZATION INTERRUPTED BY USER")
+        print(f"=" * 60)
+        print(f"💾 Your progress has been automatically saved!")
+        print(f"📂 Look for files: optimization_results_partial_*.json")
+        print(f"🔍 To see your results: ls -la optimization_results_partial_*.json")
+        print(f"📊 To view best configs so far:")
+        print(f"   python -c \"import json; data=json.load(open(sorted([f for f in __import__('os').listdir('.') if f.startswith('optimization_results_partial')])[-1])); print('Configs tested:', data['progress']['total_configs_tested']); print('Best accuracy so far:', max([c['top1_accuracy'] for c in data['progress']['best_configurations']]) if data['progress']['best_configurations'] else 'None')\"")
+        print(f"\n✨ You can resume optimization later or use current results!")
+        exit(0)
+    except Exception as e:
+        print(f"\n💥 UNEXPECTED ERROR: {e}")
+        print(f"💾 Checking for saved progress...")
+        import os
+        partial_files = [f for f in os.listdir('.') if f.startswith('optimization_results_partial')]
+        if partial_files:
+            latest_file = sorted(partial_files)[-1]
+            print(f"📂 Latest saved progress: {latest_file}")
+        else:
+            print(f"❌ No partial results found")
+        raise
