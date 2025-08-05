@@ -8,17 +8,36 @@ import os
 import json
 import pickle
 import time
+import warnings
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Union
 import numpy as np
-from tqdm import tqdm
 from dataclasses import dataclass
+
+# Suppress transformer warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="torch.*")
+warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
 
 # Core dependencies
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
+
+# Cloud-friendly progress bars
+try:
+    from tqdm import tqdm
+    # Configure tqdm for cloud environments
+    tqdm.monitor_interval = 0  # Disable monitoring thread
+    USE_TQDM = True
+except ImportError:
+    USE_TQDM = False
+    def tqdm(iterable, desc="", leave=True, **kwargs):
+        total = len(iterable) if hasattr(iterable, '__len__') else None
+        for i, item in enumerate(iterable):
+            if total and i % max(1, total // 20) == 0:  # Print every 5%
+                print(f"{desc}: {i+1}/{total} ({100*(i+1)/total:.0f}%)")
+            yield item
 
 # ----------------------------------------------------------------------- 
 # CONFIGURATION & SETUP
@@ -28,26 +47,17 @@ import torch
 class OptimizationConfig:
     """Configuration for optimization runs"""
     # Models to test (will be downloaded automatically)
-    embedding_models = [
-        "sentence-transformers/all-MiniLM-L6-v2",       # Fast, lightweight (384d)
-        "sentence-transformers/all-mpnet-base-v2",      # Best general performance (768d)
-        "sentence-transformers/all-distilroberta-v1",   # Different architecture (768d)
-    ]
+    embedding_models: List[str] = None
     
     # Fusion strategies to test
-    fusion_strategies = [
-        "bm25_only",           # Baseline
-        "semantic_only",       # Semantic baseline
-        "linear_0.3",          # 0.3*BM25 + 0.7*semantic
-        "linear_0.5",          # 0.5*BM25 + 0.5*semantic  
-        "linear_0.7",          # 0.7*BM25 + 0.3*semantic
-        "rrf",                 # Reciprocal Rank Fusion
-        "adaptive"             # Adaptive weighting
-    ]
+    fusion_strategies: List[str] = None
     
-    # BM25 chunk parameters (optimized from separated-models-2)
-    chunk_size: int = 128
-    overlap: int = 12
+    # BM25 optimization parameters
+    chunk_sizes: List[int] = None
+    overlap_ratios: List[float] = None  # As fraction of chunk size
+    
+    # Topics to use
+    use_condensed_topics: bool = True  # True for condensed, False for original
     
     # Search parameters
     top_k: int = 10
@@ -56,9 +66,40 @@ class OptimizationConfig:
     max_samples: int = 200  # Use full train set for comprehensive evaluation
     cache_embeddings: bool = True
     save_detailed_results: bool = True
+    optimize_bm25: bool = True  # Whether to optimize BM25 parameters
+    
+    def __post_init__(self):
+        if self.embedding_models is None:
+            self.embedding_models = [
+                "sentence-transformers/all-MiniLM-L6-v2",       # Fast, lightweight (384d)
+                "sentence-transformers/all-mpnet-base-v2",      # Best general performance (768d)
+                "sentence-transformers/all-distilroberta-v1",   # Different architecture (768d)
+            ]
+        
+        if self.fusion_strategies is None:
+            self.fusion_strategies = [
+                "bm25_only",           # Baseline
+                "semantic_only",       # Semantic baseline
+                "linear_0.3",          # 0.3*BM25 + 0.7*semantic
+                "linear_0.5",          # 0.5*BM25 + 0.5*semantic  
+                "linear_0.7",          # 0.7*BM25 + 0.3*semantic
+                "rrf",                 # Reciprocal Rank Fusion
+                "adaptive"             # Adaptive weighting
+            ]
+        
+        if self.chunk_sizes is None:
+            if self.optimize_bm25:
+                # Comprehensive BM25 optimization (longer runtime)
+                self.chunk_sizes = [96, 128, 160]
+                self.overlap_ratios = [0.0, 0.1, 0.2]
+            else:
+                # Use optimized values from separated-models-2 (faster)
+                self.chunk_sizes = [128]
+                self.overlap_ratios = [0.094]  # 12/128 ≈ 0.094
 
 # Global paths
 CONDENSED_TOPIC_DIR = Path("data/condensed_topics")
+ORIGINAL_TOPIC_DIR = Path("data/topics")
 STATEMENT_DIR = Path("data/train/statements")
 ANSWER_DIR = Path("data/train/answers")
 CACHE_ROOT = Path(".cache")
@@ -151,21 +192,23 @@ def calculate_metrics(results: List[Dict]) -> Dict:
 # BM25 INDEX BUILDING
 # -----------------------------------------------------------------------
 
-def build_bm25_index(config: OptimizationConfig) -> Dict:
-    """Build BM25 index from condensed topics"""
-    cache_path = CACHE_ROOT / f"bm25_index_opt_{config.chunk_size}_{config.overlap}.pkl"
+def build_bm25_index(chunk_size: int, overlap: int, use_condensed_topics: bool = True) -> Dict:
+    """Build BM25 index from topics"""
+    topic_type = "condensed" if use_condensed_topics else "original"
+    cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{chunk_size}_{overlap}.pkl"
     
     if cache_path.exists():
-        print(f"📚 Loading cached BM25 index...")
+        print(f"📚 Loading cached BM25 index ({topic_type}, {chunk_size}, {overlap})...")
         return pickle.loads(cache_path.read_bytes())
 
-    print(f"🔨 Building BM25 index (chunk_size={config.chunk_size}, overlap={config.overlap})...")
+    topic_dir = CONDENSED_TOPIC_DIR if use_condensed_topics else ORIGINAL_TOPIC_DIR
+    print(f"🔨 Building BM25 index — {topic_type}_topics size={chunk_size} overlap={overlap}")
     
     chunks = []
     topics = []
     topic_names = []
     
-    for md_file in tqdm(CONDENSED_TOPIC_DIR.rglob("*.md"), desc="Processing topics"):
+    for md_file in tqdm(topic_dir.rglob("*.md"), desc=f"Processing {topic_type} topics", leave=False):
         topic_name = md_file.parent.name
         topic_id = TOPIC_MAP.get(topic_name, -1)
         
@@ -173,7 +216,7 @@ def build_bm25_index(config: OptimizationConfig) -> Dict:
             continue
             
         words = md_file.read_text(encoding="utf-8").split()
-        for chunk_text in chunk_words(words, config.chunk_size, config.overlap):
+        for chunk_text in chunk_words(words, chunk_size, overlap):
             chunks.append(chunk_text)
             topics.append(topic_id)
             topic_names.append(topic_name)
@@ -187,7 +230,9 @@ def build_bm25_index(config: OptimizationConfig) -> Dict:
         'chunks': chunks,
         'topic_names': topic_names,
         'bm25': bm25,
-        'config': config
+        'chunk_size': chunk_size,
+        'overlap': overlap,
+        'use_condensed_topics': use_condensed_topics
     }
     
     cache_path.write_bytes(pickle.dumps(data))
@@ -198,16 +243,19 @@ def build_bm25_index(config: OptimizationConfig) -> Dict:
 # SEMANTIC EMBEDDING BUILDING
 # -----------------------------------------------------------------------
 
-def build_semantic_index(model_name: str, bm25_data: Dict, config: OptimizationConfig) -> Dict:
+def build_semantic_index(model_name: str, bm25_data: Dict, cache_embeddings: bool = True) -> Dict:
     """Build semantic embeddings for all chunks"""
     model_slug = model_name.replace("/", "_").replace("-", "_")
-    cache_path = CACHE_ROOT / f"semantic_index_{model_slug}_{config.chunk_size}_{config.overlap}.pkl"
+    chunk_size = bm25_data['chunk_size']
+    overlap = bm25_data['overlap']
+    topic_type = "condensed" if bm25_data['use_condensed_topics'] else "original"
+    cache_path = CACHE_ROOT / f"semantic_index_{model_slug}_{topic_type}_{chunk_size}_{overlap}.pkl"
     
-    if cache_path.exists() and config.cache_embeddings:
-        print(f"📚 Loading cached semantic index for {model_name}...")
+    if cache_path.exists() and cache_embeddings:
+        print(f"📚 Loading cached semantic index for {model_name} ({topic_type})...")
         return pickle.loads(cache_path.read_bytes())
 
-    print(f"🧠 Building semantic index for {model_name}...")
+    print(f"🧠 Building semantic index for {model_name} ({topic_type})...")
     
     # Load model
     try:
@@ -223,7 +271,7 @@ def build_semantic_index(model_name: str, bm25_data: Dict, config: OptimizationC
     embeddings = []
     
     print(f"🔢 Generating embeddings for {len(chunks)} chunks...")
-    for i in tqdm(range(0, len(chunks), batch_size), desc="Embedding batches"):
+    for i in tqdm(range(0, len(chunks), batch_size), desc="Embedding batches", leave=False):
         batch = chunks[i:i + batch_size]
         batch_embeddings = model.encode(batch, convert_to_tensor=True)
         embeddings.append(batch_embeddings.cpu().numpy())
@@ -237,10 +285,10 @@ def build_semantic_index(model_name: str, bm25_data: Dict, config: OptimizationC
         'topics': bm25_data['topics'],
         'chunks': bm25_data['chunks'],
         'topic_names': bm25_data['topic_names'],
-        'config': config
+        'bm25_data': bm25_data
     }
     
-    if config.cache_embeddings:
+    if cache_embeddings:
         cache_path.write_bytes(pickle.dumps(data))
         print(f"💾 Cached semantic index to {cache_path}")
     
@@ -447,111 +495,152 @@ def run_optimization():
     print("🚀 Starting Topic Model Optimization")
     print("=" * 60)
     
-    config = OptimizationConfig()
+    # Configuration - modify these settings as needed
+    opt_config = OptimizationConfig(
+        optimize_bm25=False,  # Set to True for full BM25 optimization (longer runtime)
+        use_condensed_topics=True,  # True for condensed, False for original topics
+        max_samples=200,  # Number of statements to evaluate (max 200)
+        cache_embeddings=True  # Cache embeddings for faster re-runs
+    )
+    
+    print(f"📋 Configuration:")
+    print(f"   🗂️ Topics: {'Condensed' if opt_config.use_condensed_topics else 'Original'}")
+    print(f"   🔧 BM25 Optimization: {'Enabled' if opt_config.optimize_bm25 else 'Disabled (using best known config)'}")
+    print(f"   📊 Samples: {opt_config.max_samples}")
+    print(f"   🧠 Models: {len(opt_config.embedding_models)}")
+    print(f"   🔍 Strategies: {len(opt_config.fusion_strategies)}")
+    
+    total_configs = len(opt_config.chunk_sizes) * len(opt_config.overlap_ratios) * len(opt_config.embedding_models) * len(opt_config.fusion_strategies)
+    estimated_time = total_configs * 2  # Rough estimate: 2 minutes per config
+    print(f"   ⏱️ Estimated runtime: {estimated_time//60:.0f}-{estimated_time//60*2:.0f} minutes ({total_configs} configurations)")
     
     # Load test data
     print("📚 Loading evaluation data...")
     statements = load_statements()
-    if config.max_samples and config.max_samples < len(statements):
-        statements = statements[:config.max_samples]
+    if opt_config.max_samples and opt_config.max_samples < len(statements):
+        statements = statements[:opt_config.max_samples]
     print(f"📊 Evaluating on {len(statements)} statements")
-    
-    # Build BM25 index
-    print("\n🔨 Building BM25 index...")
-    bm25_data = build_bm25_index(config)
-    print(f"✅ BM25 index ready with {len(bm25_data['chunks'])} chunks")
     
     # Store all results
     all_results = {}
+    best_configs = []
     
-    # Test each embedding model
-    for model_name in config.embedding_models:
-        print(f"\n🧠 Processing model: {model_name}")
-        print("-" * 40)
+    # Generate BM25 configurations to test
+    bm25_configs = []
+    for chunk_size in opt_config.chunk_sizes:
+        for overlap_ratio in opt_config.overlap_ratios:
+            overlap = int(chunk_size * overlap_ratio)
+            bm25_configs.append((chunk_size, overlap))
+    
+    print(f"\n🔧 Testing {len(bm25_configs)} BM25 configurations:")
+    for chunk_size, overlap in bm25_configs[:3]:  # Show first 3
+        print(f"   • chunk_size={chunk_size}, overlap={overlap} ({overlap/chunk_size:.1%})")
+    if len(bm25_configs) > 3:
+        print(f"   • ... and {len(bm25_configs)-3} more")
+    
+    # Test each BM25 configuration
+    for bm25_idx, (chunk_size, overlap) in enumerate(bm25_configs):
+        print(f"\n🔨 BM25 Config {bm25_idx+1}/{len(bm25_configs)}: chunk_size={chunk_size}, overlap={overlap}")
         
-        # Build semantic index
-        semantic_data = build_semantic_index(model_name, bm25_data, config)
-        if semantic_data is None:
-            print(f"❌ Skipping {model_name} due to loading error")
-            continue
+        # Build BM25 index for this configuration
+        bm25_data = build_bm25_index(chunk_size, overlap, opt_config.use_condensed_topics)
+        print(f"   ✅ BM25 index ready with {len(bm25_data['chunks'])} chunks")
         
-        # Create searcher
-        searcher = HybridSearcher(bm25_data, semantic_data)
-        
-        # Test each fusion strategy
-        model_results = {}
-        for strategy in config.fusion_strategies:
-            print(f"🔍 Testing strategy: {strategy}")
+        # Test each embedding model with this BM25 config
+        for model_name in opt_config.embedding_models:
+            print(f"\n🧠 Processing model: {model_name}")
             
-            # Skip semantic strategies if no semantic model
-            if strategy == "semantic_only" and semantic_data is None:
+            # Build semantic index
+            semantic_data = build_semantic_index(model_name, bm25_data, opt_config.cache_embeddings)
+            if semantic_data is None:
+                print(f"   ❌ Skipping {model_name} due to loading error")
                 continue
             
-            # Run evaluation
-            start_time = time.time()
-            eval_results = evaluate_search_strategy(searcher, strategy, statements, config)
-            elapsed = time.time() - start_time
+            # Create searcher
+            searcher = HybridSearcher(bm25_data, semantic_data)
             
-            # Calculate metrics
-            metrics = calculate_metrics(eval_results)
-            metrics['evaluation_time'] = elapsed
-            metrics['time_per_query'] = elapsed / len(statements)
-            
-            model_results[strategy] = {
-                'metrics': metrics,
-                'detailed_results': eval_results if config.save_detailed_results else None
-            }
-            
-            # Print summary
-            print(f"  📈 Top-1: {metrics['top1_accuracy']:.3f}, "
-                  f"Top-3: {metrics['top3_accuracy']:.3f}, "
-                  f"MRR: {metrics['mrr']:.3f}, "
-                  f"Avg Sep: {metrics['avg_separation_when_correct']:.2f}")
-        
-        all_results[model_name] = model_results
+            # Test each fusion strategy
+            for strategy in opt_config.fusion_strategies:
+                config_key = f"{model_name}_{strategy}_cs{chunk_size}_ov{overlap}"
+                
+                # Skip semantic strategies if no semantic model
+                if strategy == "semantic_only" and semantic_data is None:
+                    continue
+                
+                # Run evaluation
+                start_time = time.time()
+                eval_results = evaluate_search_strategy(searcher, strategy, statements, opt_config)
+                elapsed = time.time() - start_time
+                
+                # Calculate metrics
+                metrics = calculate_metrics(eval_results)
+                metrics['evaluation_time'] = elapsed
+                metrics['time_per_query'] = elapsed / len(statements)
+                
+                # Store results
+                all_results[config_key] = {
+                    'metrics': metrics,
+                    'config': {
+                        'model': model_name,
+                        'strategy': strategy,
+                        'chunk_size': chunk_size,
+                        'overlap': overlap,
+                        'overlap_ratio': overlap / chunk_size,
+                        'use_condensed_topics': opt_config.use_condensed_topics
+                    },
+                    'detailed_results': eval_results if opt_config.save_detailed_results else None
+                }
+                
+                # Add to best configs list
+                best_configs.append({
+                    'config_key': config_key,
+                    'model': model_name,
+                    'strategy': strategy,
+                    'chunk_size': chunk_size,
+                    'overlap': overlap,
+                    'overlap_ratio': overlap / chunk_size,
+                    'top1_accuracy': metrics['top1_accuracy'],
+                    'top3_accuracy': metrics['top3_accuracy'],
+                    'mrr': metrics['mrr'],
+                    'avg_separation': metrics['avg_separation_when_correct'],
+                    'score_gap_p90': metrics['score_gaps']['percentiles']['p90'],
+                    'time_per_query': metrics['time_per_query']
+                })
+                
+                # Print summary
+                print(f"   🔍 {strategy}: Top-1: {metrics['top1_accuracy']:.3f}, "
+                      f"Top-3: {metrics['top3_accuracy']:.3f}, "
+                      f"MRR: {metrics['mrr']:.3f}")
     
-    # Find best configurations
+    # Find and display best configurations
     print("\n" + "=" * 60)
     print("🏆 OPTIMIZATION RESULTS")
     print("=" * 60)
-    
-    best_configs = []
-    for model_name, model_results in all_results.items():
-        for strategy, results in model_results.items():
-            metrics = results['metrics']
-            best_configs.append({
-                'model': model_name,
-                'strategy': strategy,
-                'top1_accuracy': metrics['top1_accuracy'],
-                'top3_accuracy': metrics['top3_accuracy'],
-                'mrr': metrics['mrr'],
-                'avg_separation': metrics['avg_separation_when_correct'],
-                'score_gap_p90': metrics['score_gaps']['percentiles']['p90'],
-                'time_per_query': metrics['time_per_query']
-            })
     
     # Sort by top-1 accuracy first, then MRR
     best_configs.sort(key=lambda x: (x['top1_accuracy'], x['mrr']), reverse=True)
     
     print("\n🥇 TOP 10 CONFIGURATIONS:")
-    print(f"{'Rank':<4} {'Model':<35} {'Strategy':<15} {'Top-1':<6} {'Top-3':<6} {'MRR':<6} {'Sep':<6} {'Gap90':<6} {'Time':<6}")
-    print("-" * 100)
+    print(f"{'Rank':<4} {'Model':<30} {'Strategy':<12} {'CS':<3} {'OV':<3} {'Top-1':<6} {'Top-3':<6} {'MRR':<6} {'Time':<6}")
+    print("-" * 85)
     
     for i, config in enumerate(best_configs[:10], 1):
-        model_short = config['model'].split('/')[-1][:30]
-        print(f"{i:<4} {model_short:<35} {config['strategy']:<15} "
+        model_short = config['model'].split('/')[-1][:25]
+        print(f"{i:<4} {model_short:<30} {config['strategy']:<12} "
+              f"{config['chunk_size']:<3} {config['overlap']:<3} "
               f"{config['top1_accuracy']:.3f}  {config['top3_accuracy']:.3f}  "
-              f"{config['mrr']:.3f}  {config['avg_separation']:.2f}   "
-              f"{config['score_gap_p90']:.2f}   {config['time_per_query']:.3f}")
+              f"{config['mrr']:.3f}  {config['time_per_query']:.3f}")
     
     # Save complete results
     output_file = "optimization_results_topic_model.json"
     results_summary = {
         'config': {
-            'embedding_models': config.embedding_models,
-            'fusion_strategies': config.fusion_strategies,
-            'chunk_size': config.chunk_size,
-            'overlap': config.overlap,
+            'embedding_models': opt_config.embedding_models,
+            'fusion_strategies': opt_config.fusion_strategies,
+            'chunk_sizes': opt_config.chunk_sizes,
+            'overlap_ratios': opt_config.overlap_ratios,
+            'use_condensed_topics': opt_config.use_condensed_topics,
+            'optimize_bm25': opt_config.optimize_bm25,
             'evaluation_samples': len(statements)
         },
         'best_configurations': best_configs,
@@ -566,37 +655,34 @@ def run_optimization():
     
     # Implementation recommendations
     print("\n🎯 IMPLEMENTATION RECOMMENDATIONS:")
-    print("-" * 40)
+    print("-" * 50)
     
     best = best_configs[0]
-    print(f"🥇 Best Overall: {best['model']} with {best['strategy']}")
-    print(f"   📊 Accuracy: {best['top1_accuracy']:.1%} (vs current ~89.5%)")
+    improvement = (best['top1_accuracy'] - 0.895) * 100  # vs current ~89.5%
+    print(f"🥇 Best Overall: {best['model'].split('/')[-1]} + {best['strategy']}")
+    print(f"   📊 Accuracy: {best['top1_accuracy']:.1%} (+{improvement:.1f}% improvement)")
+    print(f"   ⚙️ BM25: chunk_size={best['chunk_size']}, overlap={best['overlap']}")
     print(f"   ⚡ Speed: {best['time_per_query']:.3f}s per query")
     
-    # Find best complementary pair
-    semantic_configs = [c for c in best_configs if 'semantic' in c['strategy'] or 'linear' in c['strategy'] or 'rrf' in c['strategy']]
-    if semantic_configs:
-        best_hybrid = semantic_configs[0]
-        print(f"\n🔗 Best Hybrid: {best_hybrid['model']} with {best_hybrid['strategy']}")
+    # Find best hybrid approach
+    hybrid_configs = [c for c in best_configs if c['strategy'] in ['linear_0.3', 'linear_0.5', 'linear_0.7', 'rrf', 'adaptive']]
+    if hybrid_configs:
+        best_hybrid = hybrid_configs[0]
+        print(f"\n🔗 Best Hybrid: {best_hybrid['model'].split('/')[-1]} + {best_hybrid['strategy']}")
         print(f"   📊 Accuracy: {best_hybrid['top1_accuracy']:.1%}")
-        print(f"   🔍 Strategy: Combines BM25 + semantic search")
+        print(f"   ⚙️ BM25: chunk_size={best_hybrid['chunk_size']}, overlap={best_hybrid['overlap']}")
     
-    # Threshold recommendations
-    gap_analysis = []
-    for model_results in all_results.values():
-        for strategy_results in model_results.values():
-            if strategy_results['metrics']['score_gaps']['percentiles']:
-                gaps = strategy_results['metrics']['score_gaps']['percentiles']
-                gap_analysis.append(gaps)
+    # Analyze BM25 optimization impact
+    if opt_config.optimize_bm25 and len(opt_config.chunk_sizes) > 1:
+        print(f"\n📈 BM25 OPTIMIZATION ANALYSIS:")
+        baseline_configs = [c for c in best_configs if c['chunk_size'] == 128]  # Current baseline
+        if baseline_configs:
+            baseline_acc = max(c['top1_accuracy'] for c in baseline_configs)
+            best_bm25_acc = best_configs[0]['top1_accuracy']
+            bm25_improvement = (best_bm25_acc - baseline_acc) * 100
+            print(f"   🔧 BM25 optimization contributed: +{bm25_improvement:.2f}% accuracy")
     
-    if gap_analysis:
-        avg_gaps = {k: np.mean([g[k] for g in gap_analysis]) for k in gap_analysis[0].keys()}
-        print(f"\n🎚️ Recommended Thresholds (based on score gap analysis):")
-        print(f"   Conservative (high precision): {avg_gaps['p75']:.2f}")
-        print(f"   Balanced: {avg_gaps['p50']:.2f}")
-        print(f"   Aggressive (high recall): {avg_gaps['p25']:.2f}")
-    
-    print(f"\n✅ Optimization complete! Check {output_file} for detailed results.")
+    print(f"\n✅ Optimization complete! Found {len(best_configs)} configurations.")
 
 if __name__ == "__main__":
     # Ensure we have required dependencies
