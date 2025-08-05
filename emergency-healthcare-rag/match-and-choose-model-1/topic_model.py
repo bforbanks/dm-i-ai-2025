@@ -105,11 +105,13 @@ def clear_bm25_cache():
 
 def load_bm25_index() -> Dict:
     """Load or build BM25 index with caching."""
-    global _BM25_CACHE
+    global _BM25_CACHE, FORCE_REBUILD
     
     # Clear cache if FORCE_REBUILD is set
     if FORCE_REBUILD:
         _BM25_CACHE = None
+        # Reset FORCE_REBUILD after clearing cache
+        FORCE_REBUILD = False
     
     if _BM25_CACHE is None:
         _BM25_CACHE = build_bm25_index()
