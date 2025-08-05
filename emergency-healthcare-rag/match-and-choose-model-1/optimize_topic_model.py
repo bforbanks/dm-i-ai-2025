@@ -199,7 +199,17 @@ def build_bm25_index(chunk_size: int, overlap: int, use_condensed_topics: bool =
     
     if cache_path.exists():
         print(f"📚 Loading cached BM25 index ({topic_type}, {chunk_size}, {overlap})...")
-        return pickle.loads(cache_path.read_bytes())
+        try:
+            data = pickle.loads(cache_path.read_bytes())
+            # Check if it has the expected structure
+            if 'chunks' in data and 'topics' in data:
+                return data
+            else:
+                print(f"⚠️ Old cache format detected, rebuilding...")
+                cache_path.unlink()  # Delete old cache
+        except Exception as e:
+            print(f"⚠️ Cache loading failed: {e}, rebuilding...")
+            cache_path.unlink()  # Delete corrupted cache
 
     topic_dir = CONDENSED_TOPIC_DIR if use_condensed_topics else ORIGINAL_TOPIC_DIR
     print(f"🔨 Building BM25 index — {topic_type}_topics size={chunk_size} overlap={overlap}")
@@ -253,7 +263,17 @@ def build_semantic_index(model_name: str, bm25_data: Dict, cache_embeddings: boo
     
     if cache_path.exists() and cache_embeddings:
         print(f"📚 Loading cached semantic index for {model_name} ({topic_type})...")
-        return pickle.loads(cache_path.read_bytes())
+        try:
+            data = pickle.loads(cache_path.read_bytes())
+            # Check if it has the expected structure
+            if 'embeddings' in data and 'model_name' in data:
+                return data
+            else:
+                print(f"⚠️ Old cache format detected, rebuilding...")
+                cache_path.unlink()  # Delete old cache
+        except Exception as e:
+            print(f"⚠️ Cache loading failed: {e}, rebuilding...")
+            cache_path.unlink()  # Delete corrupted cache
 
     print(f"🧠 Building semantic index for {model_name} ({topic_type})...")
     
