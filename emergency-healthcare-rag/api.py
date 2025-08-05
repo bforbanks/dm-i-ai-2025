@@ -1,14 +1,18 @@
 import uvicorn
+import argparse
+import sys
 from fastapi import FastAPI
 import datetime
 import time
 from utils import validate_prediction
-from model import predict
 from loguru import logger
 from pydantic import BaseModel
 
 HOST = "0.0.0.0"
 PORT = 8000
+
+# Import model-agnostic functions
+from model import predict, set_active_model, get_active_model
 
 class MedicalStatementRequestDto(BaseModel):
     statement: str
@@ -22,20 +26,16 @@ start_time = time.time()
 
 def warm_up_models():
     """Preload models and embeddings to avoid cold start delays"""
-    logger.info("🔥 Warming up models...")
+    model_name = get_active_model()
+    logger.info(f"🔥 Warming up {model_name} model...")
     
     try:
-        # Import the active model to trigger loading
-        import importlib
-        from model import ACTIVE_MODEL
-        model_module = importlib.import_module(f"{ACTIVE_MODEL}.model")
-        
-        # Test prediction to warm up all components
+        # Test prediction to warm up all components (includes both BM25 search and LLM)
         test_statement = "Euglycemic diabetic ketoacidosis is characterized by blood glucose less than 250 mg/dL with metabolic acidosis."
-        logger.info("🧪 Running test prediction to warm up models...")
+        logger.info(f"🧪 Running test prediction to warm up {model_name}...")
         
         start_warmup = time.time()
-        truth, topic = model_module.predict(test_statement)
+        truth, topic = predict(test_statement)
         warmup_time = time.time() - start_warmup
         
         logger.info(f"✅ Warm-up complete! Test prediction: truth={truth}, topic={topic}")
@@ -47,9 +47,7 @@ def warm_up_models():
         logger.error(f"❌ Warm-up failed: {e}")
         return False
 
-# Warm up models immediately when this module is loaded
-logger.info("🔥 Pre-warming models...")
-warm_up_models()
+# Don't warm up immediately - wait for model to be set via CLI or default
 
 @app.on_event("startup")
 async def startup_event():
@@ -60,6 +58,7 @@ async def startup_event():
 def hello():
     return {
         "service": "emergency-healthcare-rag",
+        "model": get_active_model(), 
         "uptime": '{}'.format(datetime.timedelta(seconds=time.time() - start_time))
     }
 
@@ -86,10 +85,41 @@ def predict_endpoint(request: MedicalStatementRequestDto):
     logger.info(f'Returning prediction: true={statement_is_true}, topic={statement_topic}')
     return response
 
-if __name__ == '__main__':
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Emergency Healthcare RAG API')
+    parser.add_argument(
+        '--model', 
+        type=str, 
+        default=None,
+        help='Model to use (e.g., match-and-choose-model-1, separated-models-2, combined-model-2)'
+    )
+    parser.add_argument('--host', type=str, default=HOST, help=f'Host to bind to (default: {HOST})')
+    parser.add_argument('--port', type=int, default=PORT, help=f'Port to bind to (default: {PORT})')
+    return parser.parse_args()
 
+if __name__ == '__main__':
+    args = parse_args()
+    
+    # Set model if provided
+    if args.model:
+        set_active_model(args.model)
+        logger.info(f"🎯 Active model set to: {args.model}")
+    
+    # Log current model
+    current_model = get_active_model()
+    logger.info(f"🎯 Starting API with model: {current_model}")
+    
+    # Warm up models
+    logger.info("🔥 Pre-warming models...")
+    warm_up_success = warm_up_models()
+    
+    if not warm_up_success:
+        logger.warning("⚠️  Model warm-up failed, but continuing anyway...")
+    
+    # Start server
     uvicorn.run(
         'api:app',
-        host=HOST,
-        port=PORT
+        host=args.host,
+        port=args.port
     )

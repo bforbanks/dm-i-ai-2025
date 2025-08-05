@@ -370,18 +370,29 @@ def main():
     print(f"Score / {len(results) * 2}: {total_correct}/{len(results) * 2}")
     print()
     print("🎯 APPROACH BREAKDOWN:")
-    print(f"Separated approach: {approach_counts['separated']}/{len(results)} ({approach_counts['separated']/len(results)*100:.1f}%)")
-    print(f"Combined approach: {approach_counts['combined']}/{len(results)} ({approach_counts['combined']/len(results)*100:.1f}%)")
+    print(f"Separated approach (topic model alone): {approach_counts['separated']}/{len(results)} ({approach_counts['separated']/len(results)*100:.1f}%)")
+    print(f"Combined approach (LLM helped choose): {approach_counts['combined']}/{len(results)} ({approach_counts['combined']/len(results)*100:.1f}%)")
+    print()
     
     if separated_results:
-        sep_correct = sum(1 for r in separated_results if r['truth_correct'] and r['topic_correct'])
-        sep_accuracy = (sep_correct / len(separated_results)) * 100 * 2  # *2 because counting both truth and topic
-        print(f"Separated accuracy: {sep_accuracy:.1f}%")
+        sep_topic_correct = sum(1 for r in separated_results if r['topic_correct'])
+        sep_truth_correct = sum(1 for r in separated_results if r['truth_correct'])
+        sep_avg_time = sum(r['time_taken'] for r in separated_results) / len(separated_results)
+        
+        print(f"📊 SEPARATED APPROACH PERFORMANCE:")
+        print(f"   Topic Accuracy: {sep_topic_correct/len(separated_results)*100:.1f}% ({sep_topic_correct}/{len(separated_results)})")
+        print(f"   Truth Accuracy: {sep_truth_correct/len(separated_results)*100:.1f}% ({sep_truth_correct}/{len(separated_results)})")
+        print(f"   Average Time: {sep_avg_time:.2f}s per sample")
     
     if combined_results:
-        comb_correct = sum(1 for r in combined_results if r['truth_correct'] and r['topic_correct'])
-        comb_accuracy = (comb_correct / len(combined_results)) * 100 * 2  # *2 because counting both truth and topic
-        print(f"Combined accuracy: {comb_accuracy:.1f}%")
+        comb_topic_correct = sum(1 for r in combined_results if r['topic_correct'])
+        comb_truth_correct = sum(1 for r in combined_results if r['truth_correct'])
+        comb_avg_time = sum(r['time_taken'] for r in combined_results) / len(combined_results)
+        
+        print(f"📊 COMBINED APPROACH PERFORMANCE:")
+        print(f"   Topic Accuracy: {comb_topic_correct/len(combined_results)*100:.1f}% ({comb_topic_correct}/{len(combined_results)})")
+        print(f"   Truth Accuracy: {comb_truth_correct/len(combined_results)*100:.1f}% ({comb_truth_correct}/{len(combined_results)})")
+        print(f"   Average Time: {comb_avg_time:.2f}s per sample")
     
     print("=" * 80)
     

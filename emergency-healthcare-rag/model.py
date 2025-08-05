@@ -1,13 +1,24 @@
 import importlib
+import json
 from typing import Tuple
 
-# Model selection  
-ACTIVE_MODEL = "separated-models-2"  # Updated to separated-models-2
+# Model configuration - can be set by API or other calling scripts
+# Default to match-and-choose-model-1, but this can be overridden
+ACTIVE_MODEL = "match-and-choose-model-1"
+
+def set_active_model(model_name: str):
+    """Set the active model (called by API or other scripts)"""
+    global ACTIVE_MODEL
+    ACTIVE_MODEL = model_name
+
+def get_active_model() -> str:
+    """Get the currently active model"""
+    return ACTIVE_MODEL
 
 ### CALL THE CUSTOM MODEL VIA THIS FUNCTION ###
 def predict(statement: str) -> Tuple[int, int]:
     """
-    Predict both binary classification (true/false) and topic classification for a medical statement.
+    Model-agnostic prediction function. Routes to the currently active model.
     
     Args:
         statement (str): The medical statement to classify
@@ -17,7 +28,8 @@ def predict(statement: str) -> Tuple[int, int]:
             - statement_is_true: 1 if true, 0 if false
             - statement_topic: topic ID from 0-114
     """
-    model_module = importlib.import_module(f"{ACTIVE_MODEL}.model")
+    active_model = get_active_model()
+    model_module = importlib.import_module(f"{active_model}.model")
     return model_module.predict(statement)
 
 def match_topic(statement: str) -> int:

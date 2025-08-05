@@ -127,10 +127,33 @@ Threshold Behavior:
 3. **Clear value proposition**: LLM can improve 69.2% → 85%+ for 20% of cases
 4. **Efficient resource usage**: Most cases (80%) use faster separated approach
 
+## Search Optimization
+
+🚀 **NEW: One-Click Grid Search Optimization!**
+
+Find the optimal search configuration to maximize topic matching accuracy:
+
+```bash
+# Single script - just run it!
+python match-and-choose-model-1/optimize_search.py
+```
+
+**What it does:**
+- ✅ **Setup check**: Verifies dependencies automatically
+- ✅ **Grid search**: Tests 10 strategic configurations (1-3 hours)  
+- ✅ **Local models only**: No API calls (BM25 + sentence-transformers)
+- ✅ **Complete results**: Shows best config + implementation code
+- ✅ **Expected gain**: +2-5% accuracy (89.5% → 92-95%)
+
+**What gets optimized:**
+- BM25-only vs Hybrid (BM25 + semantic) search
+- Chunk size and overlap parameters  
+- Embedding models and fusion strategies
+
 ## Future Optimizations
 
-1. **Hybrid Search**: Replace BM25-only with BM25+semantic search from separated-models-1
-2. **Grid Search**: Quantitative threshold optimization on validation set
+1. ✅ **Hybrid Search**: Automated grid search with BM25+semantic options
+2. **Threshold Grid Search**: Quantitative threshold optimization on validation set  
 3. **Adaptive Thresholds**: Different thresholds based on medical domain/complexity
 4. **Context Enhancement**: Richer context for LLM decision making
 
