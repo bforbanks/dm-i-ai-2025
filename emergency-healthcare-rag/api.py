@@ -57,9 +57,21 @@ async def startup_event():
 
 @app.get('/api')
 def hello():
+    # Get current dataset info
+    try:
+        current_model = get_active_model()
+        if current_model == "match-and-choose-model-1":
+            topic_model_module = importlib.import_module(f"{current_model}.topic_model")
+            dataset = "condensed_topics" if topic_model_module.USE_CONDENSED_TOPICS else "topics"
+        else:
+            dataset = "unknown"
+    except:
+        dataset = "unknown"
+    
     return {
         "service": "emergency-healthcare-rag",
-        "model": get_active_model(), 
+        "model": get_active_model(),
+        "dataset": dataset,
         "uptime": '{}'.format(datetime.timedelta(seconds=time.time() - start_time))
     }
 
@@ -153,9 +165,11 @@ if __name__ == '__main__':
         except Exception as e:
             logger.warning(f"⚠️  Failed to set topic configuration: {e}")
     
-    # Log current model
+    # Log current model and dataset
     current_model = get_active_model()
+    topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
     logger.info(f"🎯 Starting API with model: {current_model}")
+    logger.info(f"📚 Using dataset: {topic_type}")
     
     # Warm up models
     logger.info("🔥 Pre-warming models...")

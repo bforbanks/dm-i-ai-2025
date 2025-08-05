@@ -283,7 +283,9 @@ def main():
     
     # Get current configuration
     config = get_config_summary()
+    topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
     print(f"🔧 Configuration: Model={config['model_info']['name']}, Threshold={config['threshold']}")
+    print(f"📚 Dataset: {topic_type}")
     
     # Determine what to evaluate
     if args.search_only:
