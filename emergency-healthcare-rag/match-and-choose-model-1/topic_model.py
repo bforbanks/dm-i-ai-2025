@@ -39,7 +39,7 @@ def chunk_words(words: List[str], size: int, overlap: int) -> List[str]:
         if i + size >= len(words):
             break
     return chunks
-no
+
 def build_bm25_index() -> Dict:
     """Build BM25 index with optimized parameters."""
     topic_type = "condensed" if USE_CONDENSED_TOPICS else "regular"
