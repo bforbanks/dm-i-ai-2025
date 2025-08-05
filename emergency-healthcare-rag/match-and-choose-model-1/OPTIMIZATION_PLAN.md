@@ -26,6 +26,7 @@ Edit lines ~499-504 in `optimize_topic_model.py`:
 - `max_samples=200` for evaluation size
 
 ## Expected Results
-- Target: 91-93% accuracy (+1.5-3.5% improvement)
-- Runtime: 60-300 minutes depending on config
+- Target: 91-93% top-1 accuracy (+1.5-3.5% improvement)
+- Shows complete progression: top-1, top-2, top-3, top-4, top-5 accuracy
+- Runtime: 3-5 hours (tests 189 configurations with BM25 optimization)
 - Output: `optimization_results_topic_model.json`

@@ -140,7 +140,9 @@ def calculate_metrics(results: List[Dict]) -> Dict:
     """Calculate comprehensive evaluation metrics"""
     total = len(results)
     top1_correct = sum(1 for r in results if r['rank_correct'] == 1)
+    top2_correct = sum(1 for r in results if r['rank_correct'] <= 2)
     top3_correct = sum(1 for r in results if r['rank_correct'] <= 3)
+    top4_correct = sum(1 for r in results if r['rank_correct'] <= 4)
     top5_correct = sum(1 for r in results if r['rank_correct'] <= 5)
     
     # Mean Reciprocal Rank
@@ -171,7 +173,9 @@ def calculate_metrics(results: List[Dict]) -> Dict:
     return {
         'total_samples': total,
         'top1_accuracy': top1_correct / total,
-        'top3_accuracy': top3_correct / total,  
+        'top2_accuracy': top2_correct / total,
+        'top3_accuracy': top3_correct / total,
+        'top4_accuracy': top4_correct / total,  
         'top5_accuracy': top5_correct / total,
         'mrr': mrr,
         'avg_rank': avg_rank,
@@ -517,7 +521,7 @@ def run_optimization():
     
     # Configuration - modify these settings as needed
     opt_config = OptimizationConfig(
-        optimize_bm25=False,  # Set to True for full BM25 optimization (longer runtime)
+        optimize_bm25=True,  # Find best BM25 parameters first, then test fusion strategies
         use_condensed_topics=True,  # True for condensed, False for original topics
         max_samples=200,  # Number of statements to evaluate (max 200)
         cache_embeddings=True  # Cache embeddings for faster re-runs
@@ -552,11 +556,15 @@ def run_optimization():
             overlap = int(chunk_size * overlap_ratio)
             bm25_configs.append((chunk_size, overlap))
     
-    print(f"\n🔧 Testing {len(bm25_configs)} BM25 configurations:")
-    for chunk_size, overlap in bm25_configs[:3]:  # Show first 3
-        print(f"   • chunk_size={chunk_size}, overlap={overlap} ({overlap/chunk_size:.1%})")
-    if len(bm25_configs) > 3:
-        print(f"   • ... and {len(bm25_configs)-3} more")
+    if opt_config.optimize_bm25:
+        print(f"\n🔧 Step 1: BM25 Optimization - Testing {len(bm25_configs)} configurations:")
+        for chunk_size, overlap in bm25_configs[:3]:  # Show first 3
+            print(f"   • chunk_size={chunk_size}, overlap={overlap} ({overlap/chunk_size:.1%})")
+        if len(bm25_configs) > 3:
+            print(f"   • ... and {len(bm25_configs)-3} more")
+        print(f"🔧 Step 2: Then test semantic fusion on best BM25 configs")
+    else:
+        print(f"\n🔧 Using known best BM25 config: chunk_size=128, overlap=12")
     
     # Test each BM25 configuration
     for bm25_idx, (chunk_size, overlap) in enumerate(bm25_configs):
@@ -620,7 +628,10 @@ def run_optimization():
                     'overlap': overlap,
                     'overlap_ratio': overlap / chunk_size,
                     'top1_accuracy': metrics['top1_accuracy'],
+                    'top2_accuracy': metrics['top2_accuracy'],
                     'top3_accuracy': metrics['top3_accuracy'],
+                    'top4_accuracy': metrics['top4_accuracy'],
+                    'top5_accuracy': metrics['top5_accuracy'],
                     'mrr': metrics['mrr'],
                     'avg_separation': metrics['avg_separation_when_correct'],
                     'score_gap_p90': metrics['score_gaps']['percentiles']['p90'],
@@ -628,8 +639,10 @@ def run_optimization():
                 })
                 
                 # Print summary
-                print(f"   🔍 {strategy}: Top-1: {metrics['top1_accuracy']:.3f}, "
-                      f"Top-3: {metrics['top3_accuracy']:.3f}, "
+                print(f"   🔍 {strategy}: T1: {metrics['top1_accuracy']:.3f}, "
+                      f"T2: {metrics['top2_accuracy']:.3f}, "
+                      f"T3: {metrics['top3_accuracy']:.3f}, "
+                      f"T5: {metrics['top5_accuracy']:.3f}, "
                       f"MRR: {metrics['mrr']:.3f}")
     
     # Find and display best configurations
@@ -641,15 +654,16 @@ def run_optimization():
     best_configs.sort(key=lambda x: (x['top1_accuracy'], x['mrr']), reverse=True)
     
     print("\n🥇 TOP 10 CONFIGURATIONS:")
-    print(f"{'Rank':<4} {'Model':<30} {'Strategy':<12} {'CS':<3} {'OV':<3} {'Top-1':<6} {'Top-3':<6} {'MRR':<6} {'Time':<6}")
-    print("-" * 85)
+    print(f"{'Rank':<4} {'Model':<25} {'Strategy':<12} {'CS':<3} {'OV':<3} {'T1':<6} {'T2':<6} {'T3':<6} {'T4':<6} {'T5':<6} {'MRR':<6}")
+    print("-" * 95)
     
     for i, config in enumerate(best_configs[:10], 1):
-        model_short = config['model'].split('/')[-1][:25]
-        print(f"{i:<4} {model_short:<30} {config['strategy']:<12} "
+        model_short = config['model'].split('/')[-1][:20]
+        print(f"{i:<4} {model_short:<25} {config['strategy']:<12} "
               f"{config['chunk_size']:<3} {config['overlap']:<3} "
-              f"{config['top1_accuracy']:.3f}  {config['top3_accuracy']:.3f}  "
-              f"{config['mrr']:.3f}  {config['time_per_query']:.3f}")
+              f"{config['top1_accuracy']:.3f}  {config['top2_accuracy']:.3f}  "
+              f"{config['top3_accuracy']:.3f}  {config['top4_accuracy']:.3f}  "
+              f"{config['top5_accuracy']:.3f}  {config['mrr']:.3f}")
     
     # Save complete results
     output_file = "optimization_results_topic_model.json"
