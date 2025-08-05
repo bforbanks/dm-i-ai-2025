@@ -1,6 +1,9 @@
 """THIS IS NOT A MODEL, IT IS A CLASS USED TO PREDICT THE POSITIONS 
 AND VELOCITIES OF OTHER CARS"""
 
+import os
+print(os.getcwd())
+
 from src.game.core import GameState
 import numpy as np
 import time
@@ -47,10 +50,10 @@ class PredictionModel:
     top_wall = 1071 # Lower bound +[0;1]
     bottom_wall = -48 # Upper bound +[-1;0]
 
-    def __init__(self, x_resolution: float = 1, vel_resolution: float = 0.1, live_plot: bool = True):
+    def __init__(self, x_resolution: float = 1, vel_resolution: float = 0.2/7, live_plot: bool = True):
         self.x_resolution, self.vel_resolution = x_resolution, vel_resolution
         self.lanes = [lane_state(i, x_resolution, vel_resolution) for i in range(1, 6)]
-        self.uncertain_sensors = [67.5, 112.5, 247.5, 292.5]
+        self.uncertain_sensors = [67.5, 112.5, 247.5, 292.5] #not relevant with new rules, but kept in case of changes
         self.available_sensors = []
         self.ego_y = 510
         self.live_plot = live_plot
@@ -91,12 +94,12 @@ class PredictionModel:
             if loc_y <= self.bottom_wall or loc_y >= self.top_wall:
                 detected_nothing.append(sensor)
                 continue
-            print("Sensor: ", self.sdict[sensor], sensor)
+            # print("Sensor: ", self.sdict[sensor], sensor)
             # print(x, y)
             # print(self.ego_y, state["velocity"]["y"])
-            print(x+self.ego_x, -y+self.ego_y)
+            # print(x+self.ego_x, -y+self.ego_y)
             
-            print("--------------------------------")
+            # print("--------------------------------")
             
 
     def _car_update(self, state: dict, tick: int):
@@ -116,6 +119,7 @@ class PredictionModel:
             for (x_bin, vel_bin), joint_prob in lane.joint_prob.items():
                 if joint_prob <= 1e-7:
                     continue
+                full_bin_chance = joint_prob/7
                     
                 # Calculate new position based on current position and velocity
                 new_pos = lane.x_bin_means[x_bin] + lane.vel_bin_means[vel_bin] - ego_velocity # x is relative to ego
@@ -124,27 +128,11 @@ class PredictionModel:
                     lane.new_no_car += joint_prob
                     continue
                 new_x_bin = int(new_pos // lane.x_resolution)
-                if new_x_bin >= lane.x_bins:  # safety check
-                    raise ValueError("New x bin is out of bounds")
-
                 # Calculate new velocity distribution
-                low_vel = 0.95 * lane.vel_bin_means[vel_bin]
-                hi_vel = 1.05 * lane.vel_bin_means[vel_bin]
-                low_bin = int(low_vel // lane_vel_resolution)
-                hi_bin = int(hi_vel // lane_vel_resolution)
+                low_bin = vel_bin-3
+                hi_bin = vel_bin+3
 
-                if hi_bin == low_bin:
-                    lane.new_joint_prob[(new_x_bin, low_bin)] += joint_prob
-                    continue
-                                
-                diff = hi_vel - low_vel
-                perc_per_length = 1 / diff
-
-                lane.new_joint_prob[(new_x_bin, low_bin)] += perc_per_length * (lane.velocity_bin_dividers[low_bin+1]-low_vel) * joint_prob
-                lane.new_joint_prob[(new_x_bin, hi_bin)] += perc_per_length * (hi_vel-lane.velocity_bin_dividers[hi_bin]) * joint_prob
-
-                full_bin_chance = perc_per_length * lane_vel_resolution * joint_prob
-                for new_vel_bin in range(low_bin+1, hi_bin):
+                for new_vel_bin in range(low_bin, hi_bin+1):
                     lane.new_joint_prob[(new_x_bin, new_vel_bin)] += full_bin_chance
 
             # the_sum=sum(lane.joint_prob.values())
@@ -155,7 +143,7 @@ class PredictionModel:
             other_lanes_car_probs = [1-other_lane.no_car for other_lane in self.lanes if other_lane.lane != lane.lane]
             four_cars = np.prod(other_lanes_car_probs)
             # if there are not 4 cars, and there is not a car in the lane already, a new one will spawn
-            spawn_chance = (1-four_cars) * lane.no_car
+            spawn_chance = (1-four_cars) * lane.no_car #TODO double-check this calculation
 
             # Spawn cars behind
             speed_chance_sum = 0
@@ -348,3 +336,34 @@ class PredictionModel:
 
         return action
 
+
+if __name__ == "__main__":
+    model = PredictionModel(live_plot=True)
+    # print the time it takes to update the model
+    start_time = time.time()
+    for i in range(100):
+        state = {
+            "elapsed_ticks": i,
+            "velocity": {"x": 10, "y": 0},
+            "sensors": {
+                "front": 100,
+                "right_front": 100,
+                "right_side": 100,
+                "right_back": 100,
+                "back": 100,
+                "left_back": 100,
+                "left_side": 100,
+                "left_front": 100,
+                "front_left_front": 100,
+                "front_right_front": 100,
+                "right_side_front": 100,
+                "right_side_back": 100,
+                "back_right_back": 100,
+                "back_left_back": 100,
+                "left_side_back": 100,
+                "left_side_front": 100,
+            }
+        }
+        model.update(state)
+    end_time = time.time()
+    print("Time taken: ", end_time-start_time)
