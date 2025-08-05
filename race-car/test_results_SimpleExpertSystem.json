@@ -1,0 +1,2435 @@
+[
+  {
+    "test_id": 0,
+    "distance": 1990.8999999999962,
+    "ticks": 140,
+    "crashed": true,
+    "final_velocity": 13.699999999999989,
+    "test_time": 2.8702900409698486,
+    "avg_velocity": 14.220714285714259,
+    "actions": [
+      {
+        "tick": 40,
+        "action": "ACCELERATE",
+        "velocity_x": 13.899999999999986,
+        "distance": 467.9999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 41,
+        "action": "ACCELERATE",
+        "velocity_x": 13.999999999999986,
+        "distance": 481.9999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 42,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 496.0999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 43,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 510.19999999999965,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 44,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 524.2999999999996,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 45,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 538.3999999999996,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 46,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 552.4999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 47,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 566.5999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 48,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 580.6999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 49,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 594.7999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 50,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 608.8999999999997,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 51,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 622.9999999999998,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 52,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 637.0999999999998,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 53,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 651.1999999999998,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 54,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 665.2999999999998,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 55,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 679.3999999999999,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 56,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 693.4999999999999,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 57,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 707.5999999999999,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 58,
+        "action": "NOTHING",
+        "velocity_x": 14.099999999999985,
+        "distance": 721.6999999999999,
+        "front_sensor": null,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 59,
+        "action": "ACCELERATE",
+        "velocity_x": 14.099999999999985,
+        "distance": 735.8,
+        "front_sensor": 1000.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 60,
+        "action": "ACCELERATE",
+        "velocity_x": 14.199999999999985,
+        "distance": 749.9999999999999,
+        "front_sensor": 991.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 61,
+        "action": "ACCELERATE",
+        "velocity_x": 14.299999999999985,
+        "distance": 764.2999999999998,
+        "front_sensor": 981.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 62,
+        "action": "ACCELERATE",
+        "velocity_x": 14.399999999999984,
+        "distance": 778.6999999999998,
+        "front_sensor": 972.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 63,
+        "action": "ACCELERATE",
+        "velocity_x": 14.499999999999984,
+        "distance": 793.1999999999998,
+        "front_sensor": 962.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 64,
+        "action": "ACCELERATE",
+        "velocity_x": 14.599999999999984,
+        "distance": 807.7999999999998,
+        "front_sensor": 953.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 65,
+        "action": "ACCELERATE",
+        "velocity_x": 14.699999999999983,
+        "distance": 822.4999999999998,
+        "front_sensor": 943.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 66,
+        "action": "ACCELERATE",
+        "velocity_x": 14.799999999999983,
+        "distance": 837.2999999999997,
+        "front_sensor": 934.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 67,
+        "action": "ACCELERATE",
+        "velocity_x": 14.899999999999983,
+        "distance": 852.1999999999997,
+        "front_sensor": 924.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 68,
+        "action": "ACCELERATE",
+        "velocity_x": 14.999999999999982,
+        "distance": 867.1999999999997,
+        "front_sensor": 914.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 69,
+        "action": "ACCELERATE",
+        "velocity_x": 15.099999999999982,
+        "distance": 882.2999999999997,
+        "front_sensor": 904.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 70,
+        "action": "ACCELERATE",
+        "velocity_x": 15.199999999999982,
+        "distance": 897.4999999999997,
+        "front_sensor": 894.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 71,
+        "action": "ACCELERATE",
+        "velocity_x": 15.299999999999981,
+        "distance": 912.7999999999996,
+        "front_sensor": 884.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 72,
+        "action": "ACCELERATE",
+        "velocity_x": 15.39999999999998,
+        "distance": 928.1999999999996,
+        "front_sensor": 873.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 73,
+        "action": "ACCELERATE",
+        "velocity_x": 15.49999999999998,
+        "distance": 943.6999999999996,
+        "front_sensor": 863.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 74,
+        "action": "ACCELERATE",
+        "velocity_x": 15.59999999999998,
+        "distance": 959.2999999999996,
+        "front_sensor": 852.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 75,
+        "action": "ACCELERATE",
+        "velocity_x": 15.69999999999998,
+        "distance": 974.9999999999995,
+        "front_sensor": 842.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 76,
+        "action": "ACCELERATE",
+        "velocity_x": 15.79999999999998,
+        "distance": 990.7999999999995,
+        "front_sensor": 831.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 77,
+        "action": "ACCELERATE",
+        "velocity_x": 15.899999999999979,
+        "distance": 1006.6999999999995,
+        "front_sensor": 820.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 78,
+        "action": "ACCELERATE",
+        "velocity_x": 15.999999999999979,
+        "distance": 1022.6999999999995,
+        "front_sensor": 809.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 79,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1038.7999999999995,
+        "front_sensor": 798.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 80,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1054.8999999999994,
+        "front_sensor": 787.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 81,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1070.9999999999993,
+        "front_sensor": 776.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 82,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1087.0999999999992,
+        "front_sensor": 764.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 83,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1103.1999999999991,
+        "front_sensor": 753.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 84,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1119.299999999999,
+        "front_sensor": 742.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 85,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1135.399999999999,
+        "front_sensor": 731.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 86,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1151.4999999999989,
+        "front_sensor": 720.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 87,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1167.5999999999988,
+        "front_sensor": 709.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 88,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1183.6999999999987,
+        "front_sensor": 698.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 89,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1199.7999999999986,
+        "front_sensor": 687.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 90,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1215.8999999999985,
+        "front_sensor": 676.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 91,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1231.9999999999984,
+        "front_sensor": 665.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 92,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1248.0999999999983,
+        "front_sensor": 654.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 93,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1264.1999999999982,
+        "front_sensor": 643.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 94,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1280.2999999999981,
+        "front_sensor": 632.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 95,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1296.399999999998,
+        "front_sensor": 621.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 96,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1312.499999999998,
+        "front_sensor": 610.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 97,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1328.5999999999979,
+        "front_sensor": 600.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 98,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1344.6999999999978,
+        "front_sensor": 589.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 99,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1360.7999999999977,
+        "front_sensor": 578.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 100,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1376.8999999999976,
+        "front_sensor": 567.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 101,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1392.9999999999975,
+        "front_sensor": 556.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 102,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1409.0999999999974,
+        "front_sensor": 545.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 103,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1425.1999999999973,
+        "front_sensor": 533.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 104,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1441.2999999999972,
+        "front_sensor": 522.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 105,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1457.3999999999971,
+        "front_sensor": 511.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 106,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1473.499999999997,
+        "front_sensor": 501.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 107,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1489.599999999997,
+        "front_sensor": 490.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 108,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1505.6999999999969,
+        "front_sensor": 479.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 109,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1521.7999999999968,
+        "front_sensor": 468.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 110,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1537.8999999999967,
+        "front_sensor": 458.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 111,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1553.9999999999966,
+        "front_sensor": 447.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 112,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1570.0999999999965,
+        "front_sensor": 436.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 113,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1586.1999999999964,
+        "front_sensor": 426.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 114,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1602.2999999999963,
+        "front_sensor": 415.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 115,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1618.3999999999962,
+        "front_sensor": 404.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 116,
+        "action": "DECELERATE",
+        "velocity_x": 16.09999999999998,
+        "distance": 1634.4999999999961,
+        "front_sensor": 394.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 117,
+        "action": "DECELERATE",
+        "velocity_x": 15.99999999999998,
+        "distance": 1650.4999999999961,
+        "front_sensor": 383.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 118,
+        "action": "DECELERATE",
+        "velocity_x": 15.89999999999998,
+        "distance": 1666.3999999999962,
+        "front_sensor": 373.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 119,
+        "action": "DECELERATE",
+        "velocity_x": 15.799999999999981,
+        "distance": 1682.1999999999962,
+        "front_sensor": 363.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 120,
+        "action": "DECELERATE",
+        "velocity_x": 15.699999999999982,
+        "distance": 1697.8999999999962,
+        "front_sensor": 353.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 121,
+        "action": "DECELERATE",
+        "velocity_x": 15.599999999999982,
+        "distance": 1713.4999999999961,
+        "front_sensor": 343.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 122,
+        "action": "DECELERATE",
+        "velocity_x": 15.499999999999982,
+        "distance": 1728.9999999999961,
+        "front_sensor": 333.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 123,
+        "action": "DECELERATE",
+        "velocity_x": 15.399999999999983,
+        "distance": 1744.3999999999962,
+        "front_sensor": 323.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 124,
+        "action": "DECELERATE",
+        "velocity_x": 15.299999999999983,
+        "distance": 1759.6999999999962,
+        "front_sensor": 314.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 125,
+        "action": "DECELERATE",
+        "velocity_x": 15.199999999999983,
+        "distance": 1774.8999999999962,
+        "front_sensor": 305.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 126,
+        "action": "DECELERATE",
+        "velocity_x": 15.099999999999984,
+        "distance": 1789.9999999999961,
+        "front_sensor": 295.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 127,
+        "action": "DECELERATE",
+        "velocity_x": 14.999999999999984,
+        "distance": 1804.9999999999961,
+        "front_sensor": 286.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 128,
+        "action": "DECELERATE",
+        "velocity_x": 14.899999999999984,
+        "distance": 1819.8999999999962,
+        "front_sensor": 277.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 129,
+        "action": "DECELERATE",
+        "velocity_x": 14.799999999999985,
+        "distance": 1834.6999999999962,
+        "front_sensor": 268.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 130,
+        "action": "DECELERATE",
+        "velocity_x": 14.699999999999985,
+        "distance": 1849.3999999999962,
+        "front_sensor": 258.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 131,
+        "action": "DECELERATE",
+        "velocity_x": 14.599999999999985,
+        "distance": 1863.9999999999961,
+        "front_sensor": 249.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 132,
+        "action": "DECELERATE",
+        "velocity_x": 14.499999999999986,
+        "distance": 1878.4999999999961,
+        "front_sensor": 240.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 133,
+        "action": "DECELERATE",
+        "velocity_x": 14.399999999999986,
+        "distance": 1892.8999999999962,
+        "front_sensor": 232.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 134,
+        "action": "DECELERATE",
+        "velocity_x": 14.299999999999986,
+        "distance": 1907.1999999999962,
+        "front_sensor": 223.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 135,
+        "action": "DECELERATE",
+        "velocity_x": 14.199999999999987,
+        "distance": 1921.3999999999962,
+        "front_sensor": 214.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 136,
+        "action": "DECELERATE",
+        "velocity_x": 14.099999999999987,
+        "distance": 1935.4999999999961,
+        "front_sensor": 206.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 137,
+        "action": "DECELERATE",
+        "velocity_x": 13.999999999999988,
+        "distance": 1949.4999999999961,
+        "front_sensor": 198.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 138,
+        "action": "DECELERATE",
+        "velocity_x": 13.899999999999988,
+        "distance": 1963.3999999999962,
+        "front_sensor": 189.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 139,
+        "action": "DECELERATE",
+        "velocity_x": 13.799999999999988,
+        "distance": 1977.1999999999962,
+        "front_sensor": 181.0,
+        "model_buffer_size": 0
+      }
+    ]
+  },
+  {
+    "test_id": 1,
+    "distance": 43611.199999998666,
+    "ticks": 3199,
+    "crashed": false,
+    "final_velocity": 10.899999999999999,
+    "test_time": 60.00525403022766,
+    "avg_velocity": 13.632760237573825,
+    "actions": [
+      {
+        "tick": 3099,
+        "action": "DECELERATE",
+        "velocity_x": 11.399999999999997,
+        "distance": 42646.59999999848,
+        "front_sensor": 355.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3100,
+        "action": "DECELERATE",
+        "velocity_x": 11.299999999999997,
+        "distance": 42657.89999999848,
+        "front_sensor": 356.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3101,
+        "action": "DECELERATE",
+        "velocity_x": 11.199999999999998,
+        "distance": 42669.09999999848,
+        "front_sensor": 358.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3102,
+        "action": "DECELERATE",
+        "velocity_x": 11.099999999999998,
+        "distance": 42680.19999999848,
+        "front_sensor": 359.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3103,
+        "action": "DECELERATE",
+        "velocity_x": 10.999999999999998,
+        "distance": 42691.19999999848,
+        "front_sensor": 361.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3104,
+        "action": "DECELERATE",
+        "velocity_x": 10.899999999999999,
+        "distance": 42702.09999999848,
+        "front_sensor": 362.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3105,
+        "action": "DECELERATE",
+        "velocity_x": 10.799999999999999,
+        "distance": 42712.89999999848,
+        "front_sensor": 364.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3106,
+        "action": "DECELERATE",
+        "velocity_x": 10.7,
+        "distance": 42723.59999999848,
+        "front_sensor": 366.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3107,
+        "action": "DECELERATE",
+        "velocity_x": 10.6,
+        "distance": 42734.19999999848,
+        "front_sensor": 368.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3108,
+        "action": "DECELERATE",
+        "velocity_x": 10.5,
+        "distance": 42744.69999999848,
+        "front_sensor": 370.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3109,
+        "action": "DECELERATE",
+        "velocity_x": 10.4,
+        "distance": 42755.09999999848,
+        "front_sensor": 372.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3110,
+        "action": "DECELERATE",
+        "velocity_x": 10.3,
+        "distance": 42765.39999999848,
+        "front_sensor": 374.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3111,
+        "action": "DECELERATE",
+        "velocity_x": 10.200000000000001,
+        "distance": 42775.59999999848,
+        "front_sensor": 376.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3112,
+        "action": "DECELERATE",
+        "velocity_x": 10.100000000000001,
+        "distance": 42785.69999999848,
+        "front_sensor": 379.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3113,
+        "action": "DECELERATE",
+        "velocity_x": 10.000000000000002,
+        "distance": 42795.69999999848,
+        "front_sensor": 381.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3114,
+        "action": "DECELERATE",
+        "velocity_x": 9.900000000000002,
+        "distance": 42805.59999999848,
+        "front_sensor": 384.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3115,
+        "action": "DECELERATE",
+        "velocity_x": 9.800000000000002,
+        "distance": 42815.39999999848,
+        "front_sensor": 386.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3116,
+        "action": "DECELERATE",
+        "velocity_x": 9.700000000000003,
+        "distance": 42825.09999999848,
+        "front_sensor": 389.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3117,
+        "action": "DECELERATE",
+        "velocity_x": 9.600000000000003,
+        "distance": 42834.69999999848,
+        "front_sensor": 392.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3118,
+        "action": "DECELERATE",
+        "velocity_x": 9.500000000000004,
+        "distance": 42844.19999999848,
+        "front_sensor": 395.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3119,
+        "action": "DECELERATE",
+        "velocity_x": 9.400000000000004,
+        "distance": 42853.59999999848,
+        "front_sensor": 398.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3120,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42862.89999999848,
+        "front_sensor": 401.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3121,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42872.199999998484,
+        "front_sensor": 404.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3122,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42881.49999999849,
+        "front_sensor": 407.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3123,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42890.79999999849,
+        "front_sensor": 410.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3124,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42900.09999999849,
+        "front_sensor": 413.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3125,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42909.399999998495,
+        "front_sensor": 416.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3126,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42918.6999999985,
+        "front_sensor": 419.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3127,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42927.9999999985,
+        "front_sensor": 422.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3128,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42937.299999998504,
+        "front_sensor": 425.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3129,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42946.59999999851,
+        "front_sensor": 428.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3130,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42955.89999999851,
+        "front_sensor": 431.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3131,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42965.19999999851,
+        "front_sensor": 434.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3132,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42974.499999998516,
+        "front_sensor": 437.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3133,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42983.79999999852,
+        "front_sensor": 440.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3134,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 42993.09999999852,
+        "front_sensor": 443.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3135,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43002.399999998524,
+        "front_sensor": 446.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3136,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43011.69999999853,
+        "front_sensor": 449.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3137,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43020.99999999853,
+        "front_sensor": 452.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3138,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43030.29999999853,
+        "front_sensor": 455.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3139,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43039.599999998536,
+        "front_sensor": 458.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3140,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43048.89999999854,
+        "front_sensor": 461.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3141,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43058.19999999854,
+        "front_sensor": 464.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3142,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43067.499999998545,
+        "front_sensor": 467.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3143,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43076.79999999855,
+        "front_sensor": 470.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3144,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43086.09999999855,
+        "front_sensor": 474.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3145,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43095.39999999855,
+        "front_sensor": 477.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3146,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43104.69999999856,
+        "front_sensor": 480.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3147,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43113.99999999856,
+        "front_sensor": 483.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3148,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43123.29999999856,
+        "front_sensor": 486.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3149,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43132.599999998565,
+        "front_sensor": 489.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3150,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43141.89999999857,
+        "front_sensor": 492.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3151,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43151.19999999857,
+        "front_sensor": 495.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3152,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43160.499999998574,
+        "front_sensor": 499.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3153,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43169.79999999858,
+        "front_sensor": 502.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3154,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43179.09999999858,
+        "front_sensor": 505.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3155,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43188.39999999858,
+        "front_sensor": 508.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3156,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43197.699999998586,
+        "front_sensor": 512.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3157,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43206.99999999859,
+        "front_sensor": 515.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3158,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43216.29999999859,
+        "front_sensor": 518.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3159,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43225.599999998594,
+        "front_sensor": 522.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3160,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43234.8999999986,
+        "front_sensor": 525.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3161,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43244.1999999986,
+        "front_sensor": 528.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3162,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43253.4999999986,
+        "front_sensor": 531.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3163,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43262.799999998606,
+        "front_sensor": 535.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3164,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43272.09999999861,
+        "front_sensor": 538.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3165,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43281.39999999861,
+        "front_sensor": 541.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3166,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43290.699999998615,
+        "front_sensor": 544.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3167,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43299.99999999862,
+        "front_sensor": 547.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3168,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43309.29999999862,
+        "front_sensor": 550.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3169,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43318.59999999862,
+        "front_sensor": 553.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3170,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43327.899999998626,
+        "front_sensor": 557.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3171,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43337.19999999863,
+        "front_sensor": 560.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3172,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43346.49999999863,
+        "front_sensor": 563.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3173,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43355.799999998635,
+        "front_sensor": 567.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3174,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43365.09999999864,
+        "front_sensor": 570.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3175,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43374.39999999864,
+        "front_sensor": 574.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3176,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43383.699999998644,
+        "front_sensor": 577.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3177,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43392.99999999865,
+        "front_sensor": 580.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3178,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43402.29999999865,
+        "front_sensor": 584.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3179,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43411.59999999865,
+        "front_sensor": 587.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3180,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43420.899999998655,
+        "front_sensor": 590.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3181,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43430.19999999866,
+        "front_sensor": 594.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3182,
+        "action": "NOTHING",
+        "velocity_x": 9.300000000000004,
+        "distance": 43439.49999999866,
+        "front_sensor": 597.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3183,
+        "action": "ACCELERATE",
+        "velocity_x": 9.300000000000004,
+        "distance": 43448.799999998664,
+        "front_sensor": 601.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3184,
+        "action": "ACCELERATE",
+        "velocity_x": 9.400000000000004,
+        "distance": 43458.199999998666,
+        "front_sensor": 604.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3185,
+        "action": "ACCELERATE",
+        "velocity_x": 9.500000000000004,
+        "distance": 43467.699999998666,
+        "front_sensor": 607.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3186,
+        "action": "ACCELERATE",
+        "velocity_x": 9.600000000000003,
+        "distance": 43477.299999998664,
+        "front_sensor": 610.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3187,
+        "action": "ACCELERATE",
+        "velocity_x": 9.700000000000003,
+        "distance": 43486.99999999866,
+        "front_sensor": 613.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3188,
+        "action": "ACCELERATE",
+        "velocity_x": 9.800000000000002,
+        "distance": 43496.799999998664,
+        "front_sensor": 616.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3189,
+        "action": "ACCELERATE",
+        "velocity_x": 9.900000000000002,
+        "distance": 43506.699999998666,
+        "front_sensor": 619.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3190,
+        "action": "ACCELERATE",
+        "velocity_x": 10.000000000000002,
+        "distance": 43516.699999998666,
+        "front_sensor": 622.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3191,
+        "action": "ACCELERATE",
+        "velocity_x": 10.100000000000001,
+        "distance": 43526.799999998664,
+        "front_sensor": 624.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3192,
+        "action": "ACCELERATE",
+        "velocity_x": 10.200000000000001,
+        "distance": 43536.99999999866,
+        "front_sensor": 626.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3193,
+        "action": "ACCELERATE",
+        "velocity_x": 10.3,
+        "distance": 43547.299999998664,
+        "front_sensor": 629.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3194,
+        "action": "ACCELERATE",
+        "velocity_x": 10.4,
+        "distance": 43557.699999998666,
+        "front_sensor": 631.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3195,
+        "action": "ACCELERATE",
+        "velocity_x": 10.5,
+        "distance": 43568.199999998666,
+        "front_sensor": 633.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3196,
+        "action": "ACCELERATE",
+        "velocity_x": 10.6,
+        "distance": 43578.799999998664,
+        "front_sensor": 635.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3197,
+        "action": "ACCELERATE",
+        "velocity_x": 10.7,
+        "distance": 43589.49999999866,
+        "front_sensor": 637.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 3198,
+        "action": "ACCELERATE",
+        "velocity_x": 10.799999999999999,
+        "distance": 43600.299999998664,
+        "front_sensor": 638.0,
+        "model_buffer_size": 0
+      }
+    ]
+  },
+  {
+    "test_id": 2,
+    "distance": 2592.499999999996,
+    "ticks": 181,
+    "crashed": true,
+    "final_velocity": 13.09999999999999,
+    "test_time": 3.2523815631866455,
+    "avg_velocity": 14.32320441988948,
+    "actions": [
+      {
+        "tick": 81,
+        "action": "ACCELERATE",
+        "velocity_x": 14.199999999999985,
+        "distance": 1046.1000000000004,
+        "front_sensor": 992.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 82,
+        "action": "ACCELERATE",
+        "velocity_x": 14.299999999999985,
+        "distance": 1060.4000000000003,
+        "front_sensor": 985.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 83,
+        "action": "ACCELERATE",
+        "velocity_x": 14.399999999999984,
+        "distance": 1074.8000000000004,
+        "front_sensor": 978.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 84,
+        "action": "ACCELERATE",
+        "velocity_x": 14.499999999999984,
+        "distance": 1089.3000000000004,
+        "front_sensor": 971.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 85,
+        "action": "ACCELERATE",
+        "velocity_x": 14.599999999999984,
+        "distance": 1103.9000000000003,
+        "front_sensor": 964.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 86,
+        "action": "ACCELERATE",
+        "velocity_x": 14.699999999999983,
+        "distance": 1118.6000000000004,
+        "front_sensor": 957.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 87,
+        "action": "ACCELERATE",
+        "velocity_x": 14.799999999999983,
+        "distance": 1133.4000000000003,
+        "front_sensor": 950.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 88,
+        "action": "ACCELERATE",
+        "velocity_x": 14.899999999999983,
+        "distance": 1148.3000000000004,
+        "front_sensor": 942.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 89,
+        "action": "ACCELERATE",
+        "velocity_x": 14.999999999999982,
+        "distance": 1163.3000000000004,
+        "front_sensor": 935.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 90,
+        "action": "ACCELERATE",
+        "velocity_x": 15.099999999999982,
+        "distance": 1178.4000000000003,
+        "front_sensor": 927.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 91,
+        "action": "ACCELERATE",
+        "velocity_x": 15.199999999999982,
+        "distance": 1193.6000000000004,
+        "front_sensor": 920.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 92,
+        "action": "ACCELERATE",
+        "velocity_x": 15.299999999999981,
+        "distance": 1208.9000000000003,
+        "front_sensor": 912.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 93,
+        "action": "ACCELERATE",
+        "velocity_x": 15.39999999999998,
+        "distance": 1224.3000000000004,
+        "front_sensor": 904.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 94,
+        "action": "ACCELERATE",
+        "velocity_x": 15.49999999999998,
+        "distance": 1239.8000000000004,
+        "front_sensor": 897.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 95,
+        "action": "ACCELERATE",
+        "velocity_x": 15.59999999999998,
+        "distance": 1255.4000000000003,
+        "front_sensor": 889.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 96,
+        "action": "ACCELERATE",
+        "velocity_x": 15.69999999999998,
+        "distance": 1271.1000000000004,
+        "front_sensor": 881.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 97,
+        "action": "ACCELERATE",
+        "velocity_x": 15.79999999999998,
+        "distance": 1286.9000000000003,
+        "front_sensor": 872.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 98,
+        "action": "ACCELERATE",
+        "velocity_x": 15.899999999999979,
+        "distance": 1302.8000000000004,
+        "front_sensor": 864.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 99,
+        "action": "ACCELERATE",
+        "velocity_x": 15.999999999999979,
+        "distance": 1318.8000000000004,
+        "front_sensor": 856.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 100,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1334.9000000000003,
+        "front_sensor": 847.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 101,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1351.0000000000002,
+        "front_sensor": 839.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 102,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1367.1000000000001,
+        "front_sensor": 830.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 103,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1383.2,
+        "front_sensor": 821.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 104,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1399.3,
+        "front_sensor": 813.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 105,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1415.3999999999999,
+        "front_sensor": 804.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 106,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1431.4999999999998,
+        "front_sensor": 795.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 107,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1447.5999999999997,
+        "front_sensor": 787.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 108,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1463.6999999999996,
+        "front_sensor": 778.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 109,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1479.7999999999995,
+        "front_sensor": 770.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 110,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1495.8999999999994,
+        "front_sensor": 761.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 111,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1511.9999999999993,
+        "front_sensor": 753.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 112,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1528.0999999999992,
+        "front_sensor": 744.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 113,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1544.1999999999991,
+        "front_sensor": 736.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 114,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1560.299999999999,
+        "front_sensor": 727.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 115,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1576.399999999999,
+        "front_sensor": 719.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 116,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1592.4999999999989,
+        "front_sensor": 710.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 117,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1608.5999999999988,
+        "front_sensor": 701.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 118,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1624.6999999999987,
+        "front_sensor": 693.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 119,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1640.7999999999986,
+        "front_sensor": 684.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 120,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1656.8999999999985,
+        "front_sensor": 675.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 121,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1672.9999999999984,
+        "front_sensor": 667.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 122,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1689.0999999999983,
+        "front_sensor": 658.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 123,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1705.1999999999982,
+        "front_sensor": 649.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 124,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1721.2999999999981,
+        "front_sensor": 640.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 125,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1737.399999999998,
+        "front_sensor": 631.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 126,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1753.499999999998,
+        "front_sensor": 622.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 127,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1769.5999999999979,
+        "front_sensor": 613.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 128,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1785.6999999999978,
+        "front_sensor": 605.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 129,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1801.7999999999977,
+        "front_sensor": 596.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 130,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1817.8999999999976,
+        "front_sensor": 586.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 131,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1833.9999999999975,
+        "front_sensor": 578.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 132,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1850.0999999999974,
+        "front_sensor": 569.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 133,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1866.1999999999973,
+        "front_sensor": 560.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 134,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1882.2999999999972,
+        "front_sensor": 551.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 135,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1898.3999999999971,
+        "front_sensor": 542.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 136,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1914.499999999997,
+        "front_sensor": 533.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 137,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1930.599999999997,
+        "front_sensor": 524.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 138,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1946.6999999999969,
+        "front_sensor": 515.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 139,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1962.7999999999968,
+        "front_sensor": 506.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 140,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1978.8999999999967,
+        "front_sensor": 497.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 141,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 1994.9999999999966,
+        "front_sensor": 488.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 142,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2011.0999999999965,
+        "front_sensor": 479.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 143,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2027.1999999999964,
+        "front_sensor": 470.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 144,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2043.2999999999963,
+        "front_sensor": 461.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 145,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2059.3999999999965,
+        "front_sensor": 452.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 146,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2075.4999999999964,
+        "front_sensor": 443.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 147,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2091.5999999999963,
+        "front_sensor": 434.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 148,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2107.699999999996,
+        "front_sensor": 425.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 149,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2123.799999999996,
+        "front_sensor": 416.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 150,
+        "action": "NOTHING",
+        "velocity_x": 16.09999999999998,
+        "distance": 2139.899999999996,
+        "front_sensor": 407.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 151,
+        "action": "DECELERATE",
+        "velocity_x": 16.09999999999998,
+        "distance": 2155.999999999996,
+        "front_sensor": 398.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 152,
+        "action": "DECELERATE",
+        "velocity_x": 15.99999999999998,
+        "distance": 2171.999999999996,
+        "front_sensor": 389.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 153,
+        "action": "DECELERATE",
+        "velocity_x": 15.89999999999998,
+        "distance": 2187.899999999996,
+        "front_sensor": 380.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 154,
+        "action": "DECELERATE",
+        "velocity_x": 15.799999999999981,
+        "distance": 2203.699999999996,
+        "front_sensor": 371.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 155,
+        "action": "DECELERATE",
+        "velocity_x": 15.699999999999982,
+        "distance": 2219.399999999996,
+        "front_sensor": 363.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 156,
+        "action": "DECELERATE",
+        "velocity_x": 15.599999999999982,
+        "distance": 2234.999999999996,
+        "front_sensor": 354.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 157,
+        "action": "DECELERATE",
+        "velocity_x": 15.499999999999982,
+        "distance": 2250.499999999996,
+        "front_sensor": 346.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 158,
+        "action": "DECELERATE",
+        "velocity_x": 15.399999999999983,
+        "distance": 2265.899999999996,
+        "front_sensor": 338.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 159,
+        "action": "DECELERATE",
+        "velocity_x": 15.299999999999983,
+        "distance": 2281.199999999996,
+        "front_sensor": 330.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 160,
+        "action": "DECELERATE",
+        "velocity_x": 15.199999999999983,
+        "distance": 2296.399999999996,
+        "front_sensor": 321.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 161,
+        "action": "DECELERATE",
+        "velocity_x": 15.099999999999984,
+        "distance": 2311.499999999996,
+        "front_sensor": 313.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 162,
+        "action": "DECELERATE",
+        "velocity_x": 14.999999999999984,
+        "distance": 2326.499999999996,
+        "front_sensor": 306.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 163,
+        "action": "DECELERATE",
+        "velocity_x": 14.899999999999984,
+        "distance": 2341.399999999996,
+        "front_sensor": 298.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 164,
+        "action": "DECELERATE",
+        "velocity_x": 14.799999999999985,
+        "distance": 2356.199999999996,
+        "front_sensor": 290.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 165,
+        "action": "DECELERATE",
+        "velocity_x": 14.699999999999985,
+        "distance": 2370.899999999996,
+        "front_sensor": 282.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 166,
+        "action": "DECELERATE",
+        "velocity_x": 14.599999999999985,
+        "distance": 2385.499999999996,
+        "front_sensor": 275.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 167,
+        "action": "DECELERATE",
+        "velocity_x": 14.499999999999986,
+        "distance": 2399.999999999996,
+        "front_sensor": 268.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 168,
+        "action": "DECELERATE",
+        "velocity_x": 14.399999999999986,
+        "distance": 2414.399999999996,
+        "front_sensor": 260.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 169,
+        "action": "DECELERATE",
+        "velocity_x": 14.299999999999986,
+        "distance": 2428.699999999996,
+        "front_sensor": 253.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 170,
+        "action": "DECELERATE",
+        "velocity_x": 14.199999999999987,
+        "distance": 2442.899999999996,
+        "front_sensor": 246.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 171,
+        "action": "DECELERATE",
+        "velocity_x": 14.099999999999987,
+        "distance": 2456.999999999996,
+        "front_sensor": 239.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 172,
+        "action": "DECELERATE",
+        "velocity_x": 13.999999999999988,
+        "distance": 2470.999999999996,
+        "front_sensor": 233.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 173,
+        "action": "DECELERATE",
+        "velocity_x": 13.899999999999988,
+        "distance": 2484.899999999996,
+        "front_sensor": 226.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 174,
+        "action": "DECELERATE",
+        "velocity_x": 13.799999999999988,
+        "distance": 2498.699999999996,
+        "front_sensor": 220.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 175,
+        "action": "DECELERATE",
+        "velocity_x": 13.699999999999989,
+        "distance": 2512.399999999996,
+        "front_sensor": 213.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 176,
+        "action": "DECELERATE",
+        "velocity_x": 13.599999999999989,
+        "distance": 2525.999999999996,
+        "front_sensor": 207.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 177,
+        "action": "DECELERATE",
+        "velocity_x": 13.49999999999999,
+        "distance": 2539.499999999996,
+        "front_sensor": 201.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 178,
+        "action": "DECELERATE",
+        "velocity_x": 13.39999999999999,
+        "distance": 2552.899999999996,
+        "front_sensor": 195.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 179,
+        "action": "DECELERATE",
+        "velocity_x": 13.29999999999999,
+        "distance": 2566.199999999996,
+        "front_sensor": 189.0,
+        "model_buffer_size": 0
+      },
+      {
+        "tick": 180,
+        "action": "DECELERATE",
+        "velocity_x": 13.19999999999999,
+        "distance": 2579.399999999996,
+        "front_sensor": 183.0,
+        "model_buffer_size": 0
+      }
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+# GPU Race Car Environment Requirements
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+
+# NEAT Evolution
+neat-python>=0.92
+
+# Visualization (optional)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Utilities
+numpy>=1.21.0
+tqdm>=4.64.0
+
+# For saving/loading
+pickle-mixin>=1.0.2

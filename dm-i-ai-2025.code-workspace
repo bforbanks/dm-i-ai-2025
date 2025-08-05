@@ -1,0 +1,16 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"path": "../equivariant-mesh-centroid-estimation"
+	},
+	{
+		"path": "../DM-i-AI-2024"
+	}
+],
+  "settings": {
+    "powershell.cwd": "dm-i-ai-2025"
+  }
+}
