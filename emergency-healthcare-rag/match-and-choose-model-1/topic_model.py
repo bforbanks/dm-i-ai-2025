@@ -20,7 +20,6 @@ OVERLAP = 12
 BM25_K1 = 2.0
 BM25_B = 1.2
 USE_CONDENSED_TOPICS = False
-FORCE_REBUILD = False  # Force rebuild BM25 index (ignore cache)
 CACHE_ROOT = Path(".cache")
 CACHE_ROOT.mkdir(exist_ok=True)
 
@@ -45,12 +44,9 @@ def build_bm25_index() -> Dict:
     topic_type = "condensed" if USE_CONDENSED_TOPICS else "regular"
     cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{CHUNK_SIZE}_{OVERLAP}.pkl"
     
-    if cache_path.exists() and not FORCE_REBUILD:
+    if cache_path.exists():
         print(f"Loading cached BM25 index from {cache_path}")
         return pickle.loads(cache_path.read_bytes())
-    
-    if FORCE_REBUILD:
-        print(f"🔄 Force rebuilding BM25 index (ignoring cache)")
 
     chunks: List[str] = []
     topics: List[int] = []
@@ -98,20 +94,9 @@ def build_bm25_index() -> Dict:
     print(f"[bm25] Cached index → {cache_path}")
     return data
 
-def clear_bm25_cache():
-    """Clear the BM25 cache to force rebuild."""
-    global _BM25_CACHE
-    _BM25_CACHE = None
-
 def load_bm25_index() -> Dict:
     """Load or build BM25 index with caching."""
-    global _BM25_CACHE, FORCE_REBUILD
-    
-    # Clear cache if FORCE_REBUILD is set
-    if FORCE_REBUILD:
-        _BM25_CACHE = None
-        # Reset FORCE_REBUILD after clearing cache
-        FORCE_REBUILD = False
+    global _BM25_CACHE
     
     if _BM25_CACHE is None:
         _BM25_CACHE = build_bm25_index()

@@ -117,8 +117,6 @@ def parse_args():
                        help='Use condensed_topics (default: True, set --no-use-condensed-topics for regular topics)')
     parser.add_argument('--no-use-condensed-topics', dest='use_condensed_topics', action='store_false',
                        help='Use regular topics instead of condensed_topics')
-    parser.add_argument('--no-load', action='store_true',
-                       help='Force rebuild BM25 index (ignore cache)')
     parser.add_argument('--host', type=str, default=HOST, help=f'Host to bind to (default: {HOST})')
     parser.add_argument('--port', type=int, default=PORT, help=f'Port to bind to (default: {PORT})')
     return parser.parse_args()
@@ -158,8 +156,6 @@ if __name__ == '__main__':
             if current_model == "match-and-choose-model-1":
                 topic_model_module = importlib.import_module(f"{current_model}.topic_model")
                 topic_model_module.USE_CONDENSED_TOPICS = args.use_condensed_topics
-                # Clear cache to force rebuild with new topic configuration
-                topic_model_module.clear_bm25_cache()
                 topic_type = "condensed_topics" if args.use_condensed_topics else "topics"
                 logger.info(f"📚 Using {topic_type} for knowledge base")
             else:
@@ -168,19 +164,6 @@ if __name__ == '__main__':
                 
         except Exception as e:
             logger.warning(f"⚠️  Failed to set topic configuration: {e}")
-    
-    # Set no-load configuration if provided
-    if hasattr(args, 'no_load') and args.no_load:
-        try:
-            current_model = get_active_model()
-            if current_model == "match-and-choose-model-1":
-                topic_model_module = importlib.import_module(f"{current_model}.topic_model")
-                topic_model_module.FORCE_REBUILD = True
-                logger.info("🔄 Force rebuild BM25 index (ignoring cache)")
-            else:
-                logger.info(f"📚 No-load configuration not yet implemented for {current_model}")
-        except Exception as e:
-            logger.warning(f"⚠️  Failed to set no-load configuration: {e}")
     
     # Log current model and dataset
     current_model = get_active_model()
