@@ -1,6 +1,7 @@
 import uvicorn
 import argparse
 import sys
+import importlib
 from fastapi import FastAPI
 import datetime
 import time
@@ -94,6 +95,12 @@ def parse_args():
         default=None,
         help='Model to use (e.g., match-and-choose-model-1, separated-models-2, combined-model-2)'
     )
+    parser.add_argument(
+        '--threshold', 
+        type=str, 
+        default=None,
+        help='Threshold to use (float or "NA", default: config default)'
+    )
     parser.add_argument('--host', type=str, default=HOST, help=f'Host to bind to (default: {HOST})')
     parser.add_argument('--port', type=int, default=PORT, help=f'Port to bind to (default: {PORT})')
     return parser.parse_args()
@@ -105,6 +112,23 @@ if __name__ == '__main__':
     if args.model:
         set_active_model(args.model)
         logger.info(f"🎯 Active model set to: {args.model}")
+    
+    # Set threshold if provided
+    if args.threshold:
+        try:
+            # Import threshold setting function from the active model's config
+            current_model = get_active_model()
+            config_module = importlib.import_module(f"{current_model}.config")
+            
+            if args.threshold.upper() == 'NA':
+                threshold = 'NA'
+            else:
+                threshold = float(args.threshold)
+            
+            config_module.set_threshold(threshold)
+            logger.info(f"🎯 Threshold set to: {threshold}")
+        except Exception as e:
+            logger.warning(f"⚠️  Failed to set threshold '{args.threshold}': {e}")
     
     # Log current model
     current_model = get_active_model()

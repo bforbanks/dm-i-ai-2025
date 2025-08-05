@@ -6,11 +6,11 @@ Threshold-based decision making between topic model and LLM choice
 
 from typing import Tuple, List, Dict, Union
 try:
-    from .search import get_top_topics_with_scores, get_rich_context_for_statement
+    from .topic_model import get_top_topics_with_scores, get_rich_context_for_statement
     from .llm import classify_truth_only, classify_topic_and_truth
     from .config import get_threshold, get_config_summary
 except ImportError:
-    from search import get_top_topics_with_scores, get_rich_context_for_statement
+    from topic_model import get_top_topics_with_scores, get_rich_context_for_statement
     from llm import classify_truth_only, classify_topic_and_truth
     from config import get_threshold, get_config_summary
 

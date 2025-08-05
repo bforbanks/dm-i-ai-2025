@@ -7,7 +7,7 @@ Shows what gets caught vs missed at each threshold
 import json
 import numpy as np
 from pathlib import Path
-from search import get_top_topics_with_scores
+from topic_model import get_top_topics_with_scores
 
 def analyze_thresholds():
     """Analyze different gap thresholds and their impact"""

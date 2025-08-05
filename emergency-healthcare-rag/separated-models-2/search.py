@@ -14,9 +14,11 @@ import numpy as np
 from rank_bm25 import BM25Okapi
 from tqdm import tqdm
 
-# Configuration - optimized based on Elias's results
-CHUNK_SIZE = 128
+# Configuration - updated hyperparameters
+CHUNK_SIZE = 96
 OVERLAP = 12
+BM25_K1 = 2.0
+BM25_B = 1.2
 CACHE_ROOT = Path(".cache")
 CACHE_ROOT.mkdir(exist_ok=True)
 
@@ -69,9 +71,9 @@ def build_bm25_index() -> Dict:
             chunk_texts.append(chunk_text)
             topic_names.append(topic_name)
 
-    # Build BM25 index
+    # Build BM25 index with custom parameters
     tokenized_chunks = [chunk.lower().split() for chunk in chunk_texts]
-    bm25 = BM25Okapi(tokenized_chunks)
+    bm25 = BM25Okapi(tokenized_chunks, k1=BM25_K1, b=BM25_B)
 
     # Save everything
     data = {

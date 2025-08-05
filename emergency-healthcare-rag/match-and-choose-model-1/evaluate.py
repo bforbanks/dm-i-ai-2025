@@ -18,7 +18,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).parent))
 
 from model import predict, predict_with_details
-from search import bm25_search, get_top_topics_with_scores
+from topic_model import bm25_search, get_top_topics_with_scores
 from config import set_threshold, set_llm_model, get_config_summary
 
 def evaluate_search_only():
