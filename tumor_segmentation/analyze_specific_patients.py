@@ -17,7 +17,7 @@ Example: PATIENT_NUMBERS = [42, 67, 123]    # Process only patients 42, 67, and 
 # =============================================================================
 # CONFIGURATION - Edit this list to specify which patients to process
 # =============================================================================
-PATIENT_NUMBERS = [42, 67, 123, 3, 4]  # Change this list to your desired patient numbers
+PATIENT_NUMBERS = [42, 67, 123, 2, 4]  # Change this list to your desired patient numbers
 # =============================================================================
 
 import requests
