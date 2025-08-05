@@ -1,174 +1,119 @@
-# Match and Choose Model 1
-
-Advanced topic matching with threshold-based LLM decision making.
+# Match-and-Choose Model Optimization
 
 ## Overview
 
-This model implements a **threshold-based decision making** approach that:
+This module implements a hierarchical optimization approach for the topic model component of the match-and-choose system. The optimization follows a 4-phase strategy to efficiently find the best hybrid BM25 + semantic search configuration.
 
-1. **Uses BM25 search** from separated-models-2 for topic matching with detailed scoring
-2. **Analyzes score gaps** between 1st and 2nd topic candidates
-3. **Makes smart decisions** based on confidence thresholds:
-   - **High confidence (gap > threshold)**: Use separated approach (topic model → truth LLM)
-   - **Low confidence (gap ≤ threshold)**: Use combined approach (LLM chooses topic + truth)
+## Optimization Strategy
 
-## Key Innovation
+### Phase 1: Extensive BM25 Optimization
+- Tests 11 chunk sizes (64-224) × 8 overlap ratios (0.0-0.35) = 88 configurations
+- Focuses purely on BM25 performance to find optimal text chunking parameters
+- Fast execution since BM25 is computationally lightweight
 
-**Problem**: Topic models sometimes make uncertain decisions when multiple topics have similar scores.
-**Solution**: Let the LLM make decisions only when the topic model is genuinely uncertain.
+### Phase 2: Embedding Model Optimization  
+- Tests 5 embedding models × 5 chunk sizes × 5 overlap ratios = 125 configurations
+- Downloads models locally (no online API calls)
+- Finds best embedding model with its optimal hyperparameters
+- Models tested:
+  - `sentence-transformers/all-MiniLM-L6-v2` (fast, lightweight)
+  - `sentence-transformers/all-mpnet-base-v2` (best general performance)
+  - `sentence-transformers/all-distilroberta-v1` (different architecture)
+  - `sentence-transformers/all-roberta-large-v1` (high capacity)
+  - `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (multilingual)
 
-## Implementation
+### Phase 3: Hybrid Combinations
+- Takes top 5 BM25 configs × top 5 embedding configs × 6 fusion strategies = 150 combinations
+- Tests different fusion strategies:
+  - `bm25_only`: Pure BM25 baseline
+  - `semantic_only`: Pure semantic baseline  
+  - `linear_0.3`: 30% BM25 + 70% semantic
+  - `linear_0.5`: Balanced fusion
+  - `linear_0.7`: 70% BM25 + 30% semantic
+  - `rrf`: Reciprocal Rank Fusion
 
-### Files
-
-- `config.py` - Configuration with environment variable support  
-- `search.py` - BM25 search with enhanced scoring (inherited from separated-models-2)
-- `llm.py` - Dual prompts (truth-only vs topic+truth classification)
-- `model.py` - Main prediction logic with threshold-based decision making
-- `evaluate.py` - Comprehensive evaluation with threshold analysis
-- `threshold_analysis.py` - Detailed threshold optimization analysis
-
-### Key Features
-
-#### Threshold-Based Decision Making
-- **Default threshold: 0** (LLM intervenes when scores are exactly tied)
-- **Configurable via environment**: `THRESHOLD=5.0` or `THRESHOLD=NA`
-- **Smart approach selection** based on score gap analysis
-
-#### Dual LLM Prompts
-- **Truth-only prompt**: When topic is confident (separated approach)
-- **Topic+Truth prompt**: When choosing between similar candidates (combined approach)
-- **Response formats**: Single number (0/1) vs "topic_id,truth_bool"
-
-#### Comprehensive Evaluation
-- **Search evaluation**: BM25 performance on topic matching
-- **Threshold analysis**: Decision behavior on full dataset  
-- **Approach breakdown**: Separated vs combined usage statistics
-- **Performance tracking**: Timing and accuracy per approach
+### Phase 4: Zoom into Promising Configurations
+- Takes top 3 most promising hybrid configurations
+- Generates parameter variations around each (radius=2)
+- Fine-tunes promising configurations for maximum performance
 
 ## Usage
 
-### Basic Prediction
-```python
-from model import predict
-
-# Uses config defaults (threshold=0, model=gemma3:27b)
-truth_value, topic_id = predict("Medical statement here")
-```
-
-### Advanced Prediction with Details
-```python
-from model import predict_with_details
-
-# Get detailed decision information
-result = predict_with_details("Medical statement", threshold=5.0)
-print(f"Approach used: {result['decision_info']['approach_used']}")
-print(f"Score gap: {result['decision_info']['gap']:.3f}")
-```
-
-### Configuration
 ```bash
-# Set model and threshold via environment
-export LLM_MODEL="gemma3:27b"
-export THRESHOLD="0"  # or "NA" for always separated
-
-# Or via Python
-from config import set_llm_model, set_threshold
-set_llm_model("llama3.1:8b")
-set_threshold(10.0)
+cd emergency-healthcare-rag/match-and-choose-model-1/
+python optimize_topic_model.py
 ```
-
-## Evaluation
-
-### Search Component Only (Fast)
-```bash
-python match-and-choose-model-1/evaluate.py --search-only
-```
-
-### Threshold Analysis (Full Dataset)
-```bash
-python match-and-choose-model-1/evaluate.py --threshold-analysis
-```
-
-### Full Pipeline Evaluation
-```bash
-# Default: 20 samples, threshold=0, model=gemma3:27b
-python match-and-choose-model-1/evaluate.py
-
-# Custom configuration
-python match-and-choose-model-1/evaluate.py --samples 50 --threshold 5.0 --model llama3.1:8b
-
-# Different threshold strategies
-python match-and-choose-model-1/evaluate.py --threshold NA    # Always separated
-python match-and-choose-model-1/evaluate.py --threshold 0     # LLM for ties only
-python match-and-choose-model-1/evaluate.py --threshold 10    # LLM for uncertain cases
-```
-
-## Performance Results
-
-Based on threshold analysis (threshold=0):
-
-```
-Search Performance:
-- Top-1 accuracy: 89.5% (179/200)
-- Top-3 accuracy: 97.0% (194/200)
-
-Threshold Behavior:
-- Separated approach: 79.8% of cases (gap > 0)
-- Combined approach: 20.2% of cases (gap = 0)
-- Separated accuracy: 94.2% (high confidence → high accuracy)
-- Combined baseline: 69.2% (LLM should improve this)
-```
-
-## Key Insights
-
-1. **Threshold = 0 is optimal**: Identifies exactly the cases where topic model is uncertain
-2. **Tied scores aren't random**: 69.2% accuracy due to systematic tie-breaking bias
-3. **Clear value proposition**: LLM can improve 69.2% → 85%+ for 20% of cases
-4. **Efficient resource usage**: Most cases (80%) use faster separated approach
-
-## Search Optimization
-
-🚀 **NEW: One-Click Grid Search Optimization!**
-
-Find the optimal search configuration to maximize topic matching accuracy:
-
-```bash
-# Single script - just run it!
-python match-and-choose-model-1/optimize_search.py
-```
-
-**What it does:**
-- ✅ **Setup check**: Verifies dependencies automatically
-- ✅ **Grid search**: Tests 10 strategic configurations (1-3 hours)  
-- ✅ **Local models only**: No API calls (BM25 + sentence-transformers)
-- ✅ **Complete results**: Shows best config + implementation code
-- ✅ **Expected gain**: +2-5% accuracy (89.5% → 92-95%)
-
-**What gets optimized:**
-- BM25-only vs Hybrid (BM25 + semantic) search
-- Chunk size and overlap parameters  
-- Embedding models and fusion strategies
-
-## Future Optimizations
-
-1. ✅ **Hybrid Search**: Automated grid search with BM25+semantic options
-2. **Threshold Grid Search**: Quantitative threshold optimization on validation set  
-3. **Adaptive Thresholds**: Different thresholds based on medical domain/complexity
-4. **Context Enhancement**: Richer context for LLM decision making
-
-## Dependencies
-
-- `rank_bm25` - BM25 search implementation
-- `ollama` - LLM interface  
-- `numpy` - Numerical operations
-- `tqdm` - Progress bars
-- `pathlib` - File path handling
 
 ## Configuration
 
-- **Default threshold**: 0 (LLM for exact ties)
-- **Default model**: gemma3:27b (most capable)
-- **Chunk size**: 128 words
-- **Overlap**: 12 words  
-- **Cache location**: `.cache/`
+The optimization can be customized via the `OptimizationConfig` class:
+
+```python
+@dataclass
+class OptimizationConfig:
+    # Phase 1: BM25 optimization
+    bm25_chunk_sizes: List[int] = [64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224]
+    bm25_overlap_ratios: List[float] = [0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35]
+    
+    # Phase 2: Embedding optimization
+    embedding_models: List[str] = [...]  # 5 models
+    embedding_chunk_sizes: List[int] = [96, 112, 128, 144, 160]
+    embedding_overlap_ratios: List[float] = [0.05, 0.1, 0.15, 0.2, 0.25]
+    
+    # Phase 3: Combination parameters
+    top_bm25_configs: int = 5
+    top_embedding_configs: int = 5
+    fusion_strategies: List[str] = [...]  # 6 strategies
+    
+    # Phase 4: Zoom parameters
+    zoom_enabled: bool = True
+    zoom_radius: int = 2
+    
+    # General parameters
+    max_samples: int = 200
+    use_condensed_topics: bool = True
+```
+
+## Output
+
+The optimization saves results for each phase:
+- `optimization_results_phase1_bm25_<timestamp>.json`
+- `optimization_results_phase2_semantic_<timestamp>.json`  
+- `optimization_results_phase3_hybrid_<timestamp>.json`
+- `optimization_results_phase4_final_<timestamp>.json`
+
+Each file contains:
+- Configuration parameters
+- Performance metrics (accuracy, average rank, top-3 accuracy)
+- Timestamp for tracking
+
+## Key Features
+
+- **Local Model Downloads**: All embedding models are downloaded locally, no online API calls
+- **Hierarchical Approach**: Focuses on most promising parameter regions
+- **Efficient Search**: Tests ~363 configurations vs exhaustive search of thousands
+- **Zoom Capability**: Fine-tunes promising configurations
+- **Progress Tracking**: Saves results after each phase for resumability
+- **Cloud-Friendly**: Minimal dependencies, works on ucloud instances
+
+## Expected Performance
+
+- **Runtime**: 2-4 hours on ucloud instance
+- **Target Accuracy**: 90%+ on topic classification
+- **Memory Usage**: ~4GB for largest embedding models
+- **Storage**: ~2GB for downloaded models
+
+## Dependencies
+
+```bash
+pip install sentence-transformers scikit-learn rank_bm25 tqdm torch
+```
+
+## Files
+
+- `optimize_topic_model.py`: Main optimization script
+- `config.py`: Configuration management
+- `model.py`: Core model implementation
+- `search.py`: Search functionality
+- `llm.py`: LLM integration
+- `evaluate.py`: Evaluation utilities
