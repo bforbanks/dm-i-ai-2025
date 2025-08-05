@@ -348,3 +348,34 @@ class PredictionModel:
 
         return action
 
+
+if __name__ == "__main__":
+    model = PredictionModel(live_plot=True)
+    # print the time it takes to update the model
+    start_time = time.time()
+    for i in range(100):
+        state = {
+            "elapsed_ticks": i,
+            "velocity": {"x": 10, "y": 0},
+            "sensors": {
+                "front": 100,
+                "right_front": 100,
+                "right_side": 100,
+                "right_back": 100,
+                "back": 100,
+                "left_back": 100,
+                "left_side": 100,
+                "left_front": 100,
+                "front_left_front": 100,
+                "front_right_front": 100,
+                "right_side_front": 100,
+                "right_side_back": 100,
+                "back_right_back": 100,
+                "back_left_back": 100,
+                "left_side_back": 100,
+                "left_side_front": 100,
+            }
+        }
+        model.update(state)
+    end_time = time.time()
+    print("Time taken: ", end_time-start_time)
