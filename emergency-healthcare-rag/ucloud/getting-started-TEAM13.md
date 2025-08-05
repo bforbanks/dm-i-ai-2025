@@ -5,6 +5,30 @@
 ## Overview
 This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud for TEAM13.
 
+## Quick Commands
+
+**Essential commands for quick access:**
+
+```bash
+# Git authentication
+git config --global credential.helper store
+
+# Ollama server (run in separate terminal tab)
+OLLAMA_MODELS=/work/TEAM13/models ./ollama/bin/ollama serve
+
+# Setup environment
+cd dm-i-ai-2025/emergency-healthcare-rag
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+
+# Start FastAPI server (run in separate terminal tab)
+python api.py
+
+# Test API
+curl -X POST localhost:8000/predict -H "Content-Type: application/json" -d '{"statement": "constipation is a disease"}'
+```
+
 ## 1. Accept Team Invite
 1. Accept your team's UCloud invite link and login with university credentials
 2. Share the invite link only with your teammates (not other participants)
@@ -38,7 +62,12 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
    cd /work/TEAM13
    ```
 
-2. Clone the repository:
+2. Configure git credentials (to avoid repeated authentication):
+   ```bash
+   git config --global credential.helper store
+   ```
+
+3. Clone the repository:
    ```bash
    git clone https://github.com/bforbanks/dm-i-ai-2025.git
    cd dm-i-ai-2025
@@ -54,7 +83,7 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 
 5. In the new terminal tab, start Ollama server (this will start ollama on port 11434):
    ```bash
-   OLLAMA_MODELS=/work/TEAM13/models /work/TEAM13/ollama/bin/ollama serve
+   OLLAMA_MODELS=/work/TEAM13/models ./ollama/bin/ollama serve
    ```
 
 6. **Open another terminal tab** for model management
@@ -62,12 +91,12 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 7. In the new terminal tab, download the model:
    ```bash
    cd /work/TEAM13
-   /work/TEAM13/ollama/bin/ollama pull gemma3:27b
+   ./ollama/bin/ollama pull gemma3:27b
    ```
 
 8. Test Ollama in the terminal:
    ```bash
-   /work/TEAM13/ollama/bin/ollama run gemma3:27b
+   ./ollama/bin/ollama run gemma3:27b
    ```
    (Press `Ctrl+D` to exit chat)
 
@@ -82,7 +111,7 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 
 2. In the new terminal tab, navigate to project directory:
    ```bash
-   cd /work/TEAM13/dm-i-ai-2025/emergency-healthcare-rag
+   cd dm-i-ai-2025/emergency-healthcare-rag
    ```
 
 3. Create and activate virtual environment:
@@ -164,12 +193,13 @@ The system is designed to work with any Ollama model. You can easily switch betw
 
 ### List Available Models:
 ```bash
-cd /work/TEAM13/dm-i-ai-2025/emergency-healthcare-rag
+cd dm-i-ai-2025/emergency-healthcare-rag
 python combined-model-2/model_switcher.py
 ```
 
 ### Switch to a Different Model:
 ```bash
+cd dm-i-ai-2025/emergency-healthcare-rag
 # Switch to DeepSeek R1 32B (excellent for reasoning)
 python combined-model-2/model_switcher.py deepseek-r1:32b
 

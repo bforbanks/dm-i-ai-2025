@@ -124,8 +124,50 @@ class SearchOptimizer:
         # Build embeddings if hybrid search
         if config['search_type'] == 'hybrid' and SENTENCE_TRANSFORMERS_AVAILABLE:
             print(f"🧠 Computing embeddings with {config.get('embedding', 'all-mpnet-base-v2')}")
-            model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
-            embeddings = model.encode(chunk_texts, show_progress_bar=True)
+            try:
+                # Try GPU first, fallback to CPU if memory issues
+                model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
+                
+                # Check if GPU is available and has enough memory
+                import torch
+                if torch.cuda.is_available():
+                    # Try to clear GPU memory first
+                    torch.cuda.empty_cache()
+                    
+                    # Check available memory
+                    gpu_memory = torch.cuda.get_device_properties(0).total_memory
+                    allocated_memory = torch.cuda.memory_allocated(0)
+                    free_memory = gpu_memory - allocated_memory
+                    
+                    # Estimate memory needed (rough estimate: 4 bytes per embedding dimension * num_chunks)
+                    estimated_memory = len(chunk_texts) * 768 * 4  # 768 is typical embedding size
+                    
+                    if free_memory < estimated_memory * 1.5:  # 1.5x buffer
+                        print("⚠️  GPU memory insufficient, using CPU")
+                        model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cpu')
+                    else:
+                        print("✅ Using GPU for embeddings")
+                        model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cuda')
+                else:
+                    print("⚠️  No GPU available, using CPU")
+                    model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cpu')
+                
+                # Compute embeddings in smaller batches to avoid memory issues
+                batch_size = 32  # Smaller batch size
+                embeddings_list = []
+                
+                for i in tqdm(range(0, len(chunk_texts), batch_size), desc="Computing embeddings"):
+                    batch = chunk_texts[i:i + batch_size]
+                    batch_embeddings = model.encode(batch, show_progress_bar=False)
+                    embeddings_list.append(batch_embeddings)
+                
+                embeddings = np.vstack(embeddings_list)
+                
+            except Exception as e:
+                print(f"⚠️  Embedding computation failed: {e}")
+                print("🔄 Falling back to BM25-only search")
+                embeddings = None
+                config['search_type'] = 'bm25'  # Force BM25-only
         
         return {
             'topics': topics,
@@ -166,33 +208,38 @@ class SearchOptimizer:
         bm25_indices = np.argsort(bm25_scores)[-top_k:][::-1]
         
         # Semantic search
-        model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
-        query_embedding = model.encode([statement])
-        similarities = np.dot(data['embeddings'], query_embedding.T).flatten()
-        vector_indices = np.argsort(similarities)[-top_k:][::-1]
-        
-        # Reciprocal Rank Fusion (RRF)
-        rrf_scores = {}
-        rrf_k = config.get('rrf_k', 60)
-        
-        for rank, idx in enumerate(bm25_indices):
-            rrf_scores[idx] = rrf_scores.get(idx, 0) + 1 / (rank + rrf_k)
-        
-        for rank, idx in enumerate(vector_indices):
-            rrf_scores[idx] = rrf_scores.get(idx, 0) + 1 / (rank + rrf_k)
-        
-        sorted_indices = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
-        
-        results = []
-        for idx, score in sorted_indices[:top_k]:
-            results.append({
-                'topic_id': data['topics'][idx],
-                'topic_name': data['topic_names'][idx],
-                'chunk_text': data['chunk_texts'][idx],
-                'score': float(score)
-            })
-        
-        return results
+        try:
+            model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
+            query_embedding = model.encode([statement])
+            similarities = np.dot(data['embeddings'], query_embedding.T).flatten()
+            vector_indices = np.argsort(similarities)[-top_k:][::-1]
+            
+            # Reciprocal Rank Fusion (RRF)
+            rrf_scores = {}
+            rrf_k = config.get('rrf_k', 60)
+            
+            for rank, idx in enumerate(bm25_indices):
+                rrf_scores[idx] = rrf_scores.get(idx, 0) + 1 / (rank + rrf_k)
+            
+            for rank, idx in enumerate(vector_indices):
+                rrf_scores[idx] = rrf_scores.get(idx, 0) + 1 / (rank + rrf_k)
+            
+            sorted_indices = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+            
+            results = []
+            for idx, score in sorted_indices[:top_k]:
+                results.append({
+                    'topic_id': data['topics'][idx],
+                    'topic_name': data['topic_names'][idx],
+                    'chunk_text': data['chunk_texts'][idx],
+                    'score': float(score)
+                })
+            
+            return results
+            
+        except Exception as e:
+            print(f"⚠️  Hybrid search failed: {e}, falling back to BM25")
+            return self.bm25_search(data, statement, top_k)
     
     def get_top_topics_with_scores(self, data: Dict, statement: str, config: Dict, top_k: int = 10) -> List[Dict]:
         """Get top topics with deduplication by topic_id"""
@@ -274,7 +321,31 @@ class SearchOptimizer:
         # Save result immediately
         self.save_result(result)
         
+        # Clear memory aggressively since result is saved
+        self.clear_memory()
+        
         return result
+    
+    def clear_memory(self):
+        """Aggressively clear memory after each configuration evaluation"""
+        try:
+            import torch
+            import gc
+            
+            # Clear PyTorch cache
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                print("🧹 Cleared GPU memory cache")
+            
+            # Force garbage collection
+            gc.collect()
+            
+            # Clear any sentence transformer models from memory
+            if 'model' in globals():
+                del globals()['model']
+            
+        except Exception as e:
+            print(f"⚠️  Memory clearing failed: {e}")
     
     def save_result(self, result: Dict[str, Any]):
         """Save a single result to file"""
@@ -292,7 +363,7 @@ class SearchOptimizer:
         print(f"💾 Result saved: {result['config']['name']} - Top-1: {result['accuracy_metrics']['top_1_accuracy']*100:.1f}%")
     
     def run_optimization(self) -> List[Dict[str, Any]]:
-        """Run streamlined optimization with focused configurations"""
+        """Run comprehensive optimization with many configurations"""
         
         # Load existing results if available
         if self.results_file.exists():
@@ -301,29 +372,73 @@ class SearchOptimizer:
                 self.results = existing_data.get('results', [])
                 print(f"📋 Loaded {len(self.results)} existing results")
         
-        # Focused configurations - only the most important ones
+        # Comprehensive configurations - testing many variations
         configs = [
-            # Baseline BM25
+            # Baseline and current best
             {"search_type": "bm25", "chunk_size": 128, "overlap": 12, "use_condensed_topics": True, "name": "baseline_bm25"},
-            
-            # BM25 variations
-            {"search_type": "bm25", "chunk_size": 96, "overlap": 8, "use_condensed_topics": True, "name": "bm25_96_8"},
-            {"search_type": "bm25", "chunk_size": 192, "overlap": 16, "use_condensed_topics": True, "name": "bm25_192_16"},
-            
-            # Test regular topics
             {"search_type": "bm25", "chunk_size": 128, "overlap": 12, "use_condensed_topics": False, "name": "bm25_regular"},
+            
+            # BM25 chunk size variations (condensed topics)
+            {"search_type": "bm25", "chunk_size": 64, "overlap": 6, "use_condensed_topics": True, "name": "bm25_64_6"},
+            {"search_type": "bm25", "chunk_size": 80, "overlap": 8, "use_condensed_topics": True, "name": "bm25_80_8"},
+            {"search_type": "bm25", "chunk_size": 96, "overlap": 8, "use_condensed_topics": True, "name": "bm25_96_8"},
+            {"search_type": "bm25", "chunk_size": 112, "overlap": 10, "use_condensed_topics": True, "name": "bm25_112_10"},
+            {"search_type": "bm25", "chunk_size": 144, "overlap": 14, "use_condensed_topics": True, "name": "bm25_144_14"},
+            {"search_type": "bm25", "chunk_size": 160, "overlap": 16, "use_condensed_topics": True, "name": "bm25_160_16"},
+            {"search_type": "bm25", "chunk_size": 192, "overlap": 16, "use_condensed_topics": True, "name": "bm25_192_16"},
+            {"search_type": "bm25", "chunk_size": 224, "overlap": 20, "use_condensed_topics": True, "name": "bm25_224_20"},
+            {"search_type": "bm25", "chunk_size": 256, "overlap": 24, "use_condensed_topics": True, "name": "bm25_256_24"},
+            {"search_type": "bm25", "chunk_size": 320, "overlap": 32, "use_condensed_topics": True, "name": "bm25_320_32"},
+            {"search_type": "bm25", "chunk_size": 384, "overlap": 32, "use_condensed_topics": True, "name": "bm25_384_32"},
+            
+            # BM25 overlap variations (fixed chunk size)
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 8, "use_condensed_topics": True, "name": "bm25_128_8"},
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 16, "use_condensed_topics": True, "name": "bm25_128_16"},
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 20, "use_condensed_topics": True, "name": "bm25_128_20"},
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 24, "use_condensed_topics": True, "name": "bm25_128_24"},
+            
+            # BM25 regular topics variations
+            {"search_type": "bm25", "chunk_size": 96, "overlap": 8, "use_condensed_topics": False, "name": "bm25_regular_96_8"},
+            {"search_type": "bm25", "chunk_size": 192, "overlap": 16, "use_condensed_topics": False, "name": "bm25_regular_192_16"},
+            {"search_type": "bm25", "chunk_size": 256, "overlap": 24, "use_condensed_topics": False, "name": "bm25_regular_256_24"},
+            
+            # BM25 no overlap variations
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 0, "use_condensed_topics": True, "name": "bm25_128_0"},
+            {"search_type": "bm25", "chunk_size": 256, "overlap": 0, "use_condensed_topics": True, "name": "bm25_256_0"},
         ]
         
-        # Add hybrid configs if available
+        # Add hybrid configs if available (with memory management)
         if SENTENCE_TRANSFORMERS_AVAILABLE:
-            configs.extend([
+            hybrid_configs = [
+                # Hybrid with different chunk sizes
+                {"search_type": "hybrid", "chunk_size": 128, "overlap": 12, "rrf_k": 60, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_128_12"},
+                {"search_type": "hybrid", "chunk_size": 192, "overlap": 16, "rrf_k": 60, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_192_16"},
                 {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
                  "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_256_24"},
-                {"search_type": "hybrid", "chunk_size": 384, "overlap": 32, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_384_32"},
+                {"search_type": "hybrid", "chunk_size": 320, "overlap": 32, "rrf_k": 60, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_320_32"},
+                
+                # Hybrid with different RRF parameters
                 {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 30, 
                  "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_30"},
-            ])
+                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 90, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_90"},
+                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 120, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_120"},
+                
+                # Hybrid with different embedding models
+                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                 "embedding": "all-MiniLM-L6-v2", "use_condensed_topics": True, "name": "hybrid_minilm"},
+                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                 "embedding": "all-MiniLM-L12-v2", "use_condensed_topics": True, "name": "hybrid_minilm_l12"},
+                
+                # Hybrid with regular topics
+                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": False, "name": "hybrid_regular"},
+            ]
+            configs.extend(hybrid_configs)
         
         # Skip already evaluated configs
         evaluated_names = {r['config']['name'] for r in self.results}
@@ -351,6 +466,8 @@ class SearchOptimizer:
                     'accuracy_metrics': {'top_1_accuracy': 0}
                 }
                 self.save_result(error_result)
+                # Clear memory even after errors
+                self.clear_memory()
         
         return self.results
     
@@ -362,20 +479,20 @@ class SearchOptimizer:
         
         print("\n📊 OPTIMIZATION RESULTS SUMMARY")
         print("=" * 80)
-        print(f"{'Config':<20} {'Type':<8} {'Topics':<10} {'Top-1':<8} {'Top-3':<8} {'Time':<8}")
+        print(f"{'Config':<25} {'Type':<8} {'Topics':<10} {'Top-1':<8} {'Top-3':<8} {'Time':<8}")
         print("-" * 80)
         
         for result in self.results:
             if 'error' in result:
                 config = result['config']
-                print(f"{config.get('name', 'unknown'):<20} {'ERROR':<8} {'-':<10} {'-':<8} {'-':<8} {'-':<8}")
+                print(f"{config.get('name', 'unknown'):<25} {'ERROR':<8} {'-':<10} {'-':<8} {'-':<8} {'-':<8}")
                 continue
                 
             config = result['config']
             metrics = result['accuracy_metrics']
             topics_type = "condensed" if config.get('use_condensed_topics', True) else "regular"
             
-            print(f"{config.get('name', 'unknown'):<20} "
+            print(f"{config.get('name', 'unknown'):<25} "
                   f"{config['search_type']:<8} "
                   f"{topics_type:<10} "
                   f"{metrics['top_1_accuracy']*100:6.1f}% "
@@ -389,10 +506,16 @@ class SearchOptimizer:
             print(f"\n🏆 BEST CONFIGURATION: {best_result['config']['name']}")
             print(f"🎯 Top-1 Accuracy: {best_result['accuracy_metrics']['top_1_accuracy']*100:.1f}%")
             print(f"⏱️  Avg Search Time: {best_result['avg_search_time']*1000:.1f}ms")
+            
+            # Show top 5 configurations
+            sorted_results = sorted(valid_results, key=lambda x: x['accuracy_metrics']['top_1_accuracy'], reverse=True)
+            print(f"\n🏅 TOP 5 CONFIGURATIONS:")
+            for i, result in enumerate(sorted_results[:5], 1):
+                print(f"  {i}. {result['config']['name']}: {result['accuracy_metrics']['top_1_accuracy']*100:.1f}% ({result['avg_search_time']*1000:.1f}ms)")
 
 def main():
     """Streamlined optimization pipeline"""
-    print("🚀 STREAMLINED SEARCH OPTIMIZATION")
+    print("🚀 COMPREHENSIVE SEARCH OPTIMIZATION")
     print("=" * 50)
     
     # Check data files
