@@ -1,986 +1,475 @@
 #!/usr/bin/env python3
 """
-Optimized Topic Model with Hierarchical Approach
+Hierarchical Topic Model Optimizer (concise, ucloud-friendly)
 
-Phase 1: Extensive BM25 optimization by itself
-Phase 2: Find best embedding model with its hyperparameters  
-Phase 3: Combine top 5 most different configs from each
-Phase 4: Zoom into promising combinations
-
-Never uses online API calls - downloads models to local.
+- No live-results; only writes:
+    models_90_plus.json   (all configs with acc >= 0.90, metrics+config only)
+    top_5_models.json     (current best five with metrics+config)
+- Correct metrics: not-found => rank=11; accurate top-3; mean margin@1.
+- Topic-level ranking by aggregating chunk scores (max).
+- Overlap handled as ratio everywhere (no truncation).
+- Paths: --data-dir or env EHR_DATA_DIR; fallback probe: <script>/data then ../data.
+- Optional on-disk embedding cache (npz). No online API calls at inference time.
 """
 
-import os
-import json
-import pickle
-import time
-import warnings
+import json, time, warnings, argparse
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Union
-import numpy as np
 from dataclasses import dataclass
-import itertools
-from collections import defaultdict
+from typing import List, Dict, Tuple
+import numpy as np
 
-# Suppress transformer warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="torch.*")
 warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
 
-# Core dependencies
 from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 
-# Cloud-friendly progress bars
 try:
     from tqdm import tqdm
     tqdm.monitor_interval = 0
     USE_TQDM = True
-except ImportError:
+except Exception:
     USE_TQDM = False
-    def tqdm(iterable, desc="", leave=True, **kwargs):
-        total = len(iterable) if hasattr(iterable, '__len__') else None
-        for i, item in enumerate(iterable):
+    def tqdm(it, desc="", leave=True, **kw):
+        total = len(it) if hasattr(it, '__len__') else None
+        for i, x in enumerate(it):
             if total and i % max(1, total // 20) == 0:
                 print(f"{desc}: {i+1}/{total} ({100*(i+1)/total:.0f}%)")
-            yield item
+            yield x
 
-# ----------------------------------------------------------------------- 
-# CONFIGURATION & SETUP
-# -----------------------------------------------------------------------
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR: Path  # set in main after resolution
+OUT_90P = BASE_DIR / "models_90_plus.json"
+OUT_TOP5 = BASE_DIR / "top_5_models.json"
+CACHE_DIR = BASE_DIR / "cache"
+CACHE_DIR.mkdir(exist_ok=True)
 
+# ---------------------------- Config ----------------------------
 @dataclass
 class OptimizationConfig:
-    """Configuration for hierarchical optimization"""
-    
-    # Phase 1: BM25 optimization parameters
     bm25_chunk_sizes: List[int] = None
     bm25_overlap_ratios: List[float] = None
-    
-    # Phase 2: Embedding model parameters  
     embedding_models: List[str] = None
     embedding_chunk_sizes: List[int] = None
     embedding_overlap_ratios: List[float] = None
-    
-    # Phase 3: Combination parameters
     top_bm25_configs: int = 5
     top_embedding_configs: int = 5
     fusion_strategies: List[str] = None
-    
-    # Phase 4: Zoom parameters
     zoom_enabled: bool = True
-    zoom_radius: int = 2  # Parameter variations around promising configs
-    
-    # General parameters
+    zoom_radius: int = 2
     use_condensed_topics: bool = True
-    max_samples: int = 50  # Reduced from 200 for faster testing
+    max_samples: int = 50
     cache_embeddings: bool = True
-    save_detailed_results: bool = True
-    
+    save_detailed_results: bool = False
+    display_every: int = 20
     def __post_init__(self):
-        if self.bm25_chunk_sizes is None:
-            # Extensive BM25 optimization - reduced for faster testing
-            self.bm25_chunk_sizes = [96, 112, 128, 144, 160]  # Reduced from 11 to 5
-            
-        if self.bm25_overlap_ratios is None:
-            # Use no overlap for now to get the optimization working
-            self.bm25_overlap_ratios = [0]  # No overlap for now
-            
-        if self.embedding_models is None:
-            # Models that will be downloaded locally - reduced for faster testing
-            self.embedding_models = [
-                "sentence-transformers/all-MiniLM-L6-v2",       # Fast, lightweight (384d)
-                "sentence-transformers/all-mpnet-base-v2",      # Best general performance (768d)
-            ]  # Reduced from 5 to 2
-            
-        if self.embedding_chunk_sizes is None:
-            # Focus on promising ranges for embeddings - reduced for faster testing
-            self.embedding_chunk_sizes = [112, 128, 144]  # Reduced from 5 to 3
-            
-        if self.embedding_overlap_ratios is None:
-            # Use no overlap for now
-            self.embedding_overlap_ratios = [0]  # No overlap for now
-            
-        if self.fusion_strategies is None:
-            self.fusion_strategies = [
-                "bm25_only",           # Always include baseline
-                "semantic_only",       # Pure semantic baseline
-                "linear_0.5",          # Balanced fusion
-                "rrf",                 # Reciprocal Rank Fusion
-            ]  # Reduced from 6 to 4
+        self.bm25_chunk_sizes = self.bm25_chunk_sizes or [96,112,128,144,160]
+        self.bm25_overlap_ratios = self.bm25_overlap_ratios or [0.0]
+        self.embedding_models = self.embedding_models or [
+            "sentence-transformers/all-MiniLM-L6-v2",
+            "sentence-transformers/all-mpnet-base-v2",
+        ]
+        self.embedding_chunk_sizes = self.embedding_chunk_sizes or [112,128,144]
+        self.embedding_overlap_ratios = self.embedding_overlap_ratios or [0.0]
+        self.fusion_strategies = self.fusion_strategies or ["bm25_only","semantic_only","linear_0.5","rrf"]
 
-# Global configuration
 config = OptimizationConfig()
 
-# ----------------------------------------------------------------------- 
-# UTILITY FUNCTIONS
-# -----------------------------------------------------------------------
+# ---------------------------- IO ----------------------------
+def _read_json(p: Path, default):
+    try: return json.loads(p.read_text())
+    except Exception: return default
 
-def chunk_words(words: List[str], size: int, overlap: int) -> List[str]:
-    """Split words into overlapping chunks"""
-    if len(words) <= size:
-        return [' '.join(words)]
-    
-    # Use a more efficient approach - step by (size - overlap) instead of creating all possible overlaps
-    step_size = max(1, size - overlap)
-    
-    chunks = []
-    for i in range(0, len(words) - size + 1, step_size):
-        chunk = words[i:i + size]
-        chunks.append(' '.join(chunk))
-    
-    # If we didn't get any chunks (due to step size being too large), create at least one chunk
-    if not chunks:
-        chunks = [' '.join(words[:size])]
-    
-    return chunks
+def _write_json(p: Path, obj):
+    p.write_text(json.dumps(obj, indent=2))
+
+def update_top_5_models(all_results: List[Dict]):
+    if not all_results: return None
+    s = sorted(all_results, key=lambda x: x['metrics']['accuracy'], reverse=True)[:5]
+    out = {"last_updated": int(time.time()),
+           "total_configurations_tested": len(all_results),
+           "top_5_models": []}
+    for i, r in enumerate(s, 1):
+        m, c = r['metrics'], r['config']
+        out["top_5_models"].append({
+            "rank": i,
+            "accuracy": m['accuracy'],
+            "avg_rank": m['avg_rank'],
+            "top3_accuracy": m['top3_accuracy'],
+            "mean_margin_at_1": m.get('mean_margin_at_1'),
+            "config": c
+        })
+    _write_json(OUT_TOP5, out)
+    return out
+
+def display_top_5_models(all_results: List[Dict], i: int, total: int, force=False):
+    if not force and (i % config.display_every != 0): return
+    top = update_top_5_models(all_results)
+    if not top: 
+        print("No results yet; top-5 unavailable."); 
+        return
+    print(f"\nTOP 5 at {time.strftime('%H:%M:%S')} [{i}/{total} = {100*i/total:.1f}%]")
+    for t in top["top_5_models"]:
+        print(f"{t['rank']}. acc={t['accuracy']:.3f} avg_rank={t['avg_rank']:.2f} top3={t['top3_accuracy']:.3f} margin@1={t['mean_margin_at_1']}")
+    print(f"Saved to {OUT_TOP5.name}")
+
+def update_high_performance_models(result: Dict):
+    acc = result.get('metrics', {}).get('accuracy', 0.0)
+    if acc < 0.90: return
+    entries = _read_json(OUT_90P, [])
+    m, c = result['metrics'], result['config']
+    entries.append({
+        "timestamp": int(time.time()),
+        "accuracy": m['accuracy'],
+        "avg_rank": m['avg_rank'],
+        "top3_accuracy": m['top3_accuracy'],
+        "mean_margin_at_1": m.get('mean_margin_at_1'),
+        "config": c
+    })
+    _write_json(OUT_90P, entries)
+    print(f"≥90% model saved: acc={acc:.3f} -> {OUT_90P.name}")
+
+# ---------------------------- Data & metrics ----------------------------
+def _require_data_layout():
+    need = [DATA_DIR / "topics.json", DATA_DIR / "train" / "statements", DATA_DIR / "train" / "answers"]
+    miss = [str(p) for p in need if not p.exists()]
+    if miss:
+        raise FileNotFoundError("Required data paths missing:\n  " + "\n  ".join(miss))
+
+def chunk_words(words: List[str], size: int, overlap_tokens: int) -> List[str]:
+    if len(words) <= size: return [' '.join(words)]
+    step = max(1, size - overlap_tokens)
+    out = [' '.join(words[i:i+size]) for i in range(0, len(words) - size + 1, step)]
+    return out or [' '.join(words[:size])]
 
 def load_statements() -> List[Tuple[str, int]]:
-    """Load training statements with true topics"""
-    statement_dir = Path("data/train/statements")
-    answer_dir = Path("data/train/answers")
-    
-    records = []
-    for path in sorted(statement_dir.glob("*.txt")):
-        sid = path.stem.split("_")[1]
-        statement = path.read_text().strip()
-        ans = json.loads((answer_dir / f"statement_{sid}.json").read_text())
-        records.append((statement, ans["statement_topic"]))
-    
-    return records[:config.max_samples]
+    sdir = DATA_DIR / "train" / "statements"
+    adir = DATA_DIR / "train" / "answers"
+    recs = []
+    for p in sorted(sdir.glob("*.txt")):
+        sid = p.stem.split("_")[1]
+        recs.append((p.read_text().strip(), json.loads((adir / f"statement_{sid}.json").read_text())["statement_topic"]))
+    return recs[:config.max_samples]
+
+def _aggregate_topic_scores(scores: np.ndarray, doc_ids: List[int]) -> Dict[int, float]:
+    agg: Dict[int, float] = {}
+    for s, tid in zip(scores, doc_ids):
+        if tid not in agg or s > agg[tid]: agg[tid] = float(s)
+    return agg
+
+def _rank_and_margin(topic_scores: Dict[int, float], true_topic: int) -> Tuple[int, float]:
+    order = [t for t, _ in sorted(topic_scores.items(), key=lambda kv: kv[1], reverse=True)][:10]
+    rank = 11
+    for i, t in enumerate(order, 1):
+        if t == true_topic: rank = i; break
+    s1 = topic_scores[order[0]] if order else 0.0
+    s2 = topic_scores[order[1]] if len(order) > 1 else 0.0
+    return rank, float(s1 - s2)
 
 def calculate_metrics(results: List[Dict]) -> Dict:
-    """Calculate comprehensive metrics from results"""
-    if not results:
-        return {"accuracy": 0.0, "avg_rank": 0.0, "top3_accuracy": 0.0}
-    
+    if not results: return {"accuracy":0.0,"avg_rank":0.0,"top3_accuracy":0.0,"total_samples":0}
     total = len(results)
-    correct = sum(1 for r in results if r['rank_correct'] == 1)
-    top3_correct = sum(1 for r in results if r['rank_correct'] <= 3)
-    avg_rank = sum(r['rank_correct'] for r in results) / total
-    
-    return {
-        "accuracy": correct / total,
-        "avg_rank": avg_rank,
-        "top3_accuracy": top3_correct / total,
-        "total_samples": total
-    }
+    correct = sum(1 for r in results if r['rank_correct']==1)
+    top3 = sum(1 for r in results if 1 <= r['rank_correct'] <= 3)
+    avg_rank = sum(r['rank_correct'] for r in results)/total
+    mean_margin = float(np.mean([r['margin_at_1'] for r in results]))
+    return {"accuracy":correct/total,"avg_rank":avg_rank,"top3_accuracy":top3/total,"total_samples":total,"mean_margin_at_1":mean_margin}
 
-# ----------------------------------------------------------------------- 
-# PHASE 1: BM25 OPTIMIZATION
-# -----------------------------------------------------------------------
+def _norm(v: np.ndarray) -> np.ndarray:
+    v = np.asarray(v, dtype=np.float32)
+    mn, mx = float(v.min()), float(v.max())
+    return (v - mn)/(mx - mn) if mx - mn > 1e-8 else np.zeros_like(v)
 
-def build_bm25_index(chunk_size: int, overlap: int, use_condensed_topics: bool = True) -> Dict:
-    """Build BM25 index with given parameters"""
-    topic_dir = Path("data/condensed_topics" if use_condensed_topics else "data/topics")
-    topic_map = json.loads(Path("data/topics.json").read_text())
-    
-    documents = []
-    doc_ids = []
-    
-    for topic_name, topic_id in topic_map.items():
+# ---------------------------- Phase 1: BM25 ----------------------------
+def build_bm25_index(chunk_size: int, overlap_ratio: float, use_condensed_topics: bool=True) -> Dict:
+    tdir = DATA_DIR / ("condensed_topics" if use_condensed_topics else "topics")
+    tmap = json.loads((DATA_DIR / "topics.json").read_text())
+    docs, doc_ids = [], []
+    for tname, tid in tmap.items():
         if use_condensed_topics:
-            # For condensed topics, look for directory with topic name
-            topic_path = topic_dir / topic_name
-            if topic_path.exists() and topic_path.is_dir():
-                # Read all .md files in the directory
-                for md_file in topic_path.glob("*.md"):
-                    content = md_file.read_text()
-                    words = content.split()
-                    chunks = chunk_words(words, chunk_size, int(chunk_size * overlap))
-                    
-                    for chunk in chunks:
-                        documents.append(chunk)
-                        doc_ids.append(topic_id)
+            d = tdir / tname
+            if d.is_dir():
+                for md in d.glob("*.md"):
+                    words = md.read_text().split()
+                    chunks = chunk_words(words, chunk_size, int(chunk_size*overlap_ratio))
+                    docs.extend(chunks); doc_ids.extend([tid]*len(chunks))
         else:
-            # For original topics, look for individual .md file
-            topic_path = topic_dir / f"{topic_id}.md"
-            if topic_path.exists():
-                content = topic_path.read_text()
-                words = content.split()
-                chunks = chunk_words(words, chunk_size, int(chunk_size * overlap))
-                
-                for chunk in chunks:
-                    documents.append(chunk)
-                    doc_ids.append(topic_id)
-    
-    # Check if we have any documents
-    if not documents:
-        raise ValueError(f"No documents found for chunk_size={chunk_size}, overlap={overlap}")
-    
-    print(f"   Built index with {len(documents)} chunks from {len(set(doc_ids))} topics")
-    
-    # Build BM25 index
-    tokenized_docs = [doc.split() for doc in documents]
-    bm25 = BM25Okapi(tokenized_docs)
-    
-    return {
-        "bm25": bm25,
-        "documents": documents,
-        "doc_ids": doc_ids,
-        "chunk_size": chunk_size,
-        "overlap": overlap
-    }
+            p = tdir / f"{tid}.md"
+            if p.exists():
+                words = p.read_text().split()
+                chunks = chunk_words(words, chunk_size, int(chunk_size*overlap_ratio))
+                docs.extend(chunks); doc_ids.extend([tid]*len(chunks))
+    if not docs: raise ValueError("No documents for BM25")
+    tokenized = [d.split() for d in docs]
+    return {"bm25": BM25Okapi(tokenized), "doc_ids": doc_ids,
+            "chunk_size": chunk_size, "overlap": overlap_ratio}
 
-def evaluate_bm25_config(bm25_data: Dict, statements: List[Tuple[str, int]]) -> Dict:
-    """Evaluate a single BM25 configuration"""
-    bm25 = bm25_data["bm25"]
-    doc_ids = bm25_data["doc_ids"]
-    
+def evaluate_bm25_config(bm25_data: Dict, statements: List[Tuple[str,int]]) -> Dict:
+    bm25, doc_ids = bm25_data["bm25"], bm25_data["doc_ids"]
     results = []
-    for statement, true_topic in tqdm(statements, desc="BM25 evaluation", disable=not USE_TQDM):
-        try:
-            # Search
-            tokenized_query = statement.split()
-            scores = bm25.get_scores(tokenized_query)
-            
-            # Check if we have valid scores
-            if len(scores) == 0 or np.all(scores == 0):
-                print(f"   ⚠️ Warning: No valid scores for statement: {statement[:50]}...")
-                continue
-            
-            # Get top results
-            top_indices = np.argsort(scores)[::-1][:10]
-            top_topics = [doc_ids[i] for i in top_indices]
-            
-            # Find rank of correct topic
-            rank_correct = 0
-            for rank, topic_id in enumerate(top_topics, 1):
-                if topic_id == true_topic:
-                    rank_correct = rank
-                    break
-            
-            results.append({
-                'statement': statement,
-                'true_topic': true_topic,
-                'rank_correct': rank_correct,
-                'top_topics': top_topics[:5]
-            })
-            
-        except Exception as e:
-            print(f"   ⚠️ Error processing statement: {e}")
-            continue
-    
-    if not results:
-        raise ValueError("No valid results generated for BM25 evaluation")
-    
+    for s, true_t in tqdm(statements, desc="BM25", disable=not USE_TQDM):
+        scores = _norm(bm25.get_scores(s.split()))
+        topic_scores = _aggregate_topic_scores(scores, doc_ids)
+        rank, margin = _rank_and_margin(topic_scores, true_t)
+        results.append({"rank_correct": rank, "margin_at_1": margin})
     metrics = calculate_metrics(results)
-    return {
-        "config": {
-            "chunk_size": bm25_data["chunk_size"],
-            "overlap": bm25_data["overlap"],
-            "strategy": "bm25_only"
-        },
-        "metrics": metrics,
-        "results": results
-    }
-
-def display_top_models_periodic(all_results: List[Dict], config_count: int, total_configs: int, force_display: bool = False):
-    """Display top 5 models periodically during optimization"""
-    # Display every 10 configurations or when forced
-    if force_display or config_count % 10 == 0:
-        update_top_models(all_results)
-        print(f"📊 Progress: {config_count}/{total_configs} configurations tested ({100*config_count/total_configs:.1f}%)")
-        print("=" * 60)
+    return {"config":{"chunk_size":bm25_data["chunk_size"],"overlap":bm25_data["overlap"],"strategy":"bm25_only"},
+            "metrics":metrics, "results": results if config.save_detailed_results else []}
 
 def run_bm25_optimization() -> List[Dict]:
-    """Phase 1: Extensive BM25 optimization"""
-    print("🔍 PHASE 1: Extensive BM25 Optimization")
-    print(f"Testing {len(config.bm25_chunk_sizes)} chunk sizes × {len(config.bm25_overlap_ratios)} overlap ratios = {len(config.bm25_chunk_sizes) * len(config.bm25_overlap_ratios)} configurations")
-    print("   (Reduced configuration space for faster testing)")
-    
-    statements = load_statements()
-    all_results = []
-    
-    total_configs = len(config.bm25_chunk_sizes) * len(config.bm25_overlap_ratios)
-    config_count = 0
-    
-    # Initialize live results
-    update_live_results(all_results, "phase1_bm25", status="starting")
-    
-    for chunk_size in config.bm25_chunk_sizes:
-        for overlap_ratio in config.bm25_overlap_ratios:
-            config_count += 1
-            print(f"\n📊 BM25 Config {config_count}/{total_configs}: chunk_size={chunk_size}, overlap={overlap_ratio} words")
-            
-            # Update live results with current config
-            current_config = {"chunk_size": chunk_size, "overlap": overlap_ratio, "config_count": config_count, "total_configs": total_configs}
-            update_live_results(all_results, "phase1_bm25", current_config, "running")
-            
+    stmts = load_statements()
+    all_results, total, k = [], len(config.bm25_chunk_sizes)*len(config.bm25_overlap_ratios), 0
+    print("PHASE 1: BM25")
+    for cs in config.bm25_chunk_sizes:
+        for ov in config.bm25_overlap_ratios:
+            k += 1
+            print(f"\nBM25 {k}/{total}: chunk={cs} overlap_ratio={ov:.2f}")
             try:
-                bm25_data = build_bm25_index(chunk_size, overlap_ratio, config.use_condensed_topics)
-                result = evaluate_bm25_config(bm25_data, statements)
-                all_results.append(result)
-                
-                print(f"✅ Accuracy: {result['metrics']['accuracy']:.3f}, Avg Rank: {result['metrics']['avg_rank']:.2f}")
-                
-                # Update live results after each successful config
-                update_live_results(all_results, "phase1_bm25", current_config, "running")
-                
-                # Display top models periodically
-                display_top_models_periodic(all_results, config_count, total_configs)
-                
+                data = build_bm25_index(cs, ov, config.use_condensed_topics)
+                res = evaluate_bm25_config(data, stmts)
+                all_results.append(res)
+                print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
+                update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+                update_high_performance_models(res)
             except Exception as e:
-                print(f"❌ Error: {e}")
-                continue
-    
-    # Sort by accuracy and select top configs
+                print(f"Error: {e}")
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    top_results = all_results[:config.top_bm25_configs]
-    
-    print(f"\n🏆 TOP {config.top_bm25_configs} BM25 CONFIGURATIONS:")
-    for i, result in enumerate(top_results, 1):
-        cfg = result['config']
-        metrics = result['metrics']
-        print(f"{i}. chunk_size={cfg['chunk_size']}, overlap={cfg['overlap']:.2f} → Accuracy: {metrics['accuracy']:.3f}")
-    
-    # Update live results with final results
-    update_live_results(all_results, "phase1_bm25", status="completed")
-    
-    # Display final top 5 models
-    display_top_models_periodic(all_results, config_count, total_configs, force_display=True)
-    
-    return top_results
+    display_top_5_models(all_results, k, total, force=True)
+    return all_results[:config.top_bm25_configs]
 
-# ----------------------------------------------------------------------- 
-# PHASE 2: EMBEDDING MODEL OPTIMIZATION
-# -----------------------------------------------------------------------
+# ---------------------------- Phase 2: Embeddings ----------------------------
+def _cache_path(model: str, chunk: int, ov: float, cond: bool) -> Path:
+    key = f"{model.replace('/','_')}__c{chunk}__o{ov:.3f}__cond{int(cond)}.npz"
+    return CACHE_DIR / key
 
-def build_semantic_index(model_name: str, chunk_size: int, overlap: int, use_condensed_topics: bool = True) -> Dict:
-    """Build semantic index with given parameters"""
-    print(f"📥 Downloading model: {model_name}")
-    
-    # Download model locally (no online API calls)
-    try:
-        model = SentenceTransformer(model_name, device='cpu')
-    except Exception as e:
-        print(f"   ❌ Failed to download model {model_name}: {e}")
-        raise
-    
-    topic_dir = Path("data/condensed_topics" if use_condensed_topics else "data/topics")
-    topic_map = json.loads(Path("data/topics.json").read_text())
-    
-    documents = []
-    doc_ids = []
-    
-    for topic_name, topic_id in topic_map.items():
+def build_semantic_index(model_name: str, chunk_size: int, overlap_ratio: float, use_condensed_topics: bool=True) -> Dict:
+    cp = _cache_path(model_name, chunk_size, overlap_ratio, use_condensed_topics)
+    if config.cache_embeddings and cp.exists():
+        nz = np.load(cp, allow_pickle=True)
+        return {"model": None, "embeddings": nz["embeddings"], "doc_ids": nz["doc_ids"].tolist(),
+                "chunk_size": chunk_size, "overlap": overlap_ratio, "model_name": model_name}
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = SentenceTransformer(model_name, device=device)
+    tdir = DATA_DIR / ("condensed_topics" if use_condensed_topics else "topics")
+    tmap = json.loads((DATA_DIR / "topics.json").read_text())
+    docs, doc_ids = [], []
+    for tname, tid in tmap.items():
         if use_condensed_topics:
-            # For condensed topics, look for directory with topic name
-            topic_path = topic_dir / topic_name
-            if topic_path.exists() and topic_path.is_dir():
-                # Read all .md files in the directory
-                for md_file in topic_path.glob("*.md"):
-                    content = md_file.read_text()
-                    words = content.split()
-                    chunks = chunk_words(words, chunk_size, int(chunk_size * overlap))
-                    
-                    for chunk in chunks:
-                        documents.append(chunk)
-                        doc_ids.append(topic_id)
+            d = tdir / tname
+            if d.is_dir():
+                for md in d.glob("*.md"):
+                    words = md.read_text().split()
+                    chunks = chunk_words(words, chunk_size, int(chunk_size*overlap_ratio))
+                    docs.extend(chunks); doc_ids.extend([tid]*len(chunks))
         else:
-            # For original topics, look for individual .md file
-            topic_path = topic_dir / f"{topic_id}.md"
-            if topic_path.exists():
-                content = topic_path.read_text()
-                words = content.split()
-                chunks = chunk_words(words, chunk_size, int(chunk_size * overlap))
-                
-                for chunk in chunks:
-                    documents.append(chunk)
-                    doc_ids.append(topic_id)
-    
-    # Check if we have any documents
-    if not documents:
-        raise ValueError(f"No documents found for chunk_size={chunk_size}, overlap={overlap}")
-    
-    print(f"   Built index with {len(documents)} chunks from {len(set(doc_ids))} topics")
-    
-    # Generate embeddings
-    print(f"🔧 Generating embeddings for {len(documents)} documents...")
-    embeddings = model.encode(documents, show_progress_bar=USE_TQDM)
-    
-    return {
-        "model": model,
-        "embeddings": embeddings,
-        "documents": documents,
-        "doc_ids": doc_ids,
-        "chunk_size": chunk_size,
-        "overlap": overlap,
-        "model_name": model_name
-    }
+            p = tdir / f"{tid}.md"
+            if p.exists():
+                words = p.read_text().split()
+                chunks = chunk_words(words, chunk_size, int(chunk_size*overlap_ratio))
+                docs.extend(chunks); doc_ids.extend([tid]*len(chunks))
+    if not docs: raise ValueError("No documents for embeddings")
+    print(f"Embedding {len(docs)} chunks with {model_name} on {device}...")
+    emb = model.encode(docs, convert_to_numpy=True, show_progress_bar=USE_TQDM)
+    if config.cache_embeddings:
+        np.savez_compressed(cp, embeddings=emb, doc_ids=np.array(doc_ids))
+    return {"model": model, "embeddings": emb, "doc_ids": doc_ids,
+            "chunk_size": chunk_size, "overlap": overlap_ratio, "model_name": model_name}
 
-def evaluate_semantic_config(semantic_data: Dict, statements: List[Tuple[str, int]]) -> Dict:
-    """Evaluate a single semantic configuration"""
-    model = semantic_data["model"]
-    embeddings = semantic_data["embeddings"]
-    doc_ids = semantic_data["doc_ids"]
-    
+def evaluate_semantic_config(sd: Dict, statements: List[Tuple[str,int]]) -> Dict:
+    model = sd["model"] or SentenceTransformer(sd["model_name"], device='cpu')
+    emb, doc_ids = sd["embeddings"], sd["doc_ids"]
     results = []
-    for statement, true_topic in tqdm(statements, desc="Semantic evaluation", disable=not USE_TQDM):
-        try:
-            # Generate query embedding
-            query_embedding = model.encode([statement])
-            
-            # Check if embeddings array is not empty
-            if len(embeddings) == 0:
-                print(f"   ⚠️ Warning: Empty embeddings array for statement: {statement[:50]}...")
-                continue
-            
-            # Calculate similarities
-            similarities = cosine_similarity(query_embedding, embeddings)[0]
-            
-            # Get top results
-            top_indices = np.argsort(similarities)[::-1][:10]
-            top_topics = [doc_ids[i] for i in top_indices]
-            
-            # Find rank of correct topic
-            rank_correct = 0
-            for rank, topic_id in enumerate(top_topics, 1):
-                if topic_id == true_topic:
-                    rank_correct = rank
-                    break
-            
-            results.append({
-                'statement': statement,
-                'true_topic': true_topic,
-                'rank_correct': rank_correct,
-                'top_topics': top_topics[:5]
-            })
-            
-        except Exception as e:
-            print(f"   ⚠️ Error processing statement: {e}")
-            continue
-    
-    if not results:
-        raise ValueError("No valid results generated for semantic evaluation")
-    
+    for s, true_t in tqdm(statements, desc="Semantic", disable=not USE_TQDM):
+        q = model.encode([s], convert_to_numpy=True)
+        sims = _norm(cosine_similarity(q, emb)[0])
+        topic_scores = _aggregate_topic_scores(sims, doc_ids)
+        rank, margin = _rank_and_margin(topic_scores, true_t)
+        results.append({"rank_correct": rank, "margin_at_1": margin})
     metrics = calculate_metrics(results)
-    return {
-        "config": {
-            "model_name": semantic_data["model_name"],
-            "chunk_size": semantic_data["chunk_size"],
-            "overlap": semantic_data["overlap"],
-            "strategy": "semantic_only"
-        },
-        "metrics": metrics,
-        "results": results
-    }
+    return {"config":{"model_name":sd["model_name"],"chunk_size":sd["chunk_size"],"overlap":sd["overlap"],"strategy":"semantic_only"},
+            "metrics":metrics, "results": results if config.save_detailed_results else []}
 
 def run_embedding_optimization() -> List[Dict]:
-    """Phase 2: Embedding model optimization"""
-    print("\n🔍 PHASE 2: Embedding Model Optimization")
-    print(f"Testing {len(config.embedding_models)} models × {len(config.embedding_chunk_sizes)} chunk sizes × {len(config.embedding_overlap_ratios)} overlap ratios")
-    print("   (Reduced configuration space for faster testing)")
-    
-    statements = load_statements()
-    all_results = []
-    
-    total_configs = len(config.embedding_models) * len(config.embedding_chunk_sizes) * len(config.embedding_overlap_ratios)
-    config_count = 0
-    
-    # Initialize live results
-    update_live_results(all_results, "phase2_semantic", status="starting")
-    
-    for model_name in config.embedding_models:
-        for chunk_size in config.embedding_chunk_sizes:
-            for overlap_ratio in config.embedding_overlap_ratios:
-                config_count += 1
-                print(f"\n📊 Embedding Config {config_count}/{total_configs}: {model_name}, chunk_size={chunk_size}, overlap={overlap_ratio} words")
-                
-                # Update live results with current config
-                current_config = {"model_name": model_name, "chunk_size": chunk_size, "overlap": overlap_ratio, "config_count": config_count, "total_configs": total_configs}
-                update_live_results(all_results, "phase2_semantic", current_config, "running")
-                
+    stmts = load_statements()
+    all_results, total, k = [], len(config.embedding_models)*len(config.embedding_chunk_sizes)*len(config.embedding_overlap_ratios), 0
+    print("\nPHASE 2: Embeddings")
+    for mn in config.embedding_models:
+        for cs in config.embedding_chunk_sizes:
+            for ov in config.embedding_overlap_ratios:
+                k += 1
+                print(f"\nEMB {k}/{total}: {mn} chunk={cs} overlap_ratio={ov:.2f}")
                 try:
-                    semantic_data = build_semantic_index(model_name, chunk_size, overlap_ratio, config.use_condensed_topics)
-                    result = evaluate_semantic_config(semantic_data, statements)
-                    all_results.append(result)
-                    
-                    print(f"✅ Accuracy: {result['metrics']['accuracy']:.3f}, Avg Rank: {result['metrics']['avg_rank']:.2f}")
-                    
-                    # Update live results after each successful config
-                    update_live_results(all_results, "phase2_semantic", current_config, "running")
-                    
-                    # Display top models periodically
-                    display_top_models_periodic(all_results, config_count, total_configs)
-                    
+                    sd = build_semantic_index(mn, cs, ov, config.use_condensed_topics)
+                    res = evaluate_semantic_config(sd, stmts)
+                    all_results.append(res)
+                    print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
+                    update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+                    update_high_performance_models(res)
                 except Exception as e:
-                    print(f"❌ Error: {e}")
-                    continue
-    
-    # Sort by accuracy and select top configs
+                    print(f"Error: {e}")
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    top_results = all_results[:config.top_embedding_configs]
-    
-    print(f"\n🏆 TOP {config.top_embedding_configs} EMBEDDING CONFIGURATIONS:")
-    for i, result in enumerate(top_results, 1):
-        cfg = result['config']
-        metrics = result['metrics']
-        print(f"{i}. {cfg['model_name']}, chunk_size={cfg['chunk_size']}, overlap={cfg['overlap']:.2f} → Accuracy: {metrics['accuracy']:.3f}")
-    
-    # Update live results with final results
-    update_live_results(all_results, "phase2_semantic", status="completed")
-    
-    # Display final top 5 models
-    display_top_models_periodic(all_results, config_count, total_configs, force_display=True)
-    
-    return top_results
+    display_top_5_models(all_results, k, total, force=True)
+    return all_results[:config.top_embedding_configs]
 
-# ----------------------------------------------------------------------- 
-# PHASE 3: HYBRID COMBINATIONS
-# -----------------------------------------------------------------------
-
+# ---------------------------- Phase 3: Hybrid ----------------------------
 class HybridSearcher:
-    """Hybrid search combining BM25 and semantic approaches"""
-    
-    def __init__(self, bm25_data: Dict, semantic_data: Dict):
-        self.bm25_data = bm25_data
-        self.semantic_data = semantic_data
+    def __init__(self, bm25_data: Dict, sem_data: Dict):
         self.bm25 = bm25_data["bm25"]
-        self.semantic_model = semantic_data["model"]
-        self.semantic_embeddings = semantic_data["embeddings"]
-        self.doc_ids = bm25_data["doc_ids"]  # Should be same for both
-    
-    def search_linear_fusion(self, query: str, bm25_weight: float = 0.5, top_k: int = 10) -> List[Dict]:
-        """Linear fusion of BM25 and semantic scores"""
-        # BM25 search
-        tokenized_query = query.split()
-        bm25_scores = self.bm25.get_scores(tokenized_query)
-        
-        # Semantic search
-        query_embedding = self.semantic_model.encode([query])
-        semantic_similarities = cosine_similarity(query_embedding, self.semantic_embeddings)[0]
-        
-        # Normalize scores to [0,1] range
-        bm25_scores_norm = (bm25_scores - bm25_scores.min()) / (bm25_scores.max() - bm25_scores.min() + 1e-8)
-        semantic_scores_norm = (semantic_similarities - semantic_similarities.min()) / (semantic_similarities.max() - semantic_similarities.min() + 1e-8)
-        
-        # Combine scores
-        combined_scores = bm25_weight * bm25_scores_norm + (1 - bm25_weight) * semantic_scores_norm
-        
-        # Get top results
-        top_indices = np.argsort(combined_scores)[::-1][:top_k]
-        
-        return [{"topic_id": self.doc_ids[i], "score": combined_scores[i]} for i in top_indices]
-    
-    def search_rrf(self, query: str, top_k: int = 10, k_param: int = 60) -> List[Dict]:
-        """Reciprocal Rank Fusion"""
-        # BM25 search
-        tokenized_query = query.split()
-        bm25_scores = self.bm25.get_scores(tokenized_query)
-        bm25_ranks = np.argsort(bm25_scores)[::-1]
-        
-        # Semantic search
-        query_embedding = self.semantic_model.encode([query])
-        semantic_similarities = cosine_similarity(query_embedding, self.semantic_embeddings)[0]
-        semantic_ranks = np.argsort(semantic_similarities)[::-1]
-        
-        # Calculate RRF scores
-        rrf_scores = {}
-        for rank, doc_idx in enumerate(bm25_ranks):
-            topic_id = self.doc_ids[doc_idx]
-            rrf_scores[topic_id] = rrf_scores.get(topic_id, 0) + 1 / (k_param + rank + 1)
-        
-        for rank, doc_idx in enumerate(semantic_ranks):
-            topic_id = self.doc_ids[doc_idx]
-            rrf_scores[topic_id] = rrf_scores.get(topic_id, 0) + 1 / (k_param + rank + 1)
-        
-        # Sort by RRF scores
-        sorted_topics = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
-        return [{"topic_id": topic_id, "score": score} for topic_id, score in sorted_topics]
+        self.doc_ids = bm25_data["doc_ids"]
+        self.model = sem_data["model"] or SentenceTransformer(sem_data["model_name"], device='cpu')
+        self.emb = sem_data["embeddings"]
+    def linear(self, q: str, w: float=0.5) -> Dict[int,float]:
+        b = _norm(self.bm25.get_scores(q.split()))
+        s = _norm(cosine_similarity(self.model.encode([q], convert_to_numpy=True), self.emb)[0])
+        return _aggregate_topic_scores(w*b + (1-w)*s, self.doc_ids)
+    def rrf(self, q: str, k: int=60) -> Dict[int,float]:
+        b = _norm(self.bm25.get_scores(q.split())); ib = np.argsort(b)[::-1]
+        s = _norm(cosine_similarity(self.model.encode([q], convert_to_numpy=True), self.emb)[0]); is_ = np.argsort(s)[::-1]
+        out: Dict[int,float] = {}
+        for r,i in enumerate(ib): out[self.doc_ids[i]] = out.get(self.doc_ids[i],0.0) + 1.0/(k+r+1)
+        for r,i in enumerate(is_): out[self.doc_ids[i]] = out.get(self.doc_ids[i],0.0) + 1.0/(k+r+1)
+        return out
 
-def evaluate_hybrid_config(bm25_config: Dict, semantic_config: Dict, fusion_strategy: str, statements: List[Tuple[str, int]]) -> Dict:
-    """Evaluate a hybrid configuration"""
-    # Build indices
-    bm25_data = build_bm25_index(
-        bm25_config['chunk_size'], 
-        int(bm25_config['overlap']), 
-        config.use_condensed_topics
-    )
-    
-    semantic_data = build_semantic_index(
-        semantic_config['model_name'],
-        semantic_config['chunk_size'],
-        int(semantic_config['overlap']),
-        config.use_condensed_topics
-    )
-    
-    # Create hybrid searcher
-    searcher = HybridSearcher(bm25_data, semantic_data)
-    
+def evaluate_hybrid_config(bc: Dict, sc: Dict, strat: str, statements: List[Tuple[str,int]]) -> Dict:
+    bd = build_bm25_index(bc['chunk_size'], bc['overlap'], config.use_condensed_topics)
+    sd = build_semantic_index(sc['model_name'], sc['chunk_size'], sc['overlap'], config.use_condensed_topics)
+    hs = HybridSearcher(bd, sd)
     results = []
-    for statement, true_topic in tqdm(statements, desc="Hybrid evaluation", disable=not USE_TQDM):
-        # Search based on strategy
-        if fusion_strategy == "bm25_only":
-            tokenized_query = statement.split()
-            scores = bm25_data["bm25"].get_scores(tokenized_query)
-            top_indices = np.argsort(scores)[::-1][:10]
-            top_topics = [bm25_data["doc_ids"][i] for i in top_indices]
-        elif fusion_strategy == "semantic_only":
-            query_embedding = semantic_data["model"].encode([statement])
-            similarities = cosine_similarity(query_embedding, semantic_data["embeddings"])[0]
-            top_indices = np.argsort(similarities)[::-1][:10]
-            top_topics = [semantic_data["doc_ids"][i] for i in top_indices]
-        elif fusion_strategy.startswith("linear_"):
-            weight = float(fusion_strategy.split("_")[1])
-            search_results = searcher.search_linear_fusion(statement, bm25_weight=weight, top_k=10)
-            top_topics = [r["topic_id"] for r in search_results]
-        elif fusion_strategy == "rrf":
-            search_results = searcher.search_rrf(statement, top_k=10)
-            top_topics = [r["topic_id"] for r in search_results]
+    for s, true_t in tqdm(statements, desc="Hybrid", disable=not USE_TQDM):
+        if strat == "bm25_only":
+            topic_scores = _aggregate_topic_scores(_norm(bd["bm25"].get_scores(s.split())), bd["doc_ids"])
+        elif strat == "semantic_only":
+            topic_scores = _aggregate_topic_scores(_norm(cosine_similarity((sd["model"] or SentenceTransformer(sc['model_name'], device='cpu')).encode([s], convert_to_numpy=True), sd["embeddings"])[0]), sd["doc_ids"])
+        elif strat.startswith("linear_"):
+            topic_scores = hs.linear(s, float(strat.split("_")[1]))
+        elif strat == "rrf":
+            topic_scores = hs.rrf(s)
         else:
             continue
-        
-        # Find rank of correct topic
-        rank_correct = 0
-        for rank, topic_id in enumerate(top_topics, 1):
-            if topic_id == true_topic:
-                rank_correct = rank
-                break
-        
-        results.append({
-            'statement': statement,
-            'true_topic': true_topic,
-            'rank_correct': rank_correct,
-            'top_topics': top_topics[:5]
-        })
-    
+        rank, margin = _rank_and_margin(topic_scores, true_t)
+        results.append({"rank_correct": rank, "margin_at_1": margin})
     metrics = calculate_metrics(results)
-    return {
-        "config": {
-            "bm25_config": bm25_config,
-            "semantic_config": semantic_config,
-            "fusion_strategy": fusion_strategy
-        },
-        "metrics": metrics,
-        "results": results
-    }
+    return {"config":{"bm25_config":bc,"semantic_config":sc,"fusion_strategy":strat},
+            "metrics":metrics, "results": results if config.save_detailed_results else []}
 
-def run_hybrid_optimization(bm25_results: List[Dict], semantic_results: List[Dict]) -> List[Dict]:
-    """Phase 3: Combine top configurations"""
-    print("\n🔍 PHASE 3: Hybrid Combination Optimization")
-    
-    statements = load_statements()
-    all_results = []
-    
-    total_combinations = len(bm25_results) * len(semantic_results) * len(config.fusion_strategies)
-    combination_count = 0
-    
-    # Initialize live results
-    update_live_results(all_results, "phase3_hybrid", status="starting")
-    
-    for bm25_result in bm25_results:
-        bm25_config = bm25_result['config']
-        for semantic_result in semantic_results:
-            semantic_config = semantic_result['config']
-            for fusion_strategy in config.fusion_strategies:
-                combination_count += 1
-                print(f"\n📊 Hybrid Config {combination_count}/{total_combinations}: {fusion_strategy}")
-                print(f"   BM25: chunk_size={bm25_config['chunk_size']}, overlap={bm25_config['overlap']:.2f}")
-                print(f"   Semantic: {semantic_config['model_name']}, chunk_size={semantic_config['chunk_size']}, overlap={semantic_config['overlap']:.2f}")
-                
-                # Update live results with current config
-                current_config = {
-                    "fusion_strategy": fusion_strategy,
-                    "bm25_config": bm25_config,
-                    "semantic_config": semantic_config,
-                    "combination_count": combination_count,
-                    "total_combinations": total_combinations
-                }
-                update_live_results(all_results, "phase3_hybrid", current_config, "running")
-                
+def run_hybrid_optimization(bm25_results: List[Dict], sem_results: List[Dict]) -> List[Dict]:
+    stmts = load_statements()
+    all_results, total, k = [], len(bm25_results)*len(sem_results)*len(config.fusion_strategies), 0
+    print("\nPHASE 3: Hybrid")
+    for br in bm25_results:
+        bc = br['config']
+        for sr in sem_results:
+            sc = sr['config']
+            for strat in config.fusion_strategies:
+                k += 1
+                print(f"\nHYB {k}/{total}: {strat} | BM25 chunk={bc['chunk_size']} ov={bc['overlap']:.2f} | SEM {sc['model_name']} chunk={sc['chunk_size']} ov={sc['overlap']:.2f}")
                 try:
-                    result = evaluate_hybrid_config(bm25_config, semantic_config, fusion_strategy, statements)
-                    all_results.append(result)
-                    
-                    print(f"✅ Accuracy: {result['metrics']['accuracy']:.3f}, Avg Rank: {result['metrics']['avg_rank']:.2f}")
-                    
-                    # Update live results after each successful config
-                    update_live_results(all_results, "phase3_hybrid", current_config, "running")
-                    
-                    # Display top models periodically
-                    display_top_models_periodic(all_results, combination_count, total_combinations)
-                    
+                    res = evaluate_hybrid_config(bc, sc, strat, stmts)
+                    all_results.append(res)
+                    print(f"acc={res['metrics']['accuracy']:.3f} avg_rank={res['metrics']['avg_rank']:.2f}")
+                    update_top_5_models(all_results); display_top_5_models(all_results, k, total)
+                    update_high_performance_models(res)
                 except Exception as e:
-                    print(f"❌ Error: {e}")
-                    continue
-    
-    # Sort by accuracy
+                    print(f"Error: {e}")
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    
-    print(f"\n🏆 TOP HYBRID CONFIGURATIONS:")
-    for i, result in enumerate(all_results[:10], 1):
-        cfg = result['config']
-        metrics = result['metrics']
-        print(f"{i}. {cfg['fusion_strategy']} → Accuracy: {metrics['accuracy']:.3f}")
-        print(f"   BM25: chunk_size={cfg['bm25_config']['chunk_size']}, overlap={cfg['bm25_config']['overlap']:.2f}")
-        print(f"   Semantic: {cfg['semantic_config']['model_name']}, chunk_size={cfg['semantic_config']['chunk_size']}")
-    
-    # Update live results with final results
-    update_live_results(all_results, "phase3_hybrid", status="completed")
-    
-    # Display final top 5 models
-    display_top_models_periodic(all_results, combination_count, total_combinations, force_display=True)
-    
+    display_top_5_models(all_results, k, total, force=True)
     return all_results
 
-# ----------------------------------------------------------------------- 
-# PHASE 4: ZOOM INTO PROMISING CONFIGURATIONS
-# -----------------------------------------------------------------------
+# ---------------------------- Phase 4: Zoom ----------------------------
+def generate_zoom_configs(prom: Dict, radius: int=2) -> List[Dict]:
+    base = prom['config']; bc, bo = base['bm25_config']['chunk_size'], base['bm25_config']['overlap']
+    out = []
+    for dc in range(-radius, radius+1):
+        for do in range(-radius, radius+1):
+            nc, no = bc + dc*8, round(bo + do*0.05, 3)
+            if 64 <= nc <= 256 and 0.0 <= no <= 0.4:
+                out.append({"bm25_config":{**base['bm25_config'],"chunk_size":nc,"overlap":no},
+                            "semantic_config":base['semantic_config'],
+                            "fusion_strategy":base['fusion_strategy']})
+    return out
 
-def generate_zoom_configs(promising_config: Dict, radius: int = 2) -> List[Dict]:
-    """Generate parameter variations around a promising configuration"""
-    base_config = promising_config['config']
-    zoom_configs = []
-    
-    # Generate variations around BM25 parameters
-    base_chunk_size = base_config['bm25_config']['chunk_size']
-    base_overlap = base_config['bm25_config']['overlap']
-    
-    for chunk_offset in range(-radius, radius + 1):
-        for overlap_offset in range(-radius, radius + 1):
-            new_chunk_size = base_chunk_size + chunk_offset * 8  # Step by 8
-            new_overlap = base_overlap + overlap_offset * 0.05   # Step by 0.05
-            
-            if new_chunk_size >= 64 and new_chunk_size <= 256 and new_overlap >= 0 and new_overlap <= 0.4:
-                zoom_config = base_config.copy()
-                zoom_config['bm25_config'] = zoom_config['bm25_config'].copy()
-                zoom_config['bm25_config']['chunk_size'] = new_chunk_size
-                zoom_config['bm25_config']['overlap'] = new_overlap
-                zoom_configs.append(zoom_config)
-    
-    return zoom_configs
-
-def run_zoom_optimization(promising_results: List[Dict]) -> List[Dict]:
-    """Phase 4: Zoom into promising configurations"""
-    if not config.zoom_enabled or not promising_results:
-        return []
-    
-    print("\n🔍 PHASE 4: Zoom into Promising Configurations")
-    
-    statements = load_statements()
+def run_zoom_optimization(promising: List[Dict]) -> List[Dict]:
+    if not config.zoom_enabled or not promising: return promising or []
+    print("\nPHASE 4: Zoom")
+    stmts = load_statements()
     zoom_results = []
-    
-    # Select top 3 most promising configurations for zoom
-    top_configs = promising_results[:3]
-    
-    for i, promising_result in enumerate(top_configs, 1):
-        print(f"\n🔬 Zooming into promising config {i}: {promising_result['config']['fusion_strategy']}")
-        print(f"   Current accuracy: {promising_result['metrics']['accuracy']:.3f}")
-        
-        zoom_configs = generate_zoom_configs(promising_result, config.zoom_radius)
-        print(f"   Testing {len(zoom_configs)} parameter variations...")
-        
-        for j, zoom_config in enumerate(zoom_configs):
+    for i, pr in enumerate(promising[:3], 1):
+        print(f"\nZoom {i}: {pr['config']['fusion_strategy']} acc={pr['metrics']['accuracy']:.3f}")
+        zcfgs = generate_zoom_configs(pr, config.zoom_radius)
+        print(f"variants={len(zcfgs)}")
+        for j, zc in enumerate(zcfgs, 1):
             try:
-                result = evaluate_hybrid_config(
-                    zoom_config['bm25_config'],
-                    zoom_config['semantic_config'],
-                    zoom_config['fusion_strategy'],
-                    statements
-                )
-                zoom_results.append(result)
-                
+                res = evaluate_hybrid_config(zc['bm25_config'], zc['semantic_config'], zc['fusion_strategy'], stmts)
+                zoom_results.append(res)
                 if j % 10 == 0:
-                    print(f"   Zoom config {j+1}/{len(zoom_configs)}: {result['metrics']['accuracy']:.3f}")
-                    
+                    print(f"  {j}/{len(zcfgs)} acc={res['metrics']['accuracy']:.3f}")
+                    update_top_5_models(zoom_results)
             except Exception as e:
-                print(f"   ❌ Error in zoom config {j+1}: {e}")
-                continue
-    
-    # Combine with original results and sort
-    all_results = promising_results + zoom_results
+                print(f"  Zoom error {j}: {e}")
+    all_results = (promising + zoom_results)
     all_results.sort(key=lambda x: x['metrics']['accuracy'], reverse=True)
-    
-    print(f"\n🏆 FINAL TOP CONFIGURATIONS (including zoom):")
-    for i, result in enumerate(all_results[:10], 1):
-        cfg = result['config']
-        metrics = result['metrics']
-        print(f"{i}. {cfg['fusion_strategy']} → Accuracy: {metrics['accuracy']:.3f}")
-    
     return all_results
 
-# ----------------------------------------------------------------------- 
-# MAIN OPTIMIZATION PIPELINE
-# -----------------------------------------------------------------------
-
-def update_top_models(all_results: List[Dict], top_models_file: str = "top_5_models.json"):
-    """Update and save the top 5 models so far"""
-    if not all_results:
-        return
-    
-    # Sort all results by accuracy (T1 score)
-    sorted_results = sorted(all_results, key=lambda x: x.get('metrics', {}).get('accuracy', 0), reverse=True)
-    
-    # Take top 5
-    top_5 = sorted_results[:5]
-    
-    # Create a clean summary for the top 5
-    top_models_summary = {
-        "last_updated": int(time.time()),
-        "total_configurations_tested": len(all_results),
-        "top_5_models": []
-    }
-    
-    for i, result in enumerate(top_5, 1):
-        config = result.get('config', {})
-        metrics = result.get('metrics', {})
-        
-        model_summary = {
-            "rank": i,
-            "accuracy": metrics.get('accuracy', 0),
-            "avg_rank": metrics.get('avg_rank', 0),
-            "top3_accuracy": metrics.get('top3_accuracy', 0),
-            "config": config,
-            "model_type": config.get('strategy', 'unknown')
-        }
-        
-        # Add specific details based on model type
-        if 'model_name' in config:
-            model_summary["embedding_model"] = config['model_name']
-            model_summary["chunk_size"] = config.get('chunk_size')
-            model_summary["overlap"] = config.get('overlap')
-        elif 'chunk_size' in config:
-            model_summary["chunk_size"] = config['chunk_size']
-            model_summary["overlap"] = config.get('overlap')
-        elif 'fusion_strategy' in config:
-            model_summary["fusion_strategy"] = config['fusion_strategy']
-            model_summary["bm25_config"] = config.get('bm25_config', {})
-            model_summary["semantic_config"] = config.get('semantic_config', {})
-        
-        top_models_summary["top_5_models"].append(model_summary)
-    
-    # Save to file
-    with open(top_models_file, 'w') as f:
-        json.dump(top_models_summary, f, indent=2)
-    
-    # Print current top 5
-    print(f"\n🏆 TOP 5 MODELS SO FAR (Updated at {time.strftime('%H:%M:%S')}):")
-    print(f"   Total configurations tested: {len(all_results)}")
-    print("-" * 60)
-    
-    for i, model in enumerate(top_models_summary["top_5_models"], 1):
-        acc = model["accuracy"]
-        config = model["config"]
-        
-        if 'model_name' in config:
-            print(f"{i}. {config['model_name']} | {config.get('strategy', 'unknown')} | Accuracy: {acc:.3f}")
-            print(f"   Chunk: {config.get('chunk_size')}, Overlap: {config.get('overlap')}")
-        elif 'fusion_strategy' in config:
-            print(f"{i}. {config['fusion_strategy']} | Accuracy: {acc:.3f}")
-            bm25_cfg = config.get('bm25_config', {})
-            semantic_cfg = config.get('semantic_config', {})
-            print(f"   BM25: chunk={bm25_cfg.get('chunk_size')}, overlap={bm25_cfg.get('overlap')}")
-            print(f"   Semantic: {semantic_cfg.get('model_name')}, chunk={semantic_cfg.get('chunk_size')}")
-        else:
-            print(f"{i}. {config.get('strategy', 'unknown')} | Accuracy: {acc:.3f}")
-            print(f"   Chunk: {config.get('chunk_size')}, Overlap: {config.get('overlap')}")
-        print()
-    
-    print(f"💾 Top 5 models saved to: {top_models_file}")
-    return top_models_summary
-
-def update_live_results(all_results: List[Dict], phase: str, current_config: Dict = None, status: str = "running"):
-    """Update a single live results file with current progress"""
-    timestamp = int(time.time())
-    
-    # Create results summary
-    live_results = {
-        "last_updated": timestamp,
-        "status": status,
-        "phase": phase,
-        "current_config": current_config,
-        "total_results": len(all_results),
-        "results": all_results
-    }
-    
-    # Save to live results file
-    filename = "optimization_live_results.json"
-    with open(filename, 'w') as f:
-        json.dump(live_results, f, indent=2)
-    
-    print(f"💾 Updated live results: {filename}")
-    
-    # Also update top 5 models
-    update_top_models(all_results)
-    
-    return filename
-
-def save_results(results: List[Dict], phase: str):
-    """Save results to file"""
-    timestamp = int(time.time())
-    filename = f"optimization_results_{phase}_{timestamp}.json"
-    
-    # Convert numpy arrays to lists for JSON serialization
-    serializable_results = []
-    for result in results:
-        serializable_result = result.copy()
-        if 'results' in serializable_result:
-            # Remove detailed results to save space
-            del serializable_result['results']
-        serializable_results.append(serializable_result)
-    
-    with open(filename, 'w') as f:
-        json.dump(serializable_results, f, indent=2)
-    
-    print(f"💾 Results saved to {filename}")
-    return filename
+# ---------------------------- Main ----------------------------
+def _resolve_data_dir(cli_path: str|None) -> Path:
+    if cli_path:
+        return Path(cli_path).resolve()
+    env = os.environ.get("EHR_DATA_DIR")
+    if env:
+        return Path(env).resolve()
+    cands = [BASE_DIR/"data", BASE_DIR.parent/"data", Path.cwd()/"data"]
+    for c in cands:
+        if (c/"topics.json").exists():
+            return c.resolve()
+    # last resort: show helpful error
+    raise FileNotFoundError(
+        "Could not locate data directory. Provide --data-dir or set EHR_DATA_DIR.\n"
+        f"Tried: {', '.join(str(c) for c in cands)}"
+    )
 
 def run_optimization():
-    """Main optimization pipeline"""
-    print("🚀 Starting Hierarchical Topic Model Optimization")
-    print("=" * 60)
-    
-    start_time = time.time()
-    
-    # Initialize overall live results
-    update_live_results([], "overall", status="starting")
-    
-    # Phase 1: BM25 optimization
-    print("\n🔄 Starting Phase 1: BM25 Optimization")
-    update_live_results([], "overall", {"phase": "phase1_bm25", "status": "running"}, "running")
+    print("Starting optimization")
+    t0 = time.time()
+
+    print("\n-- Phase 1")
     bm25_results = run_bm25_optimization()
-    save_results(bm25_results, "phase1_bm25")
-    
-    # Phase 2: Embedding optimization  
-    print("\n🔄 Starting Phase 2: Embedding Optimization")
-    update_live_results([], "overall", {"phase": "phase2_semantic", "status": "running"}, "running")
-    semantic_results = run_embedding_optimization()
-    save_results(semantic_results, "phase2_semantic")
-    
-    # Phase 3: Hybrid combinations
-    print("\n🔄 Starting Phase 3: Hybrid Optimization")
-    update_live_results([], "overall", {"phase": "phase3_hybrid", "status": "running"}, "running")
-    hybrid_results = run_hybrid_optimization(bm25_results, semantic_results)
-    save_results(hybrid_results, "phase3_hybrid")
-    
-    # Phase 4: Zoom into promising configurations
-    print("\n🔄 Starting Phase 4: Zoom Optimization")
-    update_live_results([], "overall", {"phase": "phase4_final", "status": "running"}, "running")
+
+    print("\n-- Phase 2")
+    sem_results = run_embedding_optimization()
+
+    print("\n-- Phase 3")
+    hybrid_results = run_hybrid_optimization(bm25_results, sem_results)
+
+    print("\n-- Phase 4")
     final_results = run_zoom_optimization(hybrid_results)
-    save_results(final_results, "phase4_final")
-    
-    total_time = time.time() - start_time
-    print(f"\n✅ Optimization completed in {total_time/3600:.1f} hours")
-    
-    # Update final live results
+
+    elapsed = time.time() - t0
+    print(f"\nDone in {elapsed/3600:.2f} h")
     if final_results:
-        best_result = final_results[0]
-        final_summary = {
-            "best_accuracy": best_result['metrics']['accuracy'],
-            "best_config": best_result['config'],
-            "total_time_hours": total_time/3600
-        }
-        update_live_results(final_results, "overall", final_summary, "completed")
-        
-        print(f"\n🏆 BEST CONFIGURATION:")
-        print(f"   Strategy: {best_result['config']['fusion_strategy']}")
-        print(f"   Accuracy: {best_result['metrics']['accuracy']:.3f}")
-        print(f"   Average Rank: {best_result['metrics']['avg_rank']:.2f}")
-        print(f"   Top-3 Accuracy: {best_result['metrics']['top3_accuracy']:.3f}")
+        best = final_results[0]
+        m = best['metrics']
+        print("\nBEST:")
+        print(f" strategy={best['config']['fusion_strategy']}")
+        print(f" acc={m['accuracy']:.3f} avg_rank={m['avg_rank']:.2f} top3={m['top3_accuracy']:.3f} margin@1={m.get('mean_margin_at_1')}")
+        update_high_performance_models(best)
+        update_top_5_models(final_results)
     else:
-        update_live_results([], "overall", {"error": "No results generated"}, "error")
+        print("No results generated.")
 
 if __name__ == "__main__":
+    import os
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", type=str, default=None, help="Path to data/ containing topics.json")
+    parser.add_argument("--max-samples", type=int, default=None)
+    parser.add_argument("--display-every", type=int, default=None)
+    args = parser.parse_args()
+
+    # Resolve data dir and apply simple overrides
+    DATA_DIR = _resolve_data_dir(args.data_dir)
+    _require_data_layout()
+    if args.max_samples is not None: config.max_samples = args.max_samples
+    if args.display_every is not None: config.display_every = args.display_every
+
     run_optimization()

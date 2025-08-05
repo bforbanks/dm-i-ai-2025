@@ -11,13 +11,17 @@ def view_top_models():
     """Display the current top 5 models"""
     filename = "top_5_models.json"
     
-    if not Path(filename).exists():
+    # Use script directory for path anchoring
+    script_dir = Path(__file__).resolve().parent
+    file_path = script_dir / filename
+    
+    if not file_path.exists():
         print(f"❌ No top models file found: {filename}")
         print("   Run the optimization script first to generate results.")
         return
     
     try:
-        with open(filename, 'r') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
         
         last_updated = data.get('last_updated', 0)

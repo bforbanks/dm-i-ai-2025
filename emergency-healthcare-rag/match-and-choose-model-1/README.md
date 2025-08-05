@@ -76,22 +76,27 @@ class OptimizationConfig:
 
 ## Output
 
-The optimization saves results for each phase:
-- `optimization_results_phase1_bm25_<timestamp>.json`
-- `optimization_results_phase2_semantic_<timestamp>.json`  
-- `optimization_results_phase3_hybrid_<timestamp>.json`
-- `optimization_results_phase4_final_<timestamp>.json`
+The optimization focuses on tracking high-performing models:
 
-**Live Progress Tracking:**
-- `optimization_live_results.json` - Continuously updated with current progress
+**High-Performance Tracking:**
+- `models_90_plus.json` - All models that score 90% or above (with timestamps)
 - `top_5_models.json` - Always contains the current top 5 best models
 
-Each file contains:
-- Configuration parameters
-- Performance metrics (accuracy, average rank, top-3 accuracy)
-- Timestamp for tracking
+**Progress Tracking:**
+- `optimization_live_results.json` - Minimal progress updates
+
+**Key Features:**
+- **90%+ models**: Automatically logged when found with immediate notification
+- **Top 5 models**: Updated continuously and displayed every 20 configurations
+- **Minimal logging**: No extensive logging of all configurations
+- **Focus on excellence**: Tracks only the best performing models
 
 ## Monitoring Progress
+
+### View All 90%+ Models
+```bash
+python match-and-choose-model-1/view_90_plus_models.py
+```
 
 ### View Current Top 5 Models
 ```bash
@@ -104,9 +109,9 @@ python match-and-choose-model-1/monitor_results.py
 ```
 
 ### Files Generated
-- `top_5_models.json` - Always updated with best 5 models so far
-- `optimization_live_results.json` - Real-time progress updates
-- `optimization_results_phase*_<timestamp>.json` - Phase-specific results
+- `models_90_plus.json` - All models scoring 90%+ with timestamps
+- `top_5_models.json` - Current top 5 models with full details
+- `optimization_live_results.json` - Minimal progress tracking
 
 ## Key Features
 
