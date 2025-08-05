@@ -124,43 +124,11 @@ class SearchOptimizer:
         # Build embeddings if hybrid search
         if config['search_type'] == 'hybrid' and SENTENCE_TRANSFORMERS_AVAILABLE:
             embedding_model = config.get('embedding', 'all-mpnet-base-v2')
-            print(f"🧠 Computing embeddings with local model: {embedding_model}")
+            print(f"🧠 Computing embeddings with model: {embedding_model}")
             
             try:
-                # Check if model is available locally
-                model_path = self.get_local_model_path(embedding_model)
-                if not model_path.exists():
-                    print(f"❌ Local model not found: {embedding_model}")
-                    print(f"   Expected path: {model_path}")
-                    print("   Please download the model first using:")
-                    print(f"   python -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('{embedding_model}')\"")
-                    raise FileNotFoundError(f"Local model not found: {embedding_model}")
-                
-                print(f"✅ Using local model: {model_path}")
-                
-                # Try GPU first, fallback to CPU if memory issues
-                import torch
-                if torch.cuda.is_available():
-                    # Try to clear GPU memory first
-                    torch.cuda.empty_cache()
-                    
-                    # Check available memory
-                    gpu_memory = torch.cuda.get_device_properties(0).total_memory
-                    allocated_memory = torch.cuda.memory_allocated(0)
-                    free_memory = gpu_memory - allocated_memory
-                    
-                    # Estimate memory needed (rough estimate: 4 bytes per embedding dimension * num_chunks)
-                    estimated_memory = len(chunk_texts) * 768 * 4  # 768 is typical embedding size
-                    
-                    if free_memory < estimated_memory * 1.5:  # 1.5x buffer
-                        print("⚠️  GPU memory insufficient, using CPU")
-                        model = SentenceTransformer(str(model_path), device='cpu')
-                    else:
-                        print("✅ Using GPU for embeddings")
-                        model = SentenceTransformer(str(model_path), device='cuda')
-                else:
-                    print("⚠️  No GPU available, using CPU")
-                    model = SentenceTransformer(str(model_path), device='cpu')
+                # Use the same approach as combined-model-1
+                model = SentenceTransformer(embedding_model)
                 
                 # Compute embeddings in smaller batches to avoid memory issues
                 batch_size = 32  # Smaller batch size
@@ -172,6 +140,7 @@ class SearchOptimizer:
                     embeddings_list.append(batch_embeddings)
                 
                 embeddings = np.vstack(embeddings_list)
+                print(f"✅ Embeddings computed successfully")
                 
             except Exception as e:
                 print(f"⚠️  Embedding computation failed: {e}")
@@ -189,59 +158,6 @@ class SearchOptimizer:
             'config': config
         }
     
-    def download_required_models(self):
-        """Download all required embedding models at the start"""
-        if not SENTENCE_TRANSFORMERS_AVAILABLE:
-            print("⚠️  sentence-transformers not available - skipping model downloads")
-            return []
-        
-        models_to_download = [
-            'all-mpnet-base-v2',
-            'all-MiniLM-L6-v2', 
-            'all-MiniLM-L12-v2'
-        ]
-        
-        print("📥 Downloading required embedding models...")
-        downloaded_models = []
-        
-        for model_name in models_to_download:
-            model_path = self.get_local_model_path(model_name)
-            
-            if model_path.exists():
-                print(f"✅ {model_name} - Already available")
-                downloaded_models.append(model_name)
-            else:
-                print(f"📥 Downloading {model_name}...")
-                try:
-                    from sentence_transformers import SentenceTransformer
-                    
-                    # Download the model (this will cache it locally)
-                    model = SentenceTransformer(model_name)
-                    
-                    # Verify it was downloaded
-                    if model_path.exists():
-                        print(f"✅ {model_name} - Downloaded successfully")
-                        downloaded_models.append(model_name)
-                    else:
-                        print(f"❌ {model_name} - Download failed")
-                        
-                except Exception as e:
-                    print(f"❌ {model_name} - Download failed: {e}")
-        
-        print(f"📊 Downloaded {len(downloaded_models)}/{len(models_to_download)} models")
-        return downloaded_models
-    
-    def get_local_model_path(self, model_name: str) -> Path:
-        """Get the local path for a sentence transformer model"""
-        import os
-        from sentence_transformers import SentenceTransformer
-        
-        # Get the default cache directory
-        cache_dir = os.path.expanduser("~/.cache/torch/sentence_transformers")
-        model_path = Path(cache_dir) / model_name
-        
-        return model_path
-    
     def check_local_models(self):
         """Check which local models are available"""
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
@@ -255,14 +171,17 @@ class SearchOptimizer:
             'all-MiniLM-L12-v2'
         ]
         
-        print("🔍 Checking for local embedding models...")
+        print("🔍 Checking for embedding models...")
         for model_name in models_to_check:
-            model_path = self.get_local_model_path(model_name)
-            if model_path.exists():
-                print(f"✅ {model_name} - Available")
+            try:
+                # Test if model can be loaded (this will download if needed)
+                model = SentenceTransformer(model_name)
+                # Test encoding
+                test_embedding = model.encode(["test sentence"])
+                print(f"✅ {model_name} - Available and working")
                 available_models.append(model_name)
-            else:
-                print(f"❌ {model_name} - Not found")
+            except Exception as e:
+                print(f"❌ {model_name} - Not available: {e}")
         
         return available_models
     
@@ -297,13 +216,7 @@ class SearchOptimizer:
         # Semantic search
         try:
             embedding_model = config.get('embedding', 'all-mpnet-base-v2')
-            model_path = self.get_local_model_path(embedding_model)
-            
-            if not model_path.exists():
-                print(f"⚠️  Local model not found: {embedding_model}, falling back to BM25")
-                return self.bm25_search(data, statement, top_k)
-            
-            model = SentenceTransformer(str(model_path))
+            model = SentenceTransformer(embedding_model)
             query_embedding = model.encode([statement])
             similarities = np.dot(data['embeddings'], query_embedding.T).flatten()
             vector_indices = np.argsort(similarities)[-top_k:][::-1]
