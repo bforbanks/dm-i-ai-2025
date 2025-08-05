@@ -8,3 +8,7 @@ ollama
 sentence-transformers
 numpy
 rank-bm25
+scikit-learn
+matplotlib
+tqdm
+torch

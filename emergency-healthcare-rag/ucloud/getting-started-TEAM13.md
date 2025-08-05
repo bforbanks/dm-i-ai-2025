@@ -14,7 +14,7 @@ This tutorial covers setting up FastAPI and Ollama (for local LLMs) on UCloud fo
 git config --global credential.helper store
 
 # Ollama server (run in separate terminal tab)
-OLLAMA_MODELS=/work/TEAM13/models ./ollama/bin/ollama serve
+OLLAMA_MODELS=/work/TEAM13/models /work/TEAM13/ollama/bin/ollama serve
 
 # Setup environment
 cd dm-i-ai-2025/emergency-healthcare-rag
