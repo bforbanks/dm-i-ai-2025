@@ -475,7 +475,9 @@ class SearchOptimizer:
             {"search_type": "bm25", "chunk_size": 128, "overlap": 12, "use_condensed_topics": True, "name": "baseline_bm25"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 12, "use_condensed_topics": False, "name": "bm25_regular"},
             
-            # BM25 chunk size variations (condensed topics)
+            # BM25 chunk size variations (condensed topics) - more granular
+            {"search_type": "bm25", "chunk_size": 32, "overlap": 4, "use_condensed_topics": True, "name": "bm25_32_4"},
+            {"search_type": "bm25", "chunk_size": 48, "overlap": 6, "use_condensed_topics": True, "name": "bm25_48_6"},
             {"search_type": "bm25", "chunk_size": 64, "overlap": 6, "use_condensed_topics": True, "name": "bm25_64_6"},
             {"search_type": "bm25", "chunk_size": 80, "overlap": 8, "use_condensed_topics": True, "name": "bm25_80_8"},
             {"search_type": "bm25", "chunk_size": 96, "overlap": 8, "use_condensed_topics": True, "name": "bm25_96_8"},
@@ -487,21 +489,39 @@ class SearchOptimizer:
             {"search_type": "bm25", "chunk_size": 256, "overlap": 24, "use_condensed_topics": True, "name": "bm25_256_24"},
             {"search_type": "bm25", "chunk_size": 320, "overlap": 32, "use_condensed_topics": True, "name": "bm25_320_32"},
             {"search_type": "bm25", "chunk_size": 384, "overlap": 32, "use_condensed_topics": True, "name": "bm25_384_32"},
+            {"search_type": "bm25", "chunk_size": 512, "overlap": 48, "use_condensed_topics": True, "name": "bm25_512_48"},
             
-            # BM25 overlap variations (fixed chunk size)
+            # BM25 overlap variations (fixed chunk size) - more variations
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 4, "use_condensed_topics": True, "name": "bm25_128_4"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 8, "use_condensed_topics": True, "name": "bm25_128_8"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 16, "use_condensed_topics": True, "name": "bm25_128_16"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 20, "use_condensed_topics": True, "name": "bm25_128_20"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 24, "use_condensed_topics": True, "name": "bm25_128_24"},
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 32, "use_condensed_topics": True, "name": "bm25_128_32"},
+            {"search_type": "bm25", "chunk_size": 128, "overlap": 48, "use_condensed_topics": True, "name": "bm25_128_48"},
             
-            # BM25 regular topics variations
+            # BM25 regular topics variations - more granular
+            {"search_type": "bm25", "chunk_size": 64, "overlap": 8, "use_condensed_topics": False, "name": "bm25_regular_64_8"},
             {"search_type": "bm25", "chunk_size": 96, "overlap": 8, "use_condensed_topics": False, "name": "bm25_regular_96_8"},
             {"search_type": "bm25", "chunk_size": 192, "overlap": 16, "use_condensed_topics": False, "name": "bm25_regular_192_16"},
             {"search_type": "bm25", "chunk_size": 256, "overlap": 24, "use_condensed_topics": False, "name": "bm25_regular_256_24"},
+            {"search_type": "bm25", "chunk_size": 384, "overlap": 32, "use_condensed_topics": False, "name": "bm25_regular_384_32"},
             
-            # BM25 no overlap variations
+            # BM25 no overlap variations - more sizes
+            {"search_type": "bm25", "chunk_size": 64, "overlap": 0, "use_condensed_topics": True, "name": "bm25_64_0"},
             {"search_type": "bm25", "chunk_size": 128, "overlap": 0, "use_condensed_topics": True, "name": "bm25_128_0"},
             {"search_type": "bm25", "chunk_size": 256, "overlap": 0, "use_condensed_topics": True, "name": "bm25_256_0"},
+            {"search_type": "bm25", "chunk_size": 512, "overlap": 0, "use_condensed_topics": True, "name": "bm25_512_0"},
+            
+            # BM25 with very small chunks for precision
+            {"search_type": "bm25", "chunk_size": 16, "overlap": 2, "use_condensed_topics": True, "name": "bm25_16_2"},
+            {"search_type": "bm25", "chunk_size": 24, "overlap": 3, "use_condensed_topics": True, "name": "bm25_24_3"},
+            {"search_type": "bm25", "chunk_size": 40, "overlap": 5, "use_condensed_topics": True, "name": "bm25_40_5"},
+            
+            # BM25 with very large chunks for context
+            {"search_type": "bm25", "chunk_size": 640, "overlap": 64, "use_condensed_topics": True, "name": "bm25_640_64"},
+            {"search_type": "bm25", "chunk_size": 768, "overlap": 76, "use_condensed_topics": True, "name": "bm25_768_76"},
+            {"search_type": "bm25", "chunk_size": 1024, "overlap": 100, "use_condensed_topics": True, "name": "bm25_1024_100"},
         ]
         
         # Add hybrid configs only for available models
@@ -634,18 +654,21 @@ def main():
     
     print("✅ Data files found")
     
-    # Initialize optimizer and download models
+    # Initialize optimizer
     optimizer = SearchOptimizer()
     
-    # Download all required models at the start
-    print("\n📥 MODEL DOWNLOAD PHASE")
+    # Check for local models
+    print("\n🔍 CHECKING LOCAL MODELS")
     print("=" * 30)
-    downloaded_models = optimizer.download_required_models()
+    available_models = optimizer.check_local_models()
     
-    if not downloaded_models and SENTENCE_TRANSFORMERS_AVAILABLE:
-        print("⚠️  No embedding models available - running BM25-only optimization")
-    elif downloaded_models:
-        print(f"✅ Ready to test {len(downloaded_models)} embedding models")
+    if not available_models and SENTENCE_TRANSFORMERS_AVAILABLE:
+        print("⚠️  No embedding models available")
+        print("   Run the download script first:")
+        print("   python match-and-choose-model-1/download_models.py")
+        print("   Then run this optimization script again")
+    elif available_models:
+        print(f"✅ Found {len(available_models)} embedding models: {available_models}")
     
     print("\n🚀 OPTIMIZATION PHASE")
     print("=" * 30)
