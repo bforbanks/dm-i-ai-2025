@@ -74,6 +74,12 @@ class OptimizationConfig:
     sample_strategies: bool = True  # Sample strategies instead of exhaustive test
     target_runtime_hours: float = 1.5  # Target total runtime
     
+    # ADAPTIVE EXPLORATION PARAMETERS
+    enable_adaptive_exploration: bool = True  # Detect promising paths and explore deeper
+    breakthrough_threshold: float = 0.905  # Accuracy threshold to trigger deeper exploration
+    exploration_radius: int = 2  # How many parameter variations to test around breakthroughs
+    max_exploration_configs: int = 50  # Max additional configs per breakthrough
+    
     def __post_init__(self):
         if self.embedding_models is None:
             self.embedding_models = [
@@ -529,6 +535,194 @@ def evaluate_search_strategy(searcher: HybridSearcher, strategy: str, statements
     return results
 
 # -----------------------------------------------------------------------
+# ADAPTIVE EXPLORATION FUNCTIONS
+# -----------------------------------------------------------------------
+
+def detect_breakthrough(config: Dict, threshold: float) -> bool:
+    """Detect if a configuration represents a breakthrough worth exploring"""
+    return config.get('top1_accuracy', 0.0) >= threshold
+
+def generate_exploration_configs(breakthrough_config: Dict, opt_config: OptimizationConfig) -> List[Dict]:
+    """Generate exploration configurations around a breakthrough"""
+    explorations = []
+    
+    chunk_size = breakthrough_config['chunk_size']
+    overlap = breakthrough_config['overlap']
+    model = breakthrough_config['model']
+    strategy = breakthrough_config['strategy']
+    
+    print(f"\n🔍 BREAKTHROUGH DETECTED! Exploring around:")
+    print(f"   🎯 Config: {model.split('/')[-1]} + {strategy} (cs={chunk_size}, ov={overlap})")
+    print(f"   📊 Accuracy: {breakthrough_config['top1_accuracy']:.3f}")
+    
+    # 1. BM25 PARAMETER EXPLORATION around successful config
+    chunk_variations = []
+    overlap_variations = []
+    radius = opt_config.exploration_radius
+    
+    # Chunk size variations (±radius)
+    for delta in range(-radius, radius + 1):
+        new_chunk = chunk_size + delta * 16  # 16-unit steps
+        if 64 <= new_chunk <= 192:  # Valid range
+            chunk_variations.append(new_chunk)
+    
+    # Overlap variations (±radius around current ratio)
+    current_ratio = overlap / chunk_size
+    for delta in range(-radius, radius + 1):
+        new_ratio = current_ratio + delta * 0.05  # 5% steps
+        if 0.0 <= new_ratio <= 0.3:  # Valid range
+            overlap_variations.append(new_ratio)
+    
+    # Generate BM25 exploration configs
+    for new_chunk in chunk_variations:
+        for new_ratio in overlap_variations:
+            new_overlap = int(new_chunk * new_ratio)
+            explorations.append({
+                'type': 'bm25_exploration',
+                'chunk_size': new_chunk,
+                'overlap': new_overlap,
+                'overlap_ratio': new_ratio,
+                'model': model,
+                'strategy': strategy,
+                'source': breakthrough_config['config_key']
+            })
+    
+    # 2. FUSION STRATEGY EXPLORATION if linear strategy worked
+    if strategy.startswith('linear_'):
+        current_weight = float(strategy.split('_')[1])
+        print(f"   🔬 Exploring linear weights around {current_weight}")
+        
+        # Test finer-grained weights around successful one
+        weight_variations = []
+        for delta in [-0.2, -0.1, -0.05, 0.05, 0.1, 0.2]:
+            new_weight = current_weight + delta
+            if 0.1 <= new_weight <= 0.9:  # Valid range
+                weight_variations.append(new_weight)
+        
+        for new_weight in weight_variations:
+            explorations.append({
+                'type': 'strategy_exploration',
+                'chunk_size': chunk_size,
+                'overlap': overlap,
+                'overlap_ratio': overlap / chunk_size,
+                'model': model,
+                'strategy': f'linear_{new_weight:.2f}',
+                'source': breakthrough_config['config_key']
+            })
+    
+    # 3. MODEL ARCHITECTURE EXPLORATION
+    if 'distilroberta' in model.lower():
+        # If DistilRoBERTa worked well, try related models
+        related_models = [
+            "sentence-transformers/all-roberta-large-v1",
+            "sentence-transformers/paraphrase-distilroberta-base-v2",
+        ]
+        for related_model in related_models:
+            explorations.append({
+                'type': 'model_exploration', 
+                'chunk_size': chunk_size,
+                'overlap': overlap,
+                'overlap_ratio': overlap / chunk_size,
+                'model': related_model,
+                'strategy': strategy,
+                'source': breakthrough_config['config_key']
+            })
+    
+    # Limit exploration size
+    if len(explorations) > opt_config.max_exploration_configs:
+        explorations = explorations[:opt_config.max_exploration_configs]
+        print(f"   ⚡ Limited exploration to {len(explorations)} configs")
+    
+    print(f"   🚀 Generated {len(explorations)} exploration configs")
+    return explorations
+
+def execute_exploration(exploration_configs: List[Dict], statements: List, opt_config: OptimizationConfig,
+                       all_results: Dict, best_configs: List) -> List[Dict]:
+    """Execute exploration configurations and return new breakthroughs"""
+    new_breakthroughs = []
+    
+    print(f"\n" + "🔬" * 60)
+    print(f"🔬 ADAPTIVE EXPLORATION PHASE ({len(exploration_configs)} configs)")
+    print(f"🔬" * 60)
+    
+    for exp_idx, exp_config in enumerate(exploration_configs, 1):
+        print(f"\n🔍 EXPLORATION {exp_idx}/{len(exploration_configs)}: {exp_config['type']}")
+        print(f"   📊 Testing: {exp_config['model'].split('/')[-1]} + {exp_config['strategy']}")
+        print(f"   ⚙️  BM25: chunk_size={exp_config['chunk_size']}, overlap={exp_config['overlap']}")
+        print(f"   🎯 Source: {exp_config['source']}")
+        
+        # Build/load BM25 and semantic indices
+        bm25_data = build_bm25_index(exp_config['chunk_size'], exp_config['overlap'], opt_config.use_condensed_topics)
+        semantic_data = build_semantic_index(exp_config['model'], bm25_data, opt_config.cache_embeddings)
+        
+        if semantic_data is None:
+            print(f"   ❌ Skipping - could not load {exp_config['model']}")
+            continue
+        
+        # Create searcher and evaluate
+        searcher = HybridSearcher(bm25_data, semantic_data)
+        start_time = time.time()
+        eval_results = evaluate_search_strategy(searcher, exp_config['strategy'], statements, opt_config)
+        elapsed = time.time() - start_time
+        
+        # Calculate metrics
+        metrics = calculate_metrics(eval_results)
+        metrics['evaluation_time'] = elapsed
+        metrics['time_per_query'] = elapsed / len(statements)
+        
+        # Store results
+        config_key = f"EXPLORATION_{exp_config['model'].split('/')[-1]}_{exp_config['strategy']}_cs{exp_config['chunk_size']}_ov{exp_config['overlap']}"
+        all_results[config_key] = {
+            'metrics': metrics,
+            'config': {
+                'model': exp_config['model'],
+                'strategy': exp_config['strategy'],
+                'chunk_size': exp_config['chunk_size'],
+                'overlap': exp_config['overlap'],
+                'overlap_ratio': exp_config['overlap_ratio'],
+                'use_condensed_topics': opt_config.use_condensed_topics,
+                'exploration_type': exp_config['type'],
+                'source_breakthrough': exp_config['source']
+            },
+            'detailed_results': eval_results if opt_config.save_detailed_results else None
+        }
+        
+        # Add to best configs
+        exploration_result = {
+            'config_key': config_key,
+            'model': exp_config['model'],
+            'strategy': exp_config['strategy'],
+            'chunk_size': exp_config['chunk_size'],
+            'overlap': exp_config['overlap'],
+            'overlap_ratio': exp_config['overlap_ratio'],
+            'top1_accuracy': metrics['top1_accuracy'],
+            'top2_accuracy': metrics['top2_accuracy'],
+            'top3_accuracy': metrics['top3_accuracy'],
+            'top4_accuracy': metrics['top4_accuracy'],
+            'top5_accuracy': metrics['top5_accuracy'],
+            'mrr': metrics['mrr'],
+            'avg_separation': metrics['avg_separation_when_correct'],
+            'score_gap_p90': metrics['score_gaps']['percentiles']['p90'],
+            'time_per_query': metrics['time_per_query'],
+            'exploration_type': exp_config['type'],
+            'source_breakthrough': exp_config['source']
+        }
+        best_configs.append(exploration_result)
+        
+        # Check if this exploration is also a breakthrough
+        if detect_breakthrough(exploration_result, opt_config.breakthrough_threshold):
+            new_breakthroughs.append(exploration_result)
+            print(f"   🚀 NEW BREAKTHROUGH: T1={metrics['top1_accuracy']:.3f}!")
+        
+        print(f"   ✅ {exp_config['strategy']}: T1: {metrics['top1_accuracy']:.3f}, "
+              f"T2: {metrics['top2_accuracy']:.3f}, "
+              f"T3: {metrics['top3_accuracy']:.3f}, "
+              f"T5: {metrics['top5_accuracy']:.3f}, "
+              f"MRR: {metrics['mrr']:.3f} | {elapsed:.1f}s")
+    
+    return new_breakthroughs
+
+# -----------------------------------------------------------------------
 # INCREMENTAL SAVING FUNCTIONS
 # -----------------------------------------------------------------------
 
@@ -591,10 +785,14 @@ def run_optimization():
         use_condensed_topics=True,  # True for condensed, False for original topics
         max_samples=200,  # Number of statements to evaluate (max 200)
         cache_embeddings=True,  # Cache embeddings for faster re-runs
-        fast_mode=True,  # Enable hierarchical optimization for 1.5 hour runtime
-        top_bm25_configs=3,  # Test semantic fusion on top 3 BM25 configs only
-        sample_strategies=True,  # Use 4 best strategies instead of all 7
-        target_runtime_hours=1.5  # Target 1.5 hour total runtime
+        fast_mode=False,  # Enable full exploration to find breakthrough configs like 91%
+        top_bm25_configs=10,  # Test semantic fusion on top 10 BM25 configs for thorough search
+        sample_strategies=False,  # Use all strategies to find the best combinations
+        target_runtime_hours=8.0,  # Allow longer runtime for breakthrough discovery
+        enable_adaptive_exploration=True,  # Detect and explore around promising results
+        breakthrough_threshold=0.905,  # Look for configs above 90.5% (like your 91% finding)
+        exploration_radius=2,  # Explore ±2 parameter variations around breakthroughs
+        max_exploration_configs=50  # Allow substantial exploration around each breakthrough
     )
     
     print(f"📋 Configuration:")
@@ -603,6 +801,12 @@ def run_optimization():
     print(f"   📊 Samples: {opt_config.max_samples}")
     print(f"   🧠 Models: {len(opt_config.embedding_models)}")
     print(f"   🔍 Strategies: {len(opt_config.fusion_strategies)}")
+    print(f"   ⚡ Mode: {'Fast hierarchical' if opt_config.fast_mode else 'Full exploration'}")
+    print(f"   🔍 Adaptive exploration: {'Enabled' if opt_config.enable_adaptive_exploration else 'Disabled'}")
+    if opt_config.enable_adaptive_exploration:
+        print(f"      🎯 Breakthrough threshold: {opt_config.breakthrough_threshold:.3f}")
+        print(f"      🔬 Exploration radius: ±{opt_config.exploration_radius}")
+        print(f"      📊 Max exploration configs: {opt_config.max_exploration_configs}")
     print(f"   💾 Auto-save: Enabled (progress saved continuously)")
     print(f"   🛡️  Safe to cancel: Press Ctrl+C anytime - progress is preserved!")
     
@@ -912,6 +1116,71 @@ def run_optimization():
         
         # Clean up BM25 data to save memory (keep it only in selected configs)
         bm25_result['bm25_data'] = None  # Remove after use
+    
+    # ADAPTIVE EXPLORATION PHASE
+    if opt_config.enable_adaptive_exploration:
+        print(f"\n" + "🔍" * 80)
+        print(f"🔍 CHECKING FOR BREAKTHROUGHS (threshold: {opt_config.breakthrough_threshold:.3f})")
+        print(f"🔍" * 80)
+        
+        # Find all breakthroughs in current results
+        breakthroughs = []
+        for config in best_configs:
+            if detect_breakthrough(config, opt_config.breakthrough_threshold):
+                breakthroughs.append(config)
+        
+        if breakthroughs:
+            print(f"\n🚀 FOUND {len(breakthroughs)} BREAKTHROUGH(S)!")
+            for i, breakthrough in enumerate(breakthroughs, 1):
+                print(f"   #{i}: {breakthrough['model'].split('/')[-1]} + {breakthrough['strategy']} → T1: {breakthrough['top1_accuracy']:.3f}")
+            
+            # Generate exploration configs for all breakthroughs
+            all_explorations = []
+            for breakthrough in breakthroughs:
+                exploration_configs = generate_exploration_configs(breakthrough, opt_config)
+                all_explorations.extend(exploration_configs)
+            
+            if all_explorations:
+                # Execute exploration phase
+                print(f"\n🔬 EXECUTING ADAPTIVE EXPLORATION...")
+                exploration_breakthroughs = execute_exploration(all_explorations, statements, opt_config, all_results, best_configs)
+                
+                # Save exploration results
+                exploration_info = {
+                    'exploration_results': {
+                        'original_breakthroughs': len(breakthroughs),
+                        'exploration_configs_tested': len(all_explorations),
+                        'new_breakthroughs_found': len(exploration_breakthroughs),
+                        'best_exploration_accuracy': max([c['top1_accuracy'] for c in exploration_breakthroughs]) if exploration_breakthroughs else None
+                    }
+                }
+                exploration_file = save_partial_results(all_results, best_configs, opt_config, "exploration_complete", exploration_info)
+                print(f"💾 Exploration results saved: {exploration_file}")
+                
+                # RECURSIVE EXPLORATION: If new breakthroughs found, potentially explore further
+                if exploration_breakthroughs and len(exploration_breakthroughs) > 0:
+                    improved_threshold = opt_config.breakthrough_threshold + 0.01  # Raise bar slightly
+                    print(f"\n🚀 NEW BREAKTHROUGHS FOUND! Checking for super-breakthroughs (threshold: {improved_threshold:.3f})")
+                    
+                    super_breakthroughs = [b for b in exploration_breakthroughs if b['top1_accuracy'] >= improved_threshold]
+                    if super_breakthroughs and len(super_breakthroughs) <= 2:  # Limit recursive exploration
+                        print(f"🔥 SUPER-BREAKTHROUGH DETECTED! Running focused exploration...")
+                        focused_explorations = []
+                        for super_b in super_breakthroughs:
+                            # More focused exploration around super-breakthroughs
+                            temp_config = OptimizationConfig(**opt_config.__dict__)
+                            temp_config.exploration_radius = 1  # Smaller radius
+                            temp_config.max_exploration_configs = 20  # Fewer configs
+                            focused_configs = generate_exploration_configs(super_b, temp_config)
+                            focused_explorations.extend(focused_configs)
+                        
+                        if focused_explorations:
+                            print(f"🎯 FOCUSED EXPLORATION: {len(focused_explorations)} configs")
+                            execute_exploration(focused_explorations, statements, opt_config, all_results, best_configs)
+        else:
+            print(f"\n📊 No breakthroughs found above {opt_config.breakthrough_threshold:.3f} threshold")
+            print(f"   🎯 Current best: {max([c['top1_accuracy'] for c in best_configs]):.3f}")
+            print(f"   💡 Consider lowering breakthrough_threshold or running longer")
     
     # Completion marker
     print(f"\n" + "=" * 80)
