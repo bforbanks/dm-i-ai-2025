@@ -245,6 +245,8 @@ def main():
                        help='Use condensed_topics (default: True, set --no-use-condensed-topics for regular topics)')
     parser.add_argument('--no-use-condensed-topics', dest='use_condensed_topics', action='store_false',
                        help='Use regular topics instead of condensed_topics')
+    parser.add_argument('--no-load', action='store_true',
+                       help='Force rebuild BM25 index (ignore cache)')
     args = parser.parse_args()
     
     # Set model if specified
@@ -280,6 +282,15 @@ def main():
             print(f"📚 Using {topic_type} for knowledge base")
         except Exception as e:
             print(f"⚠️  Warning: Failed to set topic configuration: {e}")
+    
+    # Set no-load configuration if specified
+    if hasattr(args, 'no_load') and args.no_load:
+        try:
+            import topic_model
+            topic_model.FORCE_REBUILD = True
+            print("🔄 Force rebuild BM25 index (ignoring cache)")
+        except Exception as e:
+            print(f"⚠️  Warning: Failed to set no-load configuration: {e}")
     
     # Get current configuration
     config = get_config_summary()
