@@ -1,18 +1,19 @@
 import pygame
-import random
+
+# import random
 import torch
 import importlib
 from src.game.core import initialize_game_state, game_loop
 
 # RL imports
 from src.game.rl_wrapper import RaceCarEnv
-from models.rl.dqn.train import train
+# from models.rl.dqn.train import train
 
 
-'''
+"""
 Set seed_value to None for random seed.
 Within game_loop, change get_action() to your custom models prediction for local testing and training.
-'''
+"""
 # This is the full dotted path: module path + class name
 # model_path = "rl.dqn.DQNModel.DQNModel"  # <== 'DQNModel' is the class name
 
@@ -28,31 +29,36 @@ Within game_loop, change get_action() to your custom models prediction for local
 # print(f"Using model: {MODEL.__name__}")
 
 
-
-
 # Just change this string to use different models! (remember capitalization)
-model_name = "rl.dqn.DQNAgent"  # "baseline", "rl.dqn.DQNModel", "playground", etc.
+# model_name = "rl.dqn.DQNAgent"  # "baseline", "rl.dqn.DQNModel", "playground", etc.
 
-# Dynamic import
-module = importlib.import_module(f'models.{model_name}')
-class_name = model_name.split('.')[-1]  # Get last part and capitalize
-MODEL = getattr(module, class_name)
+# # Dynamic import
+# module = importlib.import_module(f"models.{model_name}")
+# class_name = model_name.split(".")[-1]  # Get last part and capitalize
+# MODEL = getattr(module, class_name)
 
-# Set to True if you want to use the RL environment
-RL_ENV = True if "rl." in model_name else False
+# # Set to True if you want to use the RL environment
+# RL_ENV = True if "rl." in model_name else False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     seed_value = None
     pygame.init()
-    if RL_ENV:
-        show_visualization = False  # Change to False for headless training
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        dtype = torch.float32
-        env = RaceCarEnv(api_url="http://example.com/api/predict", seed_value=seed_value, render=show_visualization)        
-        agent = MODEL(input_dim=21, output_dim=5, device=device, dtype=dtype)
-        train(agent=agent, env=env, episodes=100000)  # Train the agent
-    else:
-        initialize_game_state(api_url="http://example.com/api/predict", seed_value=seed_value)
-        game_loop(verbose=False, model=MODEL()) # For pygame window
+    # if RL_ENV:
+    #     show_visualization = False  # Change to False for headless training
+    #     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #     dtype = torch.float32
+    #     env = RaceCarEnv(
+    #         api_url="http://example.com/api/predict",
+    #         seed_value=seed_value,
+    #         render=show_visualization,
+    #     )
+    #     agent = MODEL(input_dim=21, output_dim=5, device=device, dtype=dtype)
+    #     train(agent=agent, env=env, episodes=100000)  # Train the agent
+    # else:
+    for i in range(100):
+        initialize_game_state(
+            api_url="http://example.com/api/predict", seed_value=seed_value
+        )
+        game_loop(verbose=True, model=None)  # For pygame window
     pygame.quit()

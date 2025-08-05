@@ -1,13 +1,18 @@
 import pygame
 from ..mathematics.vector import Vector  # Assuming a Vector class exists
-from typing import List, Optional
-from ..mathematics.collision import get_intersection_point, get_lines_of_rectangle  # Assuming collision utilities exist
+from typing import List, Optional, Tuple
+from ..mathematics.collision import (
+    get_intersection_point,
+    get_lines_of_rectangle,
+)  # Assuming collision utilities exist
 from .car import Car  # Assuming a Car class exists
+
 
 class Line:
     def __init__(self, start, end):
         self.start = start
         self.end = end
+
 
 class Sensor:
     def __init__(self, car: Car, angle: float, name: str, state):
@@ -23,8 +28,9 @@ class Sensor:
         self.degrees = angle
         self.reading = None
 
-        self.sensor_width = 2
-        self.sensor_color = (255, 0, 0)  # Red
+        self.sensor_width = 4  # Thicker visual line for better visibility
+        self.sensor_color_normal = (0, 255, 0)  # Green when no detection
+        self.sensor_color_detection = (255, 0, 0)  # Red when detecting
         self.sensor_strength = 1000
 
         # Calculate the sensor beam vector
@@ -51,34 +57,45 @@ class Sensor:
         car_rect = self.car.get_bounds()
         car_center = Vector(car_rect.centerx, car_rect.centery)
         self.beam_start = (car_center.x, car_center.y)
-        sensor_beam_end = car_center.add(Vector(0, -self.sensor_strength).rotate(self.degrees))
+        sensor_beam_end = car_center.add(
+            Vector(0, -self.sensor_strength).rotate(self.degrees)
+        )
         self.beam_end = (sensor_beam_end.x, sensor_beam_end.y)
 
-        # Reset reading
+        # Reset reading and intersection point
         self.reading = None
+        self.intersection_point = None
         sensor_line = Line(car_center, sensor_beam_end)
 
         min_reading = None
+        closest_intersection = None
 
         # Sense cars
         for car in self.state.cars:
             if car == self.state.ego:
                 continue
             bounds = car.get_bounds()
-            reading = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
+            reading, intersection = self.get_sensor_reading_for_bounding_box(
+                bounds, sensor_line, car_center
+            )
             if reading is not None and 0 <= reading <= self.sensor_strength:
                 if min_reading is None or reading < min_reading:
                     min_reading = reading
+                    closest_intersection = intersection
 
         # Sense walls
         for wall in self.state.road.walls:
             bounds = wall.get_bounds()
-            reading = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
+            reading, intersection = self.get_sensor_reading_for_bounding_box(
+                bounds, sensor_line, car_center
+            )
             if reading is not None and 0 <= reading <= self.sensor_strength:
                 if min_reading is None or reading < min_reading:
                     min_reading = reading
+                    closest_intersection = intersection
 
         self.reading = min_reading
+        self.intersection_point = closest_intersection
 
         # Update text
         if self.reading is not None:
@@ -86,37 +103,71 @@ class Sensor:
         else:
             self.text = ""
 
-    def get_sensor_reading_for_bounding_box(self, bb: pygame.Rect, sensor_line: dict, car_center: Vector) -> Optional[float]:
+    def get_sensor_reading_for_bounding_box(
+        self, bb: pygame.Rect, sensor_line: dict, car_center: Vector
+    ) -> Tuple[Optional[float], Optional[Vector]]:
         """
         Calculate the sensor reading for a bounding box.
 
         :param bb: The bounding box as a pygame.Rect.
         :param sensor_line: The sensor line as a dictionary with 'start' and 'end' keys.
         :param car_center: The center of the car as a Vector.
-        :return: The distance to the closest intersection, or None if no intersection.
+        :return: Tuple of (distance to closest intersection, intersection point) or (None, None) if no intersection.
         """
         lines = get_lines_of_rectangle(bb)
         min_distance = None
+        closest_intersection = None
         for line in lines:
             intersection = get_intersection_point(sensor_line, line)
             if intersection:
                 distance = car_center.distance(intersection)
                 if min_distance is None or distance < min_distance:
                     min_distance = distance
-        return min_distance
+                    closest_intersection = intersection
+        return min_distance, closest_intersection
 
     def draw(self, surface: pygame.Surface):
         """
         Draw the sensor beam and text on the given surface.
         """
         if self.state.sensors_enabled:
-            # Draw the beam
-            pygame.draw.line(surface, self.sensor_color, self.beam_start, self.beam_end, self.sensor_width)
+            if self.intersection_point is not None:
+                # There's a detection - draw red line only up to intersection point
+                pygame.draw.line(
+                    surface,
+                    self.sensor_color_detection,
+                    self.beam_start,
+                    (self.intersection_point.x, self.intersection_point.y),
+                    self.sensor_width,
+                )
+                # Draw green line from intersection to end
+                pygame.draw.line(
+                    surface,
+                    self.sensor_color_normal,
+                    (self.intersection_point.x, self.intersection_point.y),
+                    self.beam_end,
+                    self.sensor_width,
+                )
+            else:
+                # No detection - draw full green line
+                pygame.draw.line(
+                    surface,
+                    self.sensor_color_normal,
+                    self.beam_start,
+                    self.beam_end,
+                    self.sensor_width,
+                )
 
             # Draw the text at 30% along the beam
             if self.text:
                 font = pygame.font.SysFont("monospace", 16)
-                text_surface = font.render(self.text, True, (255, 255, 255))  # White text
-                text_x = self.beam_start[0] + 0.3 * (self.beam_end[0] - self.beam_start[0])
-                text_y = self.beam_start[1] + 0.3 * (self.beam_end[1] - self.beam_start[1])
+                text_surface = font.render(
+                    self.text, True, (255, 255, 255)
+                )  # White text
+                text_x = self.beam_start[0] + 0.3 * (
+                    self.beam_end[0] - self.beam_start[0]
+                )
+                text_y = self.beam_start[1] + 0.3 * (
+                    self.beam_end[1] - self.beam_start[1]
+                )
                 surface.blit(text_surface, (text_x, text_y))

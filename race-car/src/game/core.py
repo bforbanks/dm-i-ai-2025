@@ -1,7 +1,8 @@
 import pygame
 from time import sleep
-#import requests
-#from typing import List, Optional
+
+# import requests
+# from typing import List, Optional
 from ..mathematics.randomizer import seed, random_choice, random_number
 from ..elements.car import Car
 from ..elements.road import Road
@@ -15,9 +16,10 @@ from typing import List
 SCREEN_WIDTH = 1600
 SCREEN_HEIGHT = 1200
 LANE_COUNT = 5
-CAR_COLORS = ['yellow', 'blue', 'red']
+CAR_COLORS = ["yellow", "blue", "red"]
 MAX_TICKS = 60 * 60  # 60 seconds @ 60 fps
-MAX_MS = 60 * 1000600   # 60 seconds flat
+MAX_MS = 60 * 1000600  # 60 seconds flat
+
 
 # Define game state
 class GameState:
@@ -36,37 +38,39 @@ class GameState:
         self.latest_action = "NOTHING"
         self.ticks = 0
 
+
 STATE = None
+
 
 def state_to_state_dict(state: GameState):
     """The state in this file is a GameState object. This function converts it
     to a dictionary, in the same way as the state we receive from the API."""
-    
+
     # Build sensors dictionary by name
     sensors_dict = {}
     for sensor in state.sensors:
         sensors_dict[sensor.name] = sensor.reading
-    
+
     return {
         "did_crash": state.crashed,
         "elapsed_ticks": state.ticks,
         "distance": state.distance,
-        "velocity": {
-            "x": state.ego.velocity.x,
-            "y": state.ego.velocity.y
-        },
-        "sensors": sensors_dict
+        "velocity": {"x": state.ego.velocity.x, "y": state.ego.velocity.y},
+        "sensors": sensors_dict,
     }
+
 
 def intersects(rect1, rect2):
     return rect1.colliderect(rect2)
+
 
 # Game logic
 def handle_action(actions: str | List):
     if isinstance(actions, list):
         action = actions.pop(0) if actions else "NOTHING"
-    else: action = actions
-    
+    else:
+        action = actions
+
     if action == "ACCELERATE":
         STATE.ego.speed_up()
     elif action == "DECELERATE":
@@ -77,6 +81,7 @@ def handle_action(actions: str | List):
         STATE.ego.turn(0.1)
     else:
         pass
+
 
 def update_cars():
     for car in STATE.cars:
@@ -101,6 +106,7 @@ def remove_passed_cars():
 
     STATE.cars = cars_to_keep
 
+
 def place_car():
     if len(STATE.cars) > LANE_COUNT:
         return
@@ -109,7 +115,11 @@ def place_car():
     x_offset_behind = -0.5
     x_offset_in_front = 1.5
 
-    open_lanes = [lane for lane in STATE.road.lanes if not any(c.lane == lane for c in STATE.cars if c != STATE.ego)]
+    open_lanes = [
+        lane
+        for lane in STATE.road.lanes
+        if not any(c.lane == lane for c in STATE.cars if c != STATE.ego)
+    ]
     lane = random_choice(open_lanes)
     x_offset = random_choice([x_offset_behind, x_offset_in_front])
     horizontal_velocity_coefficient = random_number() * speed_coeff_modifier
@@ -118,7 +128,11 @@ def place_car():
     if not car:
         return
 
-    velocity_x = STATE.ego.velocity.x + horizontal_velocity_coefficient if x_offset == x_offset_behind else STATE.ego.velocity.x - horizontal_velocity_coefficient
+    velocity_x = (
+        STATE.ego.velocity.x + horizontal_velocity_coefficient
+        if x_offset == x_offset_behind
+        else STATE.ego.velocity.x - horizontal_velocity_coefficient
+    )
     car.velocity = Vector(velocity_x, 0)
     STATE.cars.append(car)
 
@@ -128,54 +142,70 @@ def place_car():
     car.lane = lane
 
 
+# Global variable to track the last pressed key
+LAST_PRESSED_KEY = None
+
+
 def get_action():
     """
-    Reads pygame events and returns an action string based on arrow keys or spacebar.
-    Up: ACCELERATE, Down: DECELERATE, Left: STEER_LEFT, Right: STEER_RIGHT, Space: NOTHING
+    Reads pygame events and returns a single action string based on the last key pressed.
+    The last key pressed takes priority when multiple keys are held down.
+    Up: STEER_LEFT, Down: STEER_RIGHT, Left: DECELERATE, Right: ACCELERATE, Space: NOTHING
     """
+    global LAST_PRESSED_KEY
 
+    # Process events to track the most recent key press
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        elif event.type == pygame.KEYDOWN:
+            # Update the last pressed key when a new key is pressed
+            if event.key in [
+                pygame.K_UP,
+                pygame.K_DOWN,
+                pygame.K_LEFT,
+                pygame.K_RIGHT,
+                pygame.K_SPACE,
+            ]:
+                LAST_PRESSED_KEY = event.key
+        elif event.type == pygame.KEYUP:
+            # If the last pressed key is released, check what other keys are still held
+            if event.key == LAST_PRESSED_KEY:
+                keys = pygame.key.get_pressed()
+                # Find the next highest priority key that's still pressed
+                if keys[pygame.K_UP]:
+                    LAST_PRESSED_KEY = pygame.K_UP
+                elif keys[pygame.K_DOWN]:
+                    LAST_PRESSED_KEY = pygame.K_DOWN
+                elif keys[pygame.K_LEFT]:
+                    LAST_PRESSED_KEY = pygame.K_LEFT
+                elif keys[pygame.K_RIGHT]:
+                    LAST_PRESSED_KEY = pygame.K_RIGHT
+                elif keys[pygame.K_SPACE]:
+                    LAST_PRESSED_KEY = pygame.K_SPACE
+                else:
+                    LAST_PRESSED_KEY = None
 
-
-    # Holding down keys
+    # Check if the last pressed key is still being held down
     keys = pygame.key.get_pressed()
 
-    # Priority: accelerate, decelerate, steer left, steer right, nothing
-    if keys[pygame.K_RIGHT]:
-        return ["ACCELERATE"]
-    if keys[pygame.K_LEFT]:
-        return ["DECELERATE"]
-    if keys[pygame.K_UP]:
-        return ["STEER_LEFT"]
-    if keys[pygame.K_DOWN]:
-        return ["STEER_RIGHT"]
-    if keys[pygame.K_SPACE]:
-        return ["NOTHING"]
+    if LAST_PRESSED_KEY is not None and keys[LAST_PRESSED_KEY]:
+        # Return action based on the last pressed key that's still held
+        if LAST_PRESSED_KEY == pygame.K_UP:
+            return "STEER_LEFT"
+        elif LAST_PRESSED_KEY == pygame.K_DOWN:
+            return "STEER_RIGHT"
+        elif LAST_PRESSED_KEY == pygame.K_LEFT:
+            return "DECELERATE"
+        elif LAST_PRESSED_KEY == pygame.K_RIGHT:
+            return "ACCELERATE"
+        elif LAST_PRESSED_KEY == pygame.K_SPACE:
+            return "NOTHING"
 
-    # Just clicking once and it keeps doing it until a new press
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                return ["ACCELERATE"]
-            elif event.key == pygame.K_LEFT:
-                return ["DECELERATE"]
-            elif event.key == pygame.K_UP:
-                return ["STEER_LEFT"]
-            elif event.key == pygame.K_DOWN:
-                return ["STEER_RIGHT"]
-            elif event.key == pygame.K_SPACE:
-                return ["NOTHING"]
-
-    
-    # If no relevant key is pressed, repeat last action or do nothing
-    #return STATE.latest_action if hasattr(STATE, "latest_action") else "NOTHING"
+    # If no keys are pressed, return nothing
     return "NOTHING"
+
 
 def get_action_json():
     """
@@ -193,7 +223,7 @@ def get_action_json():
         return "NOTHING"
 
 
-def initialize_game_state( api_url: str, seed_value: str, sensor_removal = 0):
+def initialize_game_state(api_url: str, seed_value: str, sensor_removal=0):
     seed(seed_value)
     global STATE
     STATE = GameState(api_url)
@@ -205,35 +235,38 @@ def initialize_game_state( api_url: str, seed_value: str, sensor_removal = 0):
 
     # Create ego car
     ego_velocity = Vector(10, 0)
-    STATE.ego = Car("yellow", ego_velocity, lane=middle_lane, target_height=int(lane_height * 0.8))
+    STATE.ego = Car(
+        "yellow", ego_velocity, lane=middle_lane, target_height=int(lane_height * 0.8)
+    )
     ego_sprite = STATE.ego.sprite
     STATE.ego.x = (SCREEN_WIDTH // 2) - (ego_sprite.get_width() // 2)
-    STATE.ego.y = int((middle_lane.y_start + middle_lane.y_end) / 2 - ego_sprite.get_height() / 2)
+    STATE.ego.y = int(
+        (middle_lane.y_start + middle_lane.y_end) / 2 - ego_sprite.get_height() / 2
+    )
     sensor_options = [
-            (90, "front"),
-            (135, "right_front"),
-            (180, "right_side"),
-            (225, "right_back"),
-            (270, "back"),
-            (315, "left_back"),
-            (0, "left_side"),
-            (45, "left_front"),
-            (22.5, "left_side_front"),
-            (67.5, "front_left_front"),
-            (112.5, "front_right_front"),
-            (157.5, "right_side_front"),
-            (202.5, "right_side_back"),
-            (247.5, "back_right_back"),
-            (292.5, "back_left_back"),
-            (337.5, "left_side_back"),
-        ]
+        (90, "front"),
+        (135, "right_front"),
+        (180, "right_side"),
+        (225, "right_back"),
+        (270, "back"),
+        (315, "left_back"),
+        (0, "left_side"),
+        (45, "left_front"),
+        (22.5, "left_side_front"),
+        (67.5, "front_left_front"),
+        (112.5, "front_right_front"),
+        (157.5, "right_side_front"),
+        (202.5, "right_side_back"),
+        (247.5, "back_right_back"),
+        (292.5, "back_left_back"),
+        (337.5, "left_side_back"),
+    ]
 
-    for _ in range(sensor_removal): # Removes random sensors
+    for _ in range(sensor_removal):  # Removes random sensors
         random_sensor = random_choice(sensor_options)
         sensor_options.remove(random_sensor)
     STATE.sensors = [
-        Sensor(STATE.ego, angle, name, STATE)
-        for angle, name in sensor_options
+        Sensor(STATE.ego, angle, name, STATE) for angle, name in sensor_options
     ]
 
     # Create other cars and add to car bucket
@@ -245,6 +278,7 @@ def initialize_game_state( api_url: str, seed_value: str, sensor_removal = 0):
 
     STATE.cars = [STATE.ego]
 
+
 def update_game(current_action: str):
     handle_action(current_action)
     STATE.distance += STATE.ego.velocity.x
@@ -255,11 +289,18 @@ def update_game(current_action: str):
         sensor.update()
 
     return STATE
-    
+
+
 # Main game loop
 ACTION_LOG = []
 
-def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "actions_log.json", model = None):
+
+def game_loop(
+    verbose: bool = True,
+    log_actions: bool = True,
+    log_path: str = "actions_log.json",
+    model=None,
+):
     global STATE
     clock = pygame.time.Clock()
     screen = None
@@ -277,14 +318,25 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         STATE.ticks += 1
 
         if STATE.crashed or STATE.ticks > MAX_TICKS or STATE.elapsed_game_time > MAX_MS:
-            print(f"Game over: Crashed: {STATE.crashed}, Ticks: {STATE.ticks}, Elapsed time: {STATE.elapsed_game_time} ms, Distance: {STATE.distance}")
+            print(
+                f"Game over: Crashed: {STATE.crashed}, Ticks: {STATE.ticks}, Elapsed time: {STATE.elapsed_game_time} ms, Distance: {STATE.distance}"
+            )
             break
 
         if not actions:
-            action_list = model.return_action(state_to_state_dict(STATE)) if model else get_action()
-            actions.extend(action_list)
+            action_result = (
+                model.return_action(state_to_state_dict(STATE))
+                if model
+                else get_action()
+            )
+            # Ensure we only get one action per tick
+            if isinstance(action_result, list):
+                actions.extend(action_result)
+            else:
+                actions.append(action_result)
 
-        action = actions.pop()
+        # Process only one action per tick
+        action = actions.pop(0) if actions else "NOTHING"
 
         # Log the action with tick
         if log_actions:
@@ -297,19 +349,19 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         remove_passed_cars()
         place_car()
 
-        if verbose:
-            print("Current action:", action)
-            print("Currnet tick:", STATE.ticks)
+        # if verbose:
+        # print("Current action:", action)
+        # print("Currnet tick:", STATE.ticks)
 
         # Update sensors
         for sensor in STATE.sensors:
             sensor.update()
-        
+
         # Handle collisions
         for car in STATE.cars:
             if car != STATE.ego and intersects(STATE.ego.rect, car.rect):
                 STATE.crashed = True
-        
+
         # Check collision with walls
         for wall in STATE.road.walls:
             if intersects(STATE.ego.rect, wall.rect):
@@ -326,15 +378,20 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
             for wall in STATE.road.walls:
                 wall.draw(screen)
 
-            # Draw all cars
+            # Draw only the ego car (hide other cars)
             for car in STATE.cars:
-                if car.sprite:
-                    screen.blit(car.sprite, (car.x, car.y))
-                    bounds = car.get_bounds()
-                    color = (255, 0, 0) if car == STATE.ego else (0, 255, 0)
-                    pygame.draw.rect(screen, color, bounds, width=2)
-                else:
-                    pygame.draw.rect(screen, (255, 255, 0) if car == STATE.ego else (0, 0, 255), car.rect)
+                if car == STATE.ego:  # Only draw the ego car
+                    if car.sprite:
+                        screen.blit(car.sprite, (car.x, car.y))
+                        bounds = car.get_bounds()
+                        color = (255, 0, 0)  # Red for ego car
+                        pygame.draw.rect(screen, color, bounds, width=2)
+                    else:
+                        pygame.draw.rect(
+                            screen,
+                            (255, 255, 0),  # Yellow for ego car
+                            car.rect,
+                        )
 
             # Draw sensors if enabled
             if STATE.sensors_enabled:
@@ -352,6 +409,7 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
     #     with open(log_path, "w") as f:
     #         json.dump(ACTION_LOG, f, indent=2)
 
+
 # Initialization - not used
 def init(api_url: str):
     global STATE
@@ -363,6 +421,8 @@ def init(api_url: str):
 if __name__ == "__main__":
     seed_value = None
     pygame.init()
-    initialize_game_state("http://example.com/api/predict", seed_value)  # Replace with actual API URL
+    initialize_game_state(
+        "http://example.com/api/predict", seed_value
+    )  # Replace with actual API URL
     game_loop(verbose=True)  # Change to verbose=False for headless mode
     pygame.quit()
