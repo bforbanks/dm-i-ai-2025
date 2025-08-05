@@ -123,12 +123,22 @@ class SearchOptimizer:
         
         # Build embeddings if hybrid search
         if config['search_type'] == 'hybrid' and SENTENCE_TRANSFORMERS_AVAILABLE:
-            print(f"🧠 Computing embeddings with {config.get('embedding', 'all-mpnet-base-v2')}")
+            embedding_model = config.get('embedding', 'all-mpnet-base-v2')
+            print(f"🧠 Computing embeddings with local model: {embedding_model}")
+            
             try:
-                # Try GPU first, fallback to CPU if memory issues
-                model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
+                # Check if model is available locally
+                model_path = self.get_local_model_path(embedding_model)
+                if not model_path.exists():
+                    print(f"❌ Local model not found: {embedding_model}")
+                    print(f"   Expected path: {model_path}")
+                    print("   Please download the model first using:")
+                    print(f"   python -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('{embedding_model}')\"")
+                    raise FileNotFoundError(f"Local model not found: {embedding_model}")
                 
-                # Check if GPU is available and has enough memory
+                print(f"✅ Using local model: {model_path}")
+                
+                # Try GPU first, fallback to CPU if memory issues
                 import torch
                 if torch.cuda.is_available():
                     # Try to clear GPU memory first
@@ -144,13 +154,13 @@ class SearchOptimizer:
                     
                     if free_memory < estimated_memory * 1.5:  # 1.5x buffer
                         print("⚠️  GPU memory insufficient, using CPU")
-                        model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cpu')
+                        model = SentenceTransformer(str(model_path), device='cpu')
                     else:
                         print("✅ Using GPU for embeddings")
-                        model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cuda')
+                        model = SentenceTransformer(str(model_path), device='cuda')
                 else:
                     print("⚠️  No GPU available, using CPU")
-                    model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'), device='cpu')
+                    model = SentenceTransformer(str(model_path), device='cpu')
                 
                 # Compute embeddings in smaller batches to avoid memory issues
                 batch_size = 32  # Smaller batch size
@@ -178,6 +188,83 @@ class SearchOptimizer:
             'topics_data': topics_data,
             'config': config
         }
+    
+    def download_required_models(self):
+        """Download all required embedding models at the start"""
+        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+            print("⚠️  sentence-transformers not available - skipping model downloads")
+            return []
+        
+        models_to_download = [
+            'all-mpnet-base-v2',
+            'all-MiniLM-L6-v2', 
+            'all-MiniLM-L12-v2'
+        ]
+        
+        print("📥 Downloading required embedding models...")
+        downloaded_models = []
+        
+        for model_name in models_to_download:
+            model_path = self.get_local_model_path(model_name)
+            
+            if model_path.exists():
+                print(f"✅ {model_name} - Already available")
+                downloaded_models.append(model_name)
+            else:
+                print(f"📥 Downloading {model_name}...")
+                try:
+                    from sentence_transformers import SentenceTransformer
+                    
+                    # Download the model (this will cache it locally)
+                    model = SentenceTransformer(model_name)
+                    
+                    # Verify it was downloaded
+                    if model_path.exists():
+                        print(f"✅ {model_name} - Downloaded successfully")
+                        downloaded_models.append(model_name)
+                    else:
+                        print(f"❌ {model_name} - Download failed")
+                        
+                except Exception as e:
+                    print(f"❌ {model_name} - Download failed: {e}")
+        
+        print(f"📊 Downloaded {len(downloaded_models)}/{len(models_to_download)} models")
+        return downloaded_models
+    
+    def get_local_model_path(self, model_name: str) -> Path:
+        """Get the local path for a sentence transformer model"""
+        import os
+        from sentence_transformers import SentenceTransformer
+        
+        # Get the default cache directory
+        cache_dir = os.path.expanduser("~/.cache/torch/sentence_transformers")
+        model_path = Path(cache_dir) / model_name
+        
+        return model_path
+    
+    def check_local_models(self):
+        """Check which local models are available"""
+        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+            print("⚠️  sentence-transformers not available - BM25-only mode")
+            return []
+        
+        available_models = []
+        models_to_check = [
+            'all-mpnet-base-v2',
+            'all-MiniLM-L6-v2', 
+            'all-MiniLM-L12-v2'
+        ]
+        
+        print("🔍 Checking for local embedding models...")
+        for model_name in models_to_check:
+            model_path = self.get_local_model_path(model_name)
+            if model_path.exists():
+                print(f"✅ {model_name} - Available")
+                available_models.append(model_name)
+            else:
+                print(f"❌ {model_name} - Not found")
+        
+        return available_models
     
     def bm25_search(self, data: Dict, statement: str, top_k: int = 10) -> List[Dict]:
         """Perform BM25 search"""
@@ -209,7 +296,14 @@ class SearchOptimizer:
         
         # Semantic search
         try:
-            model = SentenceTransformer(config.get('embedding', 'all-mpnet-base-v2'))
+            embedding_model = config.get('embedding', 'all-mpnet-base-v2')
+            model_path = self.get_local_model_path(embedding_model)
+            
+            if not model_path.exists():
+                print(f"⚠️  Local model not found: {embedding_model}, falling back to BM25")
+                return self.bm25_search(data, statement, top_k)
+            
+            model = SentenceTransformer(str(model_path))
             query_embedding = model.encode([statement])
             similarities = np.dot(data['embeddings'], query_embedding.T).flatten()
             vector_indices = np.argsort(similarities)[-top_k:][::-1]
@@ -372,6 +466,9 @@ class SearchOptimizer:
                 self.results = existing_data.get('results', [])
                 print(f"📋 Loaded {len(self.results)} existing results")
         
+        # Check for local models first
+        available_models = self.check_local_models()
+        
         # Comprehensive configurations - testing many variations
         configs = [
             # Baseline and current best
@@ -407,38 +504,48 @@ class SearchOptimizer:
             {"search_type": "bm25", "chunk_size": 256, "overlap": 0, "use_condensed_topics": True, "name": "bm25_256_0"},
         ]
         
-        # Add hybrid configs if available (with memory management)
-        if SENTENCE_TRANSFORMERS_AVAILABLE:
-            hybrid_configs = [
-                # Hybrid with different chunk sizes
-                {"search_type": "hybrid", "chunk_size": 128, "overlap": 12, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_128_12"},
-                {"search_type": "hybrid", "chunk_size": 192, "overlap": 16, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_192_16"},
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_256_24"},
-                {"search_type": "hybrid", "chunk_size": 320, "overlap": 32, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_320_32"},
-                
-                # Hybrid with different RRF parameters
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 30, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_30"},
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 90, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_90"},
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 120, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": True, "name": "hybrid_rrf_120"},
-                
-                # Hybrid with different embedding models
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
-                 "embedding": "all-MiniLM-L6-v2", "use_condensed_topics": True, "name": "hybrid_minilm"},
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
-                 "embedding": "all-MiniLM-L12-v2", "use_condensed_topics": True, "name": "hybrid_minilm_l12"},
-                
-                # Hybrid with regular topics
-                {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
-                 "embedding": "all-mpnet-base-v2", "use_condensed_topics": False, "name": "hybrid_regular"},
-            ]
+        # Add hybrid configs only for available models
+        if SENTENCE_TRANSFORMERS_AVAILABLE and available_models:
+            print(f"\n🎯 Adding hybrid configurations for available models: {available_models}")
+            
+            hybrid_configs = []
+            
+            # Add hybrid configs for each available model
+            for model_name in available_models:
+                if model_name == 'all-mpnet-base-v2':
+                    hybrid_configs.extend([
+                        {"search_type": "hybrid", "chunk_size": 128, "overlap": 12, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_128_12_{model_name.replace('-', '_')}"},
+                        {"search_type": "hybrid", "chunk_size": 192, "overlap": 16, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_192_16_{model_name.replace('-', '_')}"},
+                        {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_256_24_{model_name.replace('-', '_')}"},
+                        {"search_type": "hybrid", "chunk_size": 320, "overlap": 32, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_320_32_{model_name.replace('-', '_')}"},
+                        
+                        # RRF variations for mpnet
+                        {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 30, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_rrf_30_{model_name.replace('-', '_')}"},
+                        {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 90, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_rrf_90_{model_name.replace('-', '_')}"},
+                        
+                        # Regular topics with mpnet
+                        {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": False, "name": f"hybrid_regular_{model_name.replace('-', '_')}"},
+                    ])
+                elif 'MiniLM' in model_name:
+                    # Fewer configs for MiniLM models (faster but less accurate)
+                    hybrid_configs.extend([
+                        {"search_type": "hybrid", "chunk_size": 256, "overlap": 24, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_256_24_{model_name.replace('-', '_')}"},
+                        {"search_type": "hybrid", "chunk_size": 320, "overlap": 32, "rrf_k": 60, 
+                         "embedding": model_name, "use_condensed_topics": True, "name": f"hybrid_320_32_{model_name.replace('-', '_')}"},
+                    ])
+            
             configs.extend(hybrid_configs)
+            print(f"✅ Added {len(hybrid_configs)} hybrid configurations")
+        else:
+            print("⚠️  No local embedding models available - BM25-only optimization")
         
         # Skip already evaluated configs
         evaluated_names = {r['config']['name'] for r in self.results}
@@ -527,8 +634,23 @@ def main():
     
     print("✅ Data files found")
     
-    # Run optimization
+    # Initialize optimizer and download models
     optimizer = SearchOptimizer()
+    
+    # Download all required models at the start
+    print("\n📥 MODEL DOWNLOAD PHASE")
+    print("=" * 30)
+    downloaded_models = optimizer.download_required_models()
+    
+    if not downloaded_models and SENTENCE_TRANSFORMERS_AVAILABLE:
+        print("⚠️  No embedding models available - running BM25-only optimization")
+    elif downloaded_models:
+        print(f"✅ Ready to test {len(downloaded_models)} embedding models")
+    
+    print("\n🚀 OPTIMIZATION PHASE")
+    print("=" * 30)
+    
+    # Run optimization
     results = optimizer.run_optimization()
     
     # Show summary
