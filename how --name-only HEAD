@@ -1,0 +1,5 @@
+[33mc2a418c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32melias[m[33m, [m[1;31morigin/elias[m[33m)[m did the summarized topics thing
+[33mc2731a0[m jon, du skal bare bruge bm25 de andre filer er ikke relevante endnu.  bedste top 3 config er """Using best config (normal topic files) : chunk=128, overlap=12"""
+[33m816d937[m[33m ([m[1;32memergency-healthcare-rag[m[33m)[m prompt update for seperated-models-1
+[33ma327de4[m Merge branch 'emergency-healthcare-rag' of https://github.com/bforbanks/dm-i-ai-2025 into emergency-healthcare-rag
+[33m1c45aae[m better prompt for baseline
