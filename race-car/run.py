@@ -39,9 +39,9 @@ MODEL = getattr(module, model_name)
 # Set to True if you want to use the RL environment
 RL_ENV = False  # Expert system doesn't use RL environment
 
+import random
 
 if __name__ == "__main__":
-    seed_value = None
     pygame.init()
     # if RL_ENV:
     #     show_visualization = False  # Change to False for headless training
@@ -59,9 +59,16 @@ if __name__ == "__main__":
     expert_model = MODEL()
     print(f"Using model: {MODEL.__name__}")
     # expert_model = None
+    seed_values = []
+    if not seed_values:
+        runs = 1
+        seed_values = [random.randint(0, 10000) for _ in range(runs)]
+    runs = len(seed_values)
+    for i, seed_value in enumerate(seed_values):
+        # seed_value = random.randint(0, 10000)  # Set to None for random seed
+        # seed_value = 2857
+        # seed_value = None  # Set to None for random seed
 
-    runs = 10
-    for i in range(10):
         print(f"\n🏁 Starting Race {i + 1}/{runs} with OptimalExpertSystem")
         initialize_game_state(
             api_url="http://example.com/api/predict", seed_value=seed_value
