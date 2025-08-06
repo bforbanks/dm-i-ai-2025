@@ -39,42 +39,24 @@ class Game:
     lane_count = 5
     car_height, car_width = 179, 360
 
-    def __init__(self, no_bins: int = 20, start_state: dict = None):
-        if start_state:
-            self.ego_distance = start_state["distance"]
-            self.ego_velocity = start_state["velocity"]["x"]
-            self.ego_y = start_state["velocity"]["y"]
-            self.lanes = [Lane(_) for _ in range(self.lane_count)]
-            self.available_lanes = [i for i in range(self.lane_count)]
-            self.no_bins = no_bins 
-        else:
-            self.lanes = [Lane(_) for _ in range(self.lane_count)]
-            self.available_lanes = [i for i in range(self.lane_count)]
-            self.no_bins = no_bins 
-            self.cars_spawned = 0
-            self.ego_distance = 0
-
+    def __init__(self):
+        self.lanes = [Lane(_) for _ in range(self.lane_count)]
+        self.available_lanes = [i for i in range(self.lane_count)]
+        self.cars_spawned = 0
 
     def update_self(self, ego_distance: float, ego_velocity: float):
         for lane in self.lanes:
             self.cars_spawned += lane.update_lane(ego_distance, self.available_lanes)
-        self.ego_distance = ego_distance
         if self.cars_spawned < 4:
             lane = np.random.choice(self.available_lanes)
-            self.lanes[lane].spawn_car(self.ego_distance, ego_velocity)
+            self.lanes[lane].spawn_car(ego_distance, ego_velocity)
             self.cars_spawned += 1
             self.available_lanes.remove(lane)
-
-
-    def update(self, ego_distance: float, ego_velocity: float, sensor_info: list[list[dict]]):
-        self.update_sensor(sensor_info)
-        self.update_self(ego_distance, ego_velocity)
 
     def return_state(self, ego_distance: float):
         return [
             {"distance": lane.car_distance-ego_distance, "velocity": lane.car_velocity} if lane.has_car else {"distance": -2000, "velocity": -2000} for lane in self.lanes
         ]
-
 
 
 
@@ -180,27 +162,27 @@ class PredictionModelDSim:
                         if not game.lanes[i].has_car:
                             continue
                         if not (information["x"][0] - 180 < game.lanes[i].car_distance < information["x"][1] + 180):
+                            games_to_modify.append(game)
                             continue
                         if information.get("velocity", None) and not (information["velocity"][0]-5 < game.lanes[i].car_velocity < information["velocity"][1]+5):
+                            games_to_modify.append(game)
                             continue
+                        surviving_games.append(game)
+                    for game in games_to_modify:
+                        random_suitable_game = np.random.choice(surviving_games)
+                        game.lanes[i] = copy.deepcopy(random_suitable_game.lanes[i])
                         surviving_games.append(game)
                     self.games = surviving_games
 
                 elif information["type"] == "exact":
                     surviving_games = []
+                    games_to_modify = []
                     for game in self.games:
                         if not game.lanes[i].has_car:
                             continue
-                        if game.lanes[i].car_distance < information["x"][0] - 180 or game.lanes[i].car_distance > information["x"][1] + 540:
-                            continue
-                        
                         game.lanes[i].car_distance = information["x"][0]
-                        if information.get("velocity", None):
-                            if not (information["velocity"][0] - 5 < game.lanes[i].car_velocity < information["velocity"][1] + 5):
-                                continue
-                            elif abs(information["velocity"][0] - information["velocity"][1]) < 0.1:
-                                game.lanes[i].car_velocity = information["velocity"][0]
-                        
+                        if information.get("velocity", None) and (abs(information["velocity"][0] - information["velocity"][1]) < 0.1):
+                            game.lanes[i].car_velocity = information["velocity"][0]
                         surviving_games.append(game)
                     self.games = surviving_games
 
