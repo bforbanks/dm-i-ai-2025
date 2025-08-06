@@ -196,19 +196,6 @@ def analyze_thresholds():
     print(f"🎯 OPTIMAL THRESHOLD: {best_threshold} points")
     print(f"   Accuracy: {best_accuracy*100:.1f}%")
     print()
-    
-    # Show what happens at different thresholds
-    print("📊 THRESHOLD IMPACT:")
-    print("   • Low threshold (5-15): High coverage, lower accuracy")
-    print("   • Medium threshold (20-35): Balanced coverage and accuracy")
-    print("   • High threshold (40+): High accuracy, lower coverage")
-    print()
-    
-    print("🚀 IMPLEMENTATION STRATEGY:")
-    print("   • Use threshold to decide when to trust 1st rank vs use LLM choice")
-    print("   • Below threshold: Use LLM to choose between top 2-3 topics")
-    print("   • Above threshold: Trust 1st rank and proceed with truth evaluation")
-    print("   • Consider adaptive thresholds based on confidence requirements")
 
 if __name__ == "__main__":
     analyze_thresholds() 

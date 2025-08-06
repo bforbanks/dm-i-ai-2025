@@ -15,10 +15,10 @@ from rank_bm25 import BM25Okapi
 from tqdm import tqdm
 
 # Configuration - updated hyperparameters
-CHUNK_SIZE = 96
-OVERLAP = 12
-BM25_K1 = 2.0
-BM25_B = 1.2
+CHUNK_SIZE = 101
+OVERLAP = 59
+BM25_K1 = 0.7501082129755392
+BM25_B = 0.6084497002973362
 USE_CONDENSED_TOPICS = False
 CACHE_ROOT = Path(".cache")
 CACHE_ROOT.mkdir(exist_ok=True)
