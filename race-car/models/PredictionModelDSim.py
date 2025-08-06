@@ -130,13 +130,24 @@ class PredictionModelDSim:
                 for i, (lo, hi) in enumerate(self.lane_y_coordinates):
                     information[i].append({})
                     information[i][-1]["type"] = "no_car"
-                    if name == "behind" and lo+3 < self.ego_y < hi-3:
-                        information[i][-1]["x"] = (-1000,0)
-                        break
-                    elif name == "front" and lo+3 < self.ego_y < hi-3:
-                        information[i][-1]["x"] = (0,1000)
-                        break
-
+                    if name == "behind":
+                        if lo+3 < self.ego_y < hi-3:
+                            information[i][-1]["x"] = (-1000,0)
+                            break
+                        else:
+                            information[i].pop(-1)
+                            break
+                    elif name == "front":
+                        if lo+3 < self.ego_y < hi-3:
+                            information[i][-1]["x"] = (0,1000)
+                            break
+                        else:
+                            information[i].pop(-1)
+                            break
+                    
+                    if ("right" in name and lo > self.ego_y) or ("left" in name and hi < self.ego_y):
+                        information[i].pop(-1)
+                        continue
                     if lo > self.ego_y:
                         y_diff = self.ego_y - lo
                     elif hi < self.ego_y:
@@ -145,7 +156,7 @@ class PredictionModelDSim:
                         information[i].pop(-1)
                         continue
         
-                    supposed_spot = y_diff/np.tan(degree/180*np.pi)
+                    supposed_spot = y_diff/np.tan((degree-90)/180*np.pi)
                     if supposed_spot**2 + y_diff**2 > 1000000:
                         information[i].pop(-1)
                         continue
@@ -199,8 +210,8 @@ class PredictionModelDSim:
 
         # Copy existing games to fill up to sim_count by np.random.choice
         print("Removed games:", self.sim_count - len(self.games))
-        # if self.sim_count - len(self.games) > 1000:
-        #     print("ahhh")
+        if self.sim_count - len(self.games) > 1000:
+            print("ahhh")
         if self.games and len(self.games) < self.sim_count:
             self.games.extend(np.random.choice(self.games, self.sim_count - len(self.games)))
 
