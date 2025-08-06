@@ -127,7 +127,7 @@ class PredictionModelDSim:
                 spotted_something = False
 
             if not spotted_something: # if no value detected, that is also information!
-                for i, (lo, hi) in enumerate(self.lane_y_coordinates):
+                for i, (lo, hi) in enumerate(self.lane_y_coordinates): #s
                     information[i].append({})
                     information[i][-1]["type"] = "no_car"
                     if name == "behind":
