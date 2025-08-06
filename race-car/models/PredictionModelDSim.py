@@ -4,6 +4,7 @@ AND VELOCITIES OF OTHER CARS"""
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import copy
 class Lane:  
     def __init__(self, lane_number: int):
         self.has_car = False
@@ -89,6 +90,8 @@ class PredictionModelDSim:
         self.ego_y = 510
         self.previous_info = [{} for _ in range(5)]
         self.sim_count = sim_count
+        plt.ion()
+        self.fig, self.axs = plt.subplots(5, 1)
 
     def progress_tick(self, state):
         self.ego_distance = state["distance"]
@@ -104,7 +107,7 @@ class PredictionModelDSim:
             spotted_something = True
             detected_value = state["sensors"][name]
             if detected_value:
-                x, y = np.cos((degree-90)/180*np.pi)*state["sensors"][name]+180, np.sin((degree-90)/180*np.pi)*state["sensors"][name]+self.ego_y+90
+                x, y = np.cos((degree-90)/180*np.pi)*state["sensors"][name]+state["distance"]+180, np.sin((degree-90)/180*np.pi)*state["sensors"][name]+self.ego_y+90
                 if 50 <= y <= 1150:
                     for i, (lo, hi) in enumerate(self.lane_y_coordinates):
                         if lo <= y <= hi:
@@ -130,16 +133,16 @@ class PredictionModelDSim:
                 for i, (lo, hi) in enumerate(self.lane_y_coordinates): #s
                     information[i].append({})
                     information[i][-1]["type"] = "no_car"
-                    if name == "behind":
+                    if name == "back":
                         if lo+3 < self.ego_y < hi-3:
-                            information[i][-1]["x"] = (-1000,0)
+                            information[i][-1]["x"] = (-1000+180,180)
                             break
                         else:
                             information[i].pop(-1)
                             break
                     elif name == "front":
                         if lo+3 < self.ego_y < hi-3:
-                            information[i][-1]["x"] = (0,1000)
+                            information[i][-1]["x"] = (180,1180)
                             break
                         else:
                             information[i].pop(-1)
@@ -156,11 +159,11 @@ class PredictionModelDSim:
                         information[i].pop(-1)
                         continue
         
-                    supposed_spot = y_diff/np.tan((degree-90)/180*np.pi)
-                    if supposed_spot**2 + y_diff**2 > 1000000:
+                    supposed_spot_distance = y_diff/np.tan((degree-90)/180*np.pi)+state["distance"]+180
+                    if supposed_spot_distance**2 + y_diff**2 > 1000000:
                         information[i].pop(-1)
                         continue
-                    information[i][-1]["x"] = (supposed_spot-360, supposed_spot)
+                    information[i][-1]["x"] = (supposed_spot_distance-360, supposed_spot_distance)
 
         self.previous_info = information
         return information
@@ -168,43 +171,46 @@ class PredictionModelDSim:
     def update_sensor(self, sensor_dict: dict):
         for i, lane_info in enumerate(sensor_dict):
             for information in lane_info:
-                # if information["type"] == "inexact":
-                #     surviving_games = []
-                #     for game in self.games:
-                #         if not game.lanes[i].has_car:
-                #             continue
-                #         if not (information["x"][0] < game.lanes[i].car_distance < information["x"][1]):
-                #             continue
-                #         if information.get("velocity", None) and not (information["velocity"][0] < game.lanes[i].car_velocity < information["velocity"][1]):
-                #             continue
-                #         surviving_games.append(game)
-                #     self.games = surviving_games
+                if information["type"] == "inexact":
+                    surviving_games = []
+                    games_to_modify = []
+                    for game in self.games:
+                        if not game.lanes[i].has_car:
+                            continue
+                        if not (information["x"][0] - 180 < game.lanes[i].car_distance < information["x"][1] + 180):
+                            continue
+                        if information.get("velocity", None) and not (information["velocity"][0]-5 < game.lanes[i].car_velocity < information["velocity"][1]+5):
+                            continue
+                        surviving_games.append(game)
+                    self.games = surviving_games
 
-                # if information["type"] == "exact":
-                #     surviving_games = []
-                #     for game in self.games:
-                #         if not game.lanes[i].has_car:
-                #             continue
-                #         if game.lanes[i].car_distance < information["x"][0] - 180 or game.lanes[i].car_distance > information["x"][1] + 540:
-                #             continue
+                elif information["type"] == "exact":
+                    surviving_games = []
+                    for game in self.games:
+                        if not game.lanes[i].has_car:
+                            continue
+                        if game.lanes[i].car_distance < information["x"][0] - 180 or game.lanes[i].car_distance > information["x"][1] + 540:
+                            continue
                         
-                #         game.lanes[i].car_distance = information["x"][0]
-                #         if information.get("velocity", None):
-                #             if not (information["velocity"][0] - 5 < game.lanes[i].car_velocity < information["velocity"][1] + 5):
-                #                 continue
-                #             else:
-                #                 game.lanes[i].car_velocity = np.random.uniform(information["velocity"][0], information["velocity"][1])
+                        game.lanes[i].car_distance = information["x"][0]
+                        if information.get("velocity", None):
+                            if not (information["velocity"][0] - 5 < game.lanes[i].car_velocity < information["velocity"][1] + 5):
+                                continue
+                            else:
+                                if abs(information["velocity"][0] - information["velocity"][1]) < 10:
+                                    game.lanes[i].car_velocity = np.random.uniform(information["velocity"][0], information["velocity"][1])
                         
-                #         surviving_games.append(game)
-                #     self.games = surviving_games
+                        surviving_games.append(game)
+                    self.games = surviving_games
 
-                if information["type"] == "no_car":
+                elif information["type"] == "no_car":
                     self.games = [
                         game for game in self.games
                         if not (
                             game.lanes[i].has_car and
                             game.lanes[i].car_distance > information["x"][0] and
-                            game.lanes[i].car_distance < information["x"][1]
+                            game.lanes[i].car_distance < information["x"][1] and
+                            True
                         )
                     ]
 
@@ -213,15 +219,16 @@ class PredictionModelDSim:
         if self.sim_count - len(self.games) > 1000:
             print("ahhh")
         if self.games and len(self.games) < self.sim_count:
-            self.games.extend(np.random.choice(self.games, self.sim_count - len(self.games)))
-
+            new_games = np.random.choice(self.games, self.sim_count - len(self.games))
+            self.games.extend([copy.deepcopy(g) for g in new_games])
 
     def visualize_states(self):
-        plt.clf()
-        distances=[]
-        for state in [_.return_state(self.ego_distance) for _ in self.games]:
-            distances.append(state[0]["distance"])
-        plt.hist(distances, bins=100)
+        for ax in self.axs:
+            ax.cla()
+        all_states = [g.return_state(self.ego_distance) for g in self.games]
+        for i in range(5):
+            distances = [state[i]["distance"] for state in all_states]
+            self.axs[i].hist(distances, bins=100)
         plt.pause(0.001)
 
     def return_action(self, state):
@@ -236,7 +243,6 @@ class PredictionModelDSim:
     
 def main():
     model = PredictionModelDSim(10000)
-    plt.ion()
     state = {"distance": 0, "velocity": {"x": 10, "y": 0}}
     for i in range(1000):
         state["distance"] += state["velocity"]["x"]
