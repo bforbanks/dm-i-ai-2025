@@ -6,8 +6,8 @@ from dtos import RaceCarPredictRequestDto, RaceCarPredictResponseDto
 import random
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from models.Lbaseline import Lbaseline
-model = Lbaseline()
+from models.LaneShift import LaneShift
+model = LaneShift()  # Initialize the model
 
 HOST = "0.0.0.0"
 PORT = 9052

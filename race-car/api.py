@@ -3,7 +3,9 @@ import uvicorn
 import datetime
 from fastapi import Body, FastAPI
 from dtos import RaceCarPredictRequestDto, RaceCarPredictResponseDto
-from example import return_action
+from models.LaneShift import LaneShift
+
+model = LaneShift()
 
 HOST = "0.0.0.0"
 PORT = 9052
@@ -14,10 +16,9 @@ start_time = time.time()
 
 @app.post('/predict', response_model=RaceCarPredictResponseDto)
 def predict(request: RaceCarPredictRequestDto = Body(...)):
-    action = return_action(request.dict())
+    action = model.return_action(request.dict())
     return RaceCarPredictResponseDto(
-        action_type=action['action_type'],
-        actions=action['actions']
+        actions=action
     )
 
 @app.get('/api')
