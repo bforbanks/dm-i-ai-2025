@@ -44,9 +44,23 @@ def build_bm25_index() -> Dict:
     topic_type = "condensed" if USE_CONDENSED_TOPICS else "regular"
     cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{CHUNK_SIZE}_{OVERLAP}.pkl"
     
+    # Check if cache exists and has correct hyperparameters
     if cache_path.exists():
-        print(f"Loading cached BM25 index from {cache_path}")
-        return pickle.loads(cache_path.read_bytes())
+        try:
+            cached_data = pickle.loads(cache_path.read_bytes())
+            # Verify hyperparameters match
+            if (cached_data.get('chunk_size') == CHUNK_SIZE and 
+                cached_data.get('overlap') == OVERLAP):
+                print(f"Loading cached BM25 index from {cache_path}")
+                return cached_data
+            else:
+                print(f"Cache hyperparameters mismatch, rebuilding index...")
+        except Exception as e:
+            print(f"Cache corrupted, rebuilding index: {e}")
+    
+    # Clear old cache if it exists
+    if cache_path.exists():
+        cache_path.unlink()
 
     chunks: List[str] = []
     topics: List[int] = []
@@ -60,7 +74,7 @@ def build_bm25_index() -> Dict:
     print(f"[bm25] Building index — {topic_type} size={CHUNK_SIZE} overlap={OVERLAP}")
     
     topic_dir = Path(f"data/{topic_type}")
-    for md_file in topic_dir.rglob("*.md"):
+    for md_file in sorted(topic_dir.rglob("*.md")):
         topic_name = md_file.parent.name
         topic_id = topics_data.get(topic_name, -1)
         
