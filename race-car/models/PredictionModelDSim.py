@@ -83,15 +83,17 @@ class PredictionModelDSim:
     name_to_degree = {name: degree for degree, name in sensor_options}
     lane_y_coordinates = [(62,62+181), (286,286+181), (510,510+181), (734,734+181), (958,958+181)]
 
-    def __init__(self, sim_count: int):
+    def __init__(self, sim_count: int, live_visualization: bool = False):
         self.games = [Game() for _ in range(sim_count)]
         self.ego_distance = 0
         self.ego_velocity = 10
         self.ego_y = 510
         self.previous_info = [{} for _ in range(5)]
         self.sim_count = sim_count
-        plt.ion()
-        self.fig, self.axs = plt.subplots(5, 1)
+        self.live_visualization = live_visualization
+        if live_visualization:
+            plt.ion()
+            self.fig, self.axs = plt.subplots(5, 1)
 
     def progress_tick(self, state):
         self.ego_distance = state["distance"]
@@ -135,14 +137,14 @@ class PredictionModelDSim:
                     information[i][-1]["type"] = "no_car"
                     if name == "back":
                         if lo+3 < self.ego_y < hi-3:
-                            information[i][-1]["x"] = (-1000+180,180)
+                            information[i][-1]["x"] = (-1000+state["distance"]+180,180+state["distance"])
                             break
                         else:
                             information[i].pop(-1)
                             break
                     elif name == "front":
                         if lo+3 < self.ego_y < hi-3:
-                            information[i][-1]["x"] = (180,1180)
+                            information[i][-1]["x"] = (180+state["distance"],1180+state["distance"])
                             break
                         else:
                             information[i].pop(-1)
@@ -152,15 +154,15 @@ class PredictionModelDSim:
                         information[i].pop(-1)
                         continue
                     if lo > self.ego_y:
-                        y_diff = self.ego_y - lo
+                        y_diff = lo - self.ego_y+ 179
                     elif hi < self.ego_y:
-                        y_diff = self.ego_y - hi
+                        y_diff = hi - self.ego_y
                     else:
                         information[i].pop(-1)
                         continue
         
-                    supposed_spot_distance = y_diff/np.tan((degree-90)/180*np.pi)+state["distance"]+180
-                    if supposed_spot_distance**2 + y_diff**2 > 1000000:
+                    supposed_spot_distance = -y_diff/np.tan((degree-90)/180*np.pi)+state["distance"]+180
+                    if (supposed_spot_distance-state["distance"])**2 + y_diff**2 > 1000000:
                         information[i].pop(-1)
                         continue
                     information[i][-1]["x"] = (supposed_spot_distance-360, supposed_spot_distance)
@@ -196,9 +198,8 @@ class PredictionModelDSim:
                         if information.get("velocity", None):
                             if not (information["velocity"][0] - 5 < game.lanes[i].car_velocity < information["velocity"][1] + 5):
                                 continue
-                            else:
-                                if abs(information["velocity"][0] - information["velocity"][1]) < 10:
-                                    game.lanes[i].car_velocity = np.random.uniform(information["velocity"][0], information["velocity"][1])
+                            elif abs(information["velocity"][0] - information["velocity"][1]) < 0.1:
+                                game.lanes[i].car_velocity = information["velocity"][0]
                         
                         surviving_games.append(game)
                     self.games = surviving_games
@@ -228,11 +229,13 @@ class PredictionModelDSim:
         all_states = [g.return_state(self.ego_distance) for g in self.games]
         for i in range(5):
             distances = [state[i]["distance"] for state in all_states]
-            self.axs[i].hist(distances, bins=100)
+            self.axs[i].hist(distances, bins=200, range=(-2100, 2100))
+            self.axs[i].set_xlim(-2100, 2100)
         plt.pause(0.001)
 
     def return_action(self, state):
-        self.visualize_states()
+        if self.live_visualization:
+            self.visualize_states()
         self.progress_tick(state)
         sensor_info = self.parse_sensors(state)
         self.update_sensor(sensor_info)
@@ -246,7 +249,7 @@ def main():
     state = {"distance": 0, "velocity": {"x": 10, "y": 0}}
     for i in range(1000):
         state["distance"] += state["velocity"]["x"]
-        model.visualize_states()
+        # model.visualize_states()
         model.progress_tick(state)
 
 if __name__ == "__main__":
