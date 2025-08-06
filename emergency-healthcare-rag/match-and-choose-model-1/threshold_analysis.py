@@ -209,65 +209,6 @@ def analyze_thresholds():
     print("   • Below threshold: Use LLM to choose between top 2-3 topics")
     print("   • Above threshold: Trust 1st rank and proceed with truth evaluation")
     print("   • Consider adaptive thresholds based on confidence requirements")
-    print()
-    
-    # Print the table again at the end
-    print("📊 THRESHOLD ANALYSIS TABLE")
-    print("=" * 100)
-    print("Threshold between 1st and 2nd picks: How much better the 1st topic score is than the 2nd topic score")
-    print("Above threshold: Cases where gap > threshold (will use topic model 1st pick)")
-    print("Below threshold: Cases where gap ≤ threshold (LLM will choose between candidates)")
-    print()
-    print("Threshold: Threshold value (difference between 1st and 2nd topic scores)")
-    print("Total >threshold: Samples where gap > threshold (will use topic model 1st pick)")
-    print("✓ >: Above threshold samples where 1st pick was correct")
-    print("✗ >: Above threshold samples where 1st pick was wrong")
-    print("% ✓: Accuracy percentage for above threshold cases")
-    print("Total <threshold: Samples where gap ≤ threshold (LLM will choose between candidates)")
-    print("✓ <: Below threshold samples where 1st pick was correct")
-    print("✗ <: Below threshold samples where 1st pick was wrong")
-    print("% ✓: Accuracy percentage for below threshold cases")
-    print()
-    print("Threshold | Total >threshold | ✓ > | ✗ > | % ✓ | Total <threshold | ✓ < | ✗ < | % ✓")
-    print("          | (no LLM pick)   |     |     |      | (LLM pick)      |     |     |      ")
-    print("-" * 100)
-    
-    for threshold in thresholds:
-        if threshold == 'NA':
-            # NA means no threshold - all cases use topic model 1st pick
-            above_threshold = gap_data
-            correct_above = [d for d in above_threshold if d['is_first_correct']]
-            incorrect_above = [d for d in above_threshold if not d['is_first_correct']]
-            below_threshold = []
-            correct_below = []
-            incorrect_below = []
-        elif threshold == 0:
-            # For threshold 0: only go to LLM if gap exactly equals 0
-            above_threshold = [d for d in gap_data if d['gap_1st_to_2nd'] > 0]
-            correct_above = [d for d in above_threshold if d['is_first_correct']]
-            incorrect_above = [d for d in above_threshold if not d['is_first_correct']]
-            
-            # Cases where gap equals 0 (exact same scores)
-            below_threshold = [d for d in gap_data if d['gap_1st_to_2nd'] == 0]
-            correct_below = [d for d in below_threshold if d['is_first_correct']]
-            incorrect_below = [d for d in below_threshold if not d['is_first_correct']]
-        else:
-            # Cases above threshold (strictly greater than)
-            above_threshold = [d for d in gap_data if d['gap_1st_to_2nd'] > threshold]
-            correct_above = [d for d in above_threshold if d['is_first_correct']]
-            incorrect_above = [d for d in above_threshold if not d['is_first_correct']]
-            
-            # Cases below threshold (less than or equal to)
-            below_threshold = [d for d in gap_data if d['gap_1st_to_2nd'] <= threshold]
-            correct_below = [d for d in below_threshold if d['is_first_correct']]
-            incorrect_below = [d for d in below_threshold if not d['is_first_correct']]
-        
-        # Calculate percentages
-        above_accuracy = (len(correct_above) / len(above_threshold) * 100) if above_threshold else 0
-        below_accuracy = (len(correct_below) / len(below_threshold) * 100) if below_threshold else 0
-        
-        
-        print(f"{threshold:>9} | {len(above_threshold):16d} | {len(correct_above):3d} | {len(incorrect_above):3d} | {above_accuracy:5.1f}% | {len(below_threshold):16d} | {len(correct_below):3d} | {len(incorrect_below):3d} | {below_accuracy:5.1f}%")
 
 if __name__ == "__main__":
     analyze_thresholds() 
