@@ -511,8 +511,8 @@ def run_bayesian_optimization(
         "b": (0.1, 1.5),
         "chunk_size_embed": (75, 300),
         "overlap_embed": (1, 50),
-        "alpha": (0.0, 1.0),
-        "beta": (0.0, 1.0),
+        "alpha": (0.0, 100),
+        "beta": (0.0, 100),
         "model_selector": (0, 1),  # Discrete toggle between MiniLM (0) and ColBERT (1)
     }
 
