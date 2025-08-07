@@ -59,9 +59,9 @@ if __name__ == "__main__":
     expert_model = MODEL()
     print(f"Using model: {MODEL.__name__}")
     # expert_model = None
-    seed_values = []
+    seed_values = [978] #, 8110, 1701, 9283, 3949, 3223, 4516
     if not seed_values:
-        runs = 1
+        runs = 20
         seed_values = [random.randint(0, 10000) for _ in range(runs)]
     runs = len(seed_values)
     for i, seed_value in enumerate(seed_values):
