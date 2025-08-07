@@ -10,13 +10,14 @@ class SensorParser:
 
     def parse_sensors(self, state: dict, y_pos):
         """MUST BE RUN ONCE PER TICK. OTHERWISE IT CRIES. Returns a list of informations, on about each lane. So a list of 5 lists of dictionaries (these dictionaries are informations about the cars in the lane)"""
-        y_pos = y_pos - 90
+        y_pos = y_pos + 510
         information = [[] for _ in range(5)]
         for degree, name in self.sensor_options:
             spotted_something = True
             detected_value = state["sensors"][name]
             if detected_value:
                 x, y = np.cos((degree-90)/180*np.pi)*state["sensors"][name], np.sin((degree-90)/180*np.pi)*state["sensors"][name]+y_pos+90
+                
                 if 50 <= y <= 1150:
                     for i, (lo, hi) in enumerate(self.NPC_car_y_coordinate_ranges):
                         if lo-3 <= y <= hi+3: #buffer as there are some inaccuracies
@@ -43,4 +44,5 @@ class SensorParser:
                 parsed_info.append({"velocity": None, "x": np.mean([info["x"] for info in lane_info if info["type"] == "inexact"]), "type": "inexact"})
             else:
                 parsed_info.append({"velocity": None, "x": None, "type": None})
+
         return parsed_info
