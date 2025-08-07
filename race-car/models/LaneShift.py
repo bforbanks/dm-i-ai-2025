@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List, Tuple
+from models.utilities.sensor_parser import SensorParser
 
 class LaneShift:
 
@@ -11,16 +12,21 @@ class LaneShift:
         
         self.car_dimensions = (360, 179)
         
+        self.verbose = True
 
         # Starting lane is 3 (middle)
         self.lane = 3
         self.desired_lane = 3
         self.last_distance_front = None
         self.last_distance_side = {-1: None, 1: None}
+        self.last_lane = 3
+
         self.ypos = 0 # Starting y postition
         self.yvelocity = 0 # Starting y velocity
 
         self.action_queue = []
+
+        self.parser = SensorParser()  # Initialize the sensor parser
 
         # In general, front is 0 and reference point. Left is negative, right is positive. Also mostly for my own understanding of their weird namings.
         self.sensor_dict = {
@@ -158,7 +164,6 @@ class LaneShift:
         # If we don't see a car, it is safe to shift (but we will in reality never shift if we don't see a car)
         if not state["sensors"]["front"]:
             return True
-        print(v0)
         # If can not yet determine velocity, but spot a car, assume it is not safe
         if not v0: 
             return False
@@ -177,25 +182,8 @@ class LaneShift:
     def closest_lane(self):
         """Returns the closest lane to the car's current y-position."""
         closest_lane = min(self.lane_ypos, key=lambda x: abs(self.lane_ypos[x] - self.ypos))
-        return closest_lane
-
-    # # Not yet useful. It doesn't seem to work !!!
-    # def get_occupied_lanes_from_sensors(self, state: dict) -> dict:
-    #     """Updates the internal state with the lanes occupied by cars based on sensor readings."""
-    #     # Found by comparing measured distances to expected distances
-    #     detected_car_in_lane = {1: False, 2: False, 3: False, 4: False, 5: False}
-    #     for sensor in state["sensors"]:
-    #         if sensor in ["front", "back"] or not state["sensors"][sensor]:
-    #             continue
-    #         angle = self.sensor_type_to_angle[self.sensor_to_type[sensor]]
-    #         distance = state["sensors"][sensor] * self.measurement_to_distance
-    #         position = np.sign(angle) * np.cos(angle) * distance
-    #         lane = min(detected_car_in_lane, key=lambda x: abs(self.lane_ypos[x] - position))
-    #         if lane in ["UPPER_WALL", "LOWER_WALL"]:
-    #             continue
-    #         detected_car_in_lane[lane] = True
         
-    #     return detected_car_in_lane
+        return closest_lane
 
     def actions_left(self) -> int:
         """Returns the number of actions left in the action queue."""
@@ -238,23 +226,32 @@ class LaneShift:
         # Derived from the discrete time difference equations with constant acceleration (x_{t+1} = x_t + v_t, v_{t+1} = v_t + a: a = 0.1)
         ticks = int((-b + np.sqrt(b**2 - 4*c)) / 2)
         actions = [action_dict[direction]]*ticks + [action_dict[-direction]]*(ticks * brake)
-        self.desired_lane = self.lane + int(direction) 
-        self.shifting = (True, direction)
-        # print(f"DICIDED TO GO {'LEFT' if direction < 0 else 'RIGHT'} to lane {self.lane}, ticks needed: {ticks * (1 * brake)}")
+        
+        self.last_lane = self.lane
+        self.desired_lane = min(self.lane_ypos, key=lambda x: abs(self.lane_ypos[x] - (self.ypos + distance)))
+        
         self.action_queue.extend(actions)
     
     def get_to_lane(self, lane: int, state: dict, brake = True) -> None:
+        self.desired_lane = lane
+        self.last_lane = self.lane
         self.queue_actions_to_position(self.lane_ypos[lane] - self.ypos, state["velocity"]["y"], brake = True)
+        
     
     def get_to_closest_lane(self, state: dict, brake = True) -> None:
         """Queues actions to move the car to the closest lane based on its current y-position."""
         closest_lane = self.closest_lane()
+        if self.verbose: print(f"Closest lane to y-position {self.ypos} is {closest_lane} with y-position {self.lane_ypos[closest_lane]}")
+        self.last_lane = self.lane
         self.desired_lane = closest_lane
         self.get_to_lane(closest_lane, state, brake=brake)
     
 
-
-
+    def stand_still(self, state: dict) -> bool:
+        drift = self.lane_ypos[self.lane] - self.ypos
+        if abs(drift) > 10 and np.sign(state["velocity"]["y"]) == -np.sign(drift):  # If the car is not in the lane, steer towards the lane
+            self.get_to_closest_lane(state, brake = True)
+            return True
     
 
     # ______________________________________________________________Functions that handle actions______________________________________________________________
@@ -274,76 +271,94 @@ class LaneShift:
 
     def clear_action_queue(self) -> None:
         """Clear the action queue, and sets the aborting flag to True."""
+        
+        if self.verbose: print("Clearing action queue")
+        
         self.action_queue.clear()
-        self.aborting = True
+        
 
 
     # ______________________________________________________________________Decision logic______________________________________________________________________
 
     def return_action(self, state: dict) -> List[str]:
         """Logic for determining the next action based on the current state of the environment."""
-            
         # For repeated runs, reset the internal state (ONLY FOR TESTING PURPOSES)
+        NPC_car_y_coordinate_ranges = [(62-510,241), (286-510,465-510), (510-510,689-510), (734-510,913-510), (958-510,1137-510)]
         if not state["distance"]:
             self.reset()
 
-
+        
+        
         # Running internal state updates
-        # self.lane = self.closest_lane()  # Update the lane based on the current y-position
+        self.lane = self.closest_lane()  # Update the lane based on the current y-position
+        # current_front_velocity = parse[self.lane - 1]["velocity"]
         current_front_velocity = self.determine_velocity_front(state)
         collision_time_front = self.ticks_to_collision(state, current_front_velocity)
+        
         self.update_ypos(state)
+        parse = self.parser.parse_sensors(state, self.ypos)
+        # print(parse[self.lane]["x"], self.ypos)
+        # if not self.actions_left() and state["velocity"]["y"] != 0:
+        #     self.queue_action("STEER_RIGHT" if state["velocity"]["y"] < 0 else "STEER_LEFT")
+        #     return self.pop_next_action()
+        
+        # if self.action_queue:
+        #     print(f"Action: {self.action_queue[0]}, Lane: {self.lane}, Y-pos: {self.ypos}, Front velocity: {current_front_velocity}, Distance to front: {state['sensors']['front']}, ABORTING: {self.aborting}")
 
-        # # Safety logic
+
+        # Safety logic
         # if self.aborting:
         #     self.aborting = False
 
         #     self.get_to_closest_lane(state, brake = True)
             
-        #     # if current_front_velocity and current_front_velocity < 0:
-        #     #     self.clear_action_queue()
-        #     #     self.queue_action("DECELERATE")
-        #     #     return self.pop_next_action()
+            # if current_front_velocity and current_front_velocity < 0:
+            #     self.clear_action_queue()
+            #     self.queue_action("DECELERATE")
+            #     return self.pop_next_action()
 
+            
         
-        
+        if collision_time_front and self.desired_lane == self.lane and not self.aborting:
+            if self.actions_left() + 0 > collision_time_front:
+                print(f"Collision time front: {collision_time_front}, actions left: {self.actions_left()}")
+                if self.verbose: print("Call 1")
+                self.aborting = True
+                self.clear_action_queue()
+                
+                self.get_to_lane(self.last_lane, state, brake = True)
 
-        
-        # if collision_time_front and self.desired_lane == self.lane:
-        #     if self.actions_left() + 20 > collision_time_front:
-        #         self.aborting = True
-        #         self.clear_action_queue()
-        #         self.queue_action("DECELERATE")
-        # elif self.desired_lane != self.lane:
-        #     current_side_velocity = self.determine_velocity_side(state, self.desired_lane - self.lane)
-        #     collision_time_side = self.ticks_to_collision(state, current_side_velocity, direction=self.sensor_dict[self.desired_lane - self.lane])
-        #     if collision_time_side and self.actions_left() + 20 > collision_time_side:
-        #         self.aborting = True
-        #         self.clear_action_queue()
-        #         self.queue_action("DECELERATE")
+
+        elif self.desired_lane != self.lane and not self.aborting:
+            # current_side_velocity = self.determine_velocity_side(state, self.desired_lane - self.lane)
+            current_side_velocity = parse[self.desired_lane - 1]["velocity"]
+            collision_time_side = self.ticks_to_collision(state, current_side_velocity, direction=self.sensor_dict[self.desired_lane - self.lane])
+            if (collision_time_side and self.actions_left() + 200 > collision_time_side) and self.desired_lane != self.lane:
+                self.aborting = True
+                
+                if self.verbose: print("Call 2")
+                self.clear_action_queue()
+                self.get_to_lane(self.last_lane, state, brake = True)
+                # self.action_queue = self.action_queue[:self.actions_left() // 2]
+                # self.queue_action(["DECELERATE"]*100)
+
+                # self.queue_action("DECELERATE")
     
-        # print(f"Current front velocity: {current_front_velocity}, distance to front: {state['sensors']['front']}, current lane: {self.lane}, ypos: {self.ypos}, {state['sensors']['front_left_front']}")
         
         # if self.actions
+
+        if self.aborting and not (-1 < state["velocity"]["y"] < 1):
+            if self.verbose: print("Call 8")
+            self.aborting = False
+            self.clear_action_queue()
+
+            # self.queue_action(["DECELERATE"]*100)
 
         if self.action_queue:
             return self.pop_next_action()
         
-        # ACTION QUEUE LOGIC FROM HERE
+        # ACTION QUEUE LOGIC FROM HERE ______________________________________________________________________
 
-        # Testing purposes
-        # Force the car to start in a different lane
-        # if self.shifts < 1:
-        #     self.shifts += 1
-        #     self.queue_actions_to_position(50, state["velocity"]["y"], brake = False) # Get to lane 4 (rightmost lane)
-        #     action = self.queue_action(["DECELERATE"]*int(47/2))
-            # action = self.queue_action(["NOTHING"]*10)
-        #     return self.pop_next_action()
-        # self.get_to_closest_lane(state, brake = True) # Get to closest lane
-        # self.pop_next_action()
-        # self.get_to_lane(5, state, brake = True) # Get to lane 5 (rightmost lane) to start with
-        # action = self.queue_action(["NOTHING"]*10)
-        # return self.pop_next_action()
         # Kill the car to hide score
         # if state["distance"] > 23000:
         #     self.queue_action(["STEER_LEFT"]*1000)
@@ -351,53 +366,68 @@ class LaneShift:
         
         
         if not state["sensors"]["front"]:
-            self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
+            
+            
+            if not self.stand_still(state):
+                self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
             return self.pop_next_action()
 
 
         # Determine whether the car can see a car in neighboring lanes
-        right_1 = self.detect_car_in_neighboring_lane(state)["right_1"]
-        right_2 = self.detect_car_in_neighboring_lane(state)["right_2"]
-        left_1 = self.detect_car_in_neighboring_lane(state)["left_1"]
-        left_2 = self.detect_car_in_neighboring_lane(state)["left_2"]
+        if self.lane < 5:
+            right_1 = True if parse[self.lane]["x"] and parse[self.lane]["x"] > -400 else False
+        else:
+            right_1 = True
+        if self.lane > 1:
+            left_1 = True if parse[self.lane - 2]["x"] and parse[self.lane - 2]["x"] > -400 else False
+        else:
+            left_1 = True
+        # print(f"{parse[self.lane]['x']}, lane: {self.lane}, {not parse[self.lane]['x']}")
 
-        # print(f"right_1: {right_1}, right_2: {right_2}, left_1: {left_1}, left_2: {left_2}")
-        #state["sensors"]["front"] < 700 and
-        
-        
+        # if not self.safe_to_shift(state=state, direction=None, v0=current_front_velocity, a = 0.05):
+        #     # print("not self.safe_to_shift")
+        #     self.queue_action("DECELERATE")
+        #     return self.pop_next_action()
 
-        if not self.safe_to_shift(state=state, direction=None, v0=current_front_velocity, a = 0.05):
-            # print("not self.safe_to_shift")
-            self.queue_action("DECELERATE")
-            return self.pop_next_action()
+
         
-        threshold = 100 # Distance to front car, below which we start shifting lanes
 
         # i.e. "See car, go: nono"
-        if left_1 and not right_1 and self.lane < 5 and state["sensors"]["front"] and state["sensors"]["front"] < threshold:
-            self.queue_actions_to_position("right", state["velocity"]["y"])
-            # print("Call 1")
-            # print(f"DECIDED TO GO RIGHT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
-            return self.pop_next_action()
+        if (not collision_time_front or collision_time_front > 50):
+            if left_1 and not right_1 and self.lane < 5:
+                if self.verbose: print("Call 3", f"{self.lane}, {left_1}, {right_1}")
+                self.get_to_lane(self.lane + 1, state)
+                # self.queue_actions_to_position("right", state["velocity"]["y"])
 
-        if right_1 and not left_1 and self.lane > 1 and state["sensors"]["front"] and state["sensors"]["front"] < threshold:
-            self.queue_actions_to_position("left", state["velocity"]["y"])
-            # print("Call 2")
-            # print(f"DECIDED TO GO LEFT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
-            return self.pop_next_action()
+                print(f"DECIDED TO GO RIGHT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
+                return self.pop_next_action()
+
+            if right_1 and not left_1 and self.lane > 1:
+                if self.verbose: print(f"Call 4. self.lane: {self.lane}")
+                self.get_to_lane(self.lane - 1, state)
+                # self.queue_actions_to_position("left", state["velocity"]["y"])
+
+                return self.pop_next_action()
+            
         if right_1 and left_1:
-            print("Both sides occupied, deciding to decelerate")
-            self.queue_action("DECELERATE")
-            # print("Call 3")
+            if self.verbose: print(f"Call 5, {(right_1, left_1)}")
+            
+            self.stand_still(state)
+
+            # self.queue_action("DECELERATE")
+
             # print(f"DECIDED TO DECELERATE, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
             return self.pop_next_action()
 
-        # If both directions seem good, go towards the middle
+        
         unsafe = right_1 if self.lane < 4 else left_1
-        if unsafe or (state["sensors"]["front"] and state["sensors"]["front"] > threshold and current_front_velocity and current_front_velocity < 0):
-            self.queue_action("NOTHING")
+        if unsafe:
+            if self.verbose: print("Call 6", f"{(right_1, left_1, self.lane < 4)}")
+            self.queue_action("DECELERATE")
             return self.pop_next_action()
 
-        self.queue_actions_to_position(224 if self.lane == 3 else np.sign(3 - self.lane) * 224, state["velocity"]["y"], True) # Cool way of writing "go towards the middle lane (right if you're already in the middle)"
-        # print("Call 4")
+        if self.verbose: print(f"Call 7, {(right_1, left_1)}")
+        
+        self.get_to_lane(1 + self.lane if self.lane == 3 else np.sign(3 - self.lane) + self.lane, state, True) # If both directions seem good, go towards the middle
+        # self.queue_actions_to_position(224 if self.lane == 3 else np.sign(3 - self.lane) * 224, state["velocity"]["y"], True) # Cool way of writing "go towards the middle lane (right if you're already in the middle)"
         return self.pop_next_action()
