@@ -47,15 +47,11 @@ class LaneShift:
         # Distances from car sensor to boundaries of car in a given lane. Number is sensor type,
         # first tuple is interval of one lane, second tuple is interval of the next lane.
         self.sensor_type_to_lane = {1: ((335, 840), (940, 950)),
-                                 2: ((180, 470), (500, 770)),
-                                 3: ((130, 360), (380, 600)),
-                                 4: ((115, 145), (350, 360))}
+                                    2: ((180, 470), (500, 770)),
+                                    3: ((130, 360), (380, 600)),
+                                    4: ((115, 145), (350, 360))}
 
-        # Copy of old intervals   
-        # {1: ((345, 830), (940, 950)),
-        #                          2: ((180, 460), (500, 770)),
-        #                          3: ((140, 350), (380, 600)),
-        #                          4: ((125, 135), (350, 360))}
+
         
         # Ordered from front to side, positive is right, negative is left
         self.sensor_to_type = {"front_right_front": 1, "front_left_front": -1, "back_left_back": -1, "back_right_back": 1,
@@ -82,7 +78,7 @@ class LaneShift:
                           "UPPER_WALL": self.measured_lane_ypos["UPPER_WALL"] * self.measurement_to_distance, "LOWER_WALL": self.measured_lane_ypos["LOWER_WALL"]} # Expected positions from 0
 
         self.aborting = False # Indicates whether the car has stopped an action to not die
-        self.shifting = (False, None)
+        self.shifting = (False, None) # Indicates whether the car is shifting lanes, and in which direction (True for shifting, False for not shifting, None for no direction)
         
 
     # _____________________________________________________Functions that update internal state tracking_____________________________________________________
@@ -162,15 +158,20 @@ class LaneShift:
         # If we don't see a car, it is safe to shift (but we will in reality never shift if we don't see a car)
         if not state["sensors"]["front"]:
             return True
-        
+        print(v0)
         # If can not yet determine velocity, but spot a car, assume it is not safe
         if not v0: 
             return False
+        if v0 > 0:
+            return True
+
+        v0 = -1*v0 # The car is coming towards us
         
-        v0 *= -1 # The car is coming towards us
-        d = state["sensors"]["front"] - 250 # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
+        d = max(0, state["sensors"]["front"] - 250) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
+
         # Determine ticks to collision assuming a = 0.05 – true mean is 0, but set to 0.05 kind of arbitrarily to manage risk
         ticks_to_collision = (-(2/a * v0 - 1) + np.sqrt((2/a * v0 - 1)**2 + 8 * d / a)) / 2
+        
         return ticks_to_collision > 45
         
     def closest_lane(self):
@@ -207,8 +208,8 @@ class LaneShift:
         if not v0:
             return None
         angle = np.pi/2 if direction == "front" else self.sensor_type_to_angle[self.sensor_to_type[direction]]
-        v0 *= -1 # The car is coming towards us
-        d = np.sin(angle) * state["sensors"][direction] - 250 # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
+        v0 = max(0, -1*v0) # The car is coming towards us
+        d = max(0, np.sin(angle) * state["sensors"][direction] - 250) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
         # Determine ticks to collision assuming a = 0.05 – true mean is 0, but set to 0.05 kind of arbitrarily to manage risk
         return (-(2/a * v0 - 1) + np.sqrt((2/a * v0 - 1)**2 + 8 * d / a)) / 2
 
@@ -290,37 +291,39 @@ class LaneShift:
         # Running internal state updates
         # self.lane = self.closest_lane()  # Update the lane based on the current y-position
         current_front_velocity = self.determine_velocity_front(state)
-
-        # Safety logic
-        if self.aborting:
-            self.aborting = False
-
-            self.get_to_closest_lane(state, brake = True)
-            collision = self.ticks_to_collision(state, current_front_velocity)
-            
-            if current_front_velocity and current_front_velocity < 0:
-                self.clear_action_queue()
-                self.queue_action("DECELERATE")
-                return self.pop_next_action()
-
         collision_time_front = self.ticks_to_collision(state, current_front_velocity)
+        self.update_ypos(state)
+
+        # # Safety logic
+        # if self.aborting:
+        #     self.aborting = False
+
+        #     self.get_to_closest_lane(state, brake = True)
+            
+        #     # if current_front_velocity and current_front_velocity < 0:
+        #     #     self.clear_action_queue()
+        #     #     self.queue_action("DECELERATE")
+        #     #     return self.pop_next_action()
 
         
-        if collision_time_front and self.desired_lane == self.lane:
-            if self.actions_left() + 20 > collision_time_front:
-                self.aborting = True
-                self.clear_action_queue()
-                self.queue_action("DECELERATE")
-        elif self.desired_lane != self.lane:
-            current_side_velocity = self.determine_velocity_side(state, self.desired_lane - self.lane)
-            collision_time_side = self.ticks_to_collision(state, current_side_velocity, direction=self.sensor_dict[self.desired_lane - self.lane])
-            if collision_time_side and self.actions_left() + 20 > collision_time_side:
-                self.aborting = True
-                self.clear_action_queue()
-                self.queue_action("DECELERATE")
+        
+
+        
+        # if collision_time_front and self.desired_lane == self.lane:
+        #     if self.actions_left() + 20 > collision_time_front:
+        #         self.aborting = True
+        #         self.clear_action_queue()
+        #         self.queue_action("DECELERATE")
+        # elif self.desired_lane != self.lane:
+        #     current_side_velocity = self.determine_velocity_side(state, self.desired_lane - self.lane)
+        #     collision_time_side = self.ticks_to_collision(state, current_side_velocity, direction=self.sensor_dict[self.desired_lane - self.lane])
+        #     if collision_time_side and self.actions_left() + 20 > collision_time_side:
+        #         self.aborting = True
+        #         self.clear_action_queue()
+        #         self.queue_action("DECELERATE")
     
         # print(f"Current front velocity: {current_front_velocity}, distance to front: {state['sensors']['front']}, current lane: {self.lane}, ypos: {self.ypos}, {state['sensors']['front_left_front']}")
-        self.update_ypos(state)
+        
         # if self.actions
 
         if self.action_queue:
@@ -348,7 +351,7 @@ class LaneShift:
         
         
         if not state["sensors"]["front"]:
-            self.queue_action("ACCELERATE")
+            self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
             return self.pop_next_action()
 
 
@@ -357,25 +360,33 @@ class LaneShift:
         right_2 = self.detect_car_in_neighboring_lane(state)["right_2"]
         left_1 = self.detect_car_in_neighboring_lane(state)["left_1"]
         left_2 = self.detect_car_in_neighboring_lane(state)["left_2"]
+
         # print(f"right_1: {right_1}, right_2: {right_2}, left_1: {left_1}, left_2: {left_2}")
         #state["sensors"]["front"] < 700 and
+        
+        
+
         if not self.safe_to_shift(state=state, direction=None, v0=current_front_velocity, a = 0.05):
+            # print("not self.safe_to_shift")
             self.queue_action("DECELERATE")
             return self.pop_next_action()
         
+        threshold = 100 # Distance to front car, below which we start shifting lanes
+
         # i.e. "See car, go: nono"
-        if left_1 and not right_1 and self.lane < 5:
+        if left_1 and not right_1 and self.lane < 5 and state["sensors"]["front"] and state["sensors"]["front"] < threshold:
             self.queue_actions_to_position("right", state["velocity"]["y"])
             # print("Call 1")
             # print(f"DECIDED TO GO RIGHT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
             return self.pop_next_action()
 
-        if right_1 and not left_1 and self.lane > 1:
+        if right_1 and not left_1 and self.lane > 1 and state["sensors"]["front"] and state["sensors"]["front"] < threshold:
             self.queue_actions_to_position("left", state["velocity"]["y"])
             # print("Call 2")
             # print(f"DECIDED TO GO LEFT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
             return self.pop_next_action()
-        if right_1 and left_1: 
+        if right_1 and left_1:
+            print("Both sides occupied, deciding to decelerate")
             self.queue_action("DECELERATE")
             # print("Call 3")
             # print(f"DECIDED TO DECELERATE, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
@@ -383,7 +394,7 @@ class LaneShift:
 
         # If both directions seem good, go towards the middle
         unsafe = right_1 if self.lane < 4 else left_1
-        if unsafe:
+        if unsafe or (state["sensors"]["front"] and state["sensors"]["front"] > threshold and current_front_velocity and current_front_velocity < 0):
             self.queue_action("NOTHING")
             return self.pop_next_action()
 
