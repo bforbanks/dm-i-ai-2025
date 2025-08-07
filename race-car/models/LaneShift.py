@@ -232,6 +232,8 @@ class LaneShift:
             if np.isnan(break_time):
                 print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
                 return
+            break_after = round(break_after)
+            break_time = round(v0/0.1) +break_after
 
         elif distance < 0:
             break_time = np.sqrt(50*v0**2 - 5*v0 - 10*distance)
@@ -239,6 +241,8 @@ class LaneShift:
             if np.isnan(break_time):
                 print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
                 return
+            break_after = round(break_after)
+            break_time = round(-v0/0.1) +break_after
 
         else:
             print("WARNING: Was asked to move a distance of 0, idk why man you might as well not ask but I'll do nothing")
