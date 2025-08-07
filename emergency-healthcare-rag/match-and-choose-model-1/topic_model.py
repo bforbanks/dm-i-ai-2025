@@ -26,6 +26,9 @@ CACHE_ROOT.mkdir(exist_ok=True)
 # Global cache
 _BM25_CACHE = None
 
+# Disable use of on-disk caches from previous runs if env is set
+DISABLE_DISK_CACHE = os.getenv("EHRAG_DISABLE_DISK_CACHE", "0").lower() in ("1", "true", "yes")
+
 def chunk_words(words: List[str], size: int, overlap: int) -> List[str]:
     """Yield word windows of length *size* with given *overlap*."""
     step = max(1, size - overlap)
@@ -44,7 +47,7 @@ def build_bm25_index() -> Dict:
     topic_type = "condensed" if USE_CONDENSED_TOPICS else "regular"
     cache_path = CACHE_ROOT / f"bm25_index_{topic_type}_{CHUNK_SIZE}_{OVERLAP}.pkl"
     
-    if cache_path.exists():
+    if (not DISABLE_DISK_CACHE) and cache_path.exists():
         print(f"Loading cached BM25 index from {cache_path}")
         return pickle.loads(cache_path.read_bytes())
 
@@ -90,8 +93,9 @@ def build_bm25_index() -> Dict:
         'topics_data': topics_data
     }
     
-    cache_path.write_bytes(pickle.dumps(data))
-    print(f"[bm25] Cached index → {cache_path}")
+    if not DISABLE_DISK_CACHE:
+        cache_path.write_bytes(pickle.dumps(data))
+        print(f"[bm25] Cached index → {cache_path}")
     return data
 
 def load_bm25_index() -> Dict:

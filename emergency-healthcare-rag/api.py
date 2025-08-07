@@ -5,12 +5,16 @@ import importlib
 from fastapi import FastAPI
 import datetime
 import time
+import os
 from utils import validate_prediction
 from loguru import logger
 from pydantic import BaseModel
 
 HOST = "0.0.0.0"
 PORT = 8000
+
+# Disable any old on-disk caches for API process before imports that may load caches
+os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "1")
 
 # Import model-agnostic functions
 from model import predict, set_active_model, get_active_model

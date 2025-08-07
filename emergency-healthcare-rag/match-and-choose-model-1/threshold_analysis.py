@@ -5,8 +5,12 @@ Shows what gets caught vs missed at each threshold
 """
 
 import json
+import os
 import numpy as np
 from pathlib import Path
+# Ensure no old caches are used when running threshold analysis
+os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "1")
+
 from topic_model import get_top_topics_with_scores
 
 def analyze_thresholds():
@@ -76,6 +80,8 @@ def analyze_thresholds():
             
             gap_data.append({
                 'sample_id': sample['sample_id'],
+                'statement': statement,
+                'expected_topic': expected_topic,
                 'expected_rank': expected_rank,
                 'expected_score': expected_score,
                 'first_score': first_score,
@@ -105,6 +111,8 @@ def analyze_thresholds():
         
         gap_data.append({
             'sample_id': sample['sample_id'],
+            'statement': statement,
+            'expected_topic': expected_topic,
             'expected_rank': expected_rank,
             'expected_score': expected_score,
             'first_score': first_score,
@@ -173,6 +181,42 @@ def analyze_thresholds():
         print(f"{threshold:>9} | {len(above_threshold):16d} | {len(correct_above):3d} | {len(incorrect_above):3d} | {above_accuracy:5.1f}% | {len(below_threshold):16d} | {len(correct_below):3d} | {len(incorrect_below):3d} | {below_accuracy:5.1f}%")
     
     print()
+
+    # Additional diagnostics for exact-tie cases (threshold == 0)
+    tie_cases = [d for d in gap_data if d['gap_1st_to_2nd'] == 0]
+    if tie_cases:
+        print("🔎 TIE DIAGNOSTICS (gap == 0)")
+        print("=" * 80)
+        # Compute tie sizes using expanded top_k to capture all equal-top topics
+        tie_sizes = []
+        random_baseline_hits = 0.0
+        in_tied_set_count = 0
+        for d in tie_cases:
+            # Recompute with larger top_k in case >5 topics tie
+            topics_expanded = get_top_topics_with_scores(d['statement'], top_k=20)
+            if not topics_expanded:
+                continue
+            top_score = topics_expanded[0]['score']
+            # Count how many topics share the top score
+            tied_topics = [t for t in topics_expanded if abs(t['score'] - top_score) < 1e-9]
+            tie_size = len(tied_topics)
+            tie_sizes.append(tie_size)
+            tied_topic_ids = {t['topic_id'] for t in tied_topics}
+            if d['expected_topic'] in tied_topic_ids:
+                in_tied_set_count += 1
+                random_baseline_hits += 1.0 / tie_size
+        # Histogram
+        from collections import Counter
+        hist = Counter(tie_sizes)
+        print("Tie size distribution (topics sharing top score):")
+        for size in sorted(hist.keys()):
+            print(f"  size={size}: {hist[size]} cases")
+        # Baselines
+        random_baseline = (random_baseline_hits / len(tie_cases)) * 100.0 if tie_cases else 0.0
+        in_tied_set_pct = (in_tied_set_count / len(tie_cases)) * 100.0 if tie_cases else 0.0
+        print(f"Gold topic in tied set: {in_tied_set_count}/{len(tie_cases)} ({in_tied_set_pct:.1f}%)")
+        print(f"Random-tie baseline accuracy: {random_baseline:.1f}%")
+        print()
     
     # Summary recommendations
     print("💡 SUMMARY & RECOMMENDATIONS")
