@@ -78,7 +78,6 @@ class LaneShift:
                           "UPPER_WALL": self.measured_lane_ypos["UPPER_WALL"] * self.measurement_to_distance, "LOWER_WALL": self.measured_lane_ypos["LOWER_WALL"]} # Expected positions from 0
 
         self.aborting = False # Indicates whether the car has stopped an action to not die
-        self.shifting = (False, None) # Indicates whether the car is shifting lanes, and in which direction (True for shifting, False for not shifting, None for no direction)
         
 
     # _____________________________________________________Functions that update internal state tracking_____________________________________________________
@@ -223,23 +222,42 @@ class LaneShift:
             v0 (float): The initial velocity of the car.
             brake (bool): Whether to apply brakes or not (resulting in final velocity = 0). Default is True. 
         """
-        
+
         if isinstance(distance, str):
             distance = 224 if distance == "right" else -224
+
+        if distance > 0:    
+            break_time = np.sqrt(10 * distance + 50 * v0**2 + 5 * v0)
+            break_after = -10 * v0 + break_time
+            if np.isnan(break_time):
+                print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                return
+
+        elif distance < 0:
+            break_time = np.sqrt(50*v0**2 - 5*v0 - 10*distance)
+            break_after = break_time + 10*v0
+            if np.isnan(break_time):
+                print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                return
+
+        else:
+            print("WARNING: Was asked to move a distance of 0, idk why man you might as well not ask but I'll do nothing")
         
         action_dict = {-1: "STEER_LEFT", 0: "NOTHING", 1: "STEER_RIGHT"}
         
         abs_distance, direction = abs(distance), np.sign(distance)
-        b = 20*v0 - 1; c = -20 * abs_distance
-        if brake:
-            c /= 2
+
+
+
+        # b = 20*v0 - 1; c = -20 * abs_distance
+        # if brake:
+        #     c /= 2
         
         # Quadratic equation to determine the number of ticks needed to reach the target distance
         # Derived from the discrete time difference equations with constant acceleration (x_{t+1} = x_t + v_t, v_{t+1} = v_t + a: a = 0.1)
-        ticks = int((-b + np.sqrt(b**2 - 4*c)) / 2)
-        actions = [action_dict[direction]]*ticks + [action_dict[-direction]]*(ticks * brake)
-        self.desired_lane = self.lane + int(direction) 
-        self.shifting = (True, direction)
+        # ticks = int((-b + np.sqrt(b**2 - 4*c)) / 2)
+        actions = [action_dict[direction]]*round(break_after) + [action_dict[-direction]]*round(break_time)
+        self.desired_lane = self.lane + int(direction) #TODO What if you're not desiring to go one line only? 
         # print(f"DICIDED TO GO {'LEFT' if direction < 0 else 'RIGHT'} to lane {self.lane}, ticks needed: {ticks * (1 * brake)}")
         self.action_queue.extend(actions)
     
