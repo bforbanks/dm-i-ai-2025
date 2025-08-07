@@ -1,0 +1,11 @@
+sentence-transformers
+numpy
+rank-bm25
+bayesian-optimization
+tqdm
+scikit-learn
+pandas
+matplotlib
+seaborn
+torch
+transformers
