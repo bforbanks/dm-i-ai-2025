@@ -1,8 +1,8 @@
 We have a seperate branch for each task:
 
-```carexpert``` for the Race Car challenge
-```NA``` for the TS challenge
-```emergency-healthcare-rag``` for the Healthcare RAG challenge
+- ```carexpert``` for the Race Car challenge
+- ```NA``` for the TS challenge
+- ```emergency-healthcare-rag``` for the Healthcare RAG challenge
 
 User guides:
 
