@@ -17,4 +17,4 @@ We mainly used UCloud for running our code. The API can be run in the ```emergen
 
 
 Thank you for arranging this competition!
-- Benjamin, Elias, Jonathan, Lucas, Oscar, and Viktor
+ - Benjamin, Elias, Jonathan, Lucas, Oscar, and Viktor
