@@ -1,0 +1,2 @@
+# Model used for evaluation
+For evaluation we used the model models/LaneShift.py, which has the "return_action" function interface as the ambolt AI team set it up. The api.py file is set up to use the model correctly, and expose the prediction endpoint, so from there you should be able to see how the model is used if there are any doubts.
