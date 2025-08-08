@@ -13,7 +13,7 @@ For evaluation we used the model models/LaneShift.py, which has the "return_acti
 
 
 ### Healthcare RAG
-We mainly used UCloud for running our code. The API can be run in the emergency-healthcare-rag/ folder with ```python api.py --no-use-condensed-topics --threshold NA``` with our settings used for the evaluation run.
+We mainly used UCloud for running our code. The API can be run in the ```emergency-healthcare-rag/``` folder with ```python api.py --no-use-condensed-topics --threshold NA``` with our settings used for the evaluation run.
 
 
 Thank you for arranging this competition!
