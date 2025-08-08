@@ -24,6 +24,7 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer, util
 from bayes_opt import BayesianOptimization
 import pandas as pd
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 # ---------------------------------------------------------------------------
 # Paths and Constants
@@ -110,8 +111,9 @@ def build_bm25_index(chunk_size: int, overlap: int, k1: float, b: float) -> Dict
     """Build BM25 index with specified parameters."""
     chunk_size = int(chunk_size)
     overlap = int(overlap)
-    k1 = round(k1, 2)
-    b = round(b, 2)
+    # Use exact floating point values for k1 and b (no rounding)
+    k1 = float(k1)
+    b = float(b)
     
     chunks: List[str] = []
     topics: List[int] = []
@@ -310,6 +312,8 @@ def evaluate_config(
         # Load validation data
         print("Loading validation statements...")
         statements = load_statements()
+
+        # Indices built once per trial and reused within evaluation only
         
         # Evaluate with progress bar
         correct = 0
@@ -376,6 +380,8 @@ def objective_function(
     )
 
     return accuracy
+
+## removed auxiliary re-evaluation helper for alpha/beta sprays
 
 def _clip_to_bounds(pbounds: Dict[str, Tuple[float, float]], params: Dict[str, float]) -> Dict[str, float]:
     """Clip parameter values to pbounds to satisfy optimizer.register constraints."""
@@ -496,11 +502,54 @@ def _write_results(optimizer: BayesianOptimization, pbounds: Dict[str, Tuple[flo
         values_str = ["" if v is None else str(v) for v in values]
         f.write(','.join(values_str) + '\n')
 
+def _append_csv_row_from_params(params: Dict[str, float], target: Optional[float]) -> None:
+    """Append a single CSV row using cast values, without touching optimizer state."""
+    def _safe_get(key: str, default: float = 0.0) -> float:
+        v = params.get(key)
+        return float(v) if v is not None else float(default)
+
+    cs_bm25 = int(round(_safe_get('chunk_size_bm25')))
+    ov_bm25 = int(round(_safe_get('overlap_bm25')))
+    cs_embed = int(round(_safe_get('chunk_size_embed')))
+    ov_embed = int(round(_safe_get('overlap_embed')))
+    cs_bm25 = max(2, cs_bm25)
+    cs_embed = max(2, cs_embed)
+    ov_bm25 = max(0, min(ov_bm25, cs_bm25 - 1))
+    ov_embed = max(0, min(ov_embed, cs_embed - 1))
+    model_sel_raw = _safe_get('model_selector')
+    model_selector_cast = 0.0 if model_sel_raw < 0.5 else 1.0
+
+    columns = [
+        'target',
+        'chunk_size_bm25', 'overlap_bm25', 'k1', 'b',
+        'chunk_size_embed', 'overlap_embed', 'alpha', 'beta', 'model_selector',
+    ]
+    row = {
+        'target': target,
+        'chunk_size_bm25': cs_bm25,
+        'overlap_bm25': ov_bm25,
+        'k1': _safe_get('k1'),
+        'b': _safe_get('b'),
+        'chunk_size_embed': cs_embed,
+        'overlap_embed': ov_embed,
+        'alpha': _safe_get('alpha'),
+        'beta': _safe_get('beta'),
+        'model_selector': model_selector_cast,
+    }
+    header_needed = not RESULTS_CSV_FILE.exists()
+    with RESULTS_CSV_FILE.open('a', encoding='utf-8') as f:
+        if header_needed:
+            f.write(','.join(columns) + '\n')
+        values = [row.get(c, "") for c in columns]
+        values_str = ["" if v is None else str(v) for v in values]
+        f.write(','.join(values_str) + '\n')
+
 def run_bayesian_optimization(
     init_points: int = 50,
     n_iter: int = 1000,
     use_bm25_seeds: bool = True,
     bm25_seed_file: Path = Path(".cache/bo_results.json"),
+    fixed_bm25: Optional[Dict[str, float]] = None,
 ):
     """Run Bayesian optimization for hybrid retrieval."""
     # Define search space
@@ -516,13 +565,52 @@ def run_bayesian_optimization(
         "model_selector": (0, 1),  # Discrete toggle between MiniLM (0) and ColBERT (1)
     }
 
+    # Wrap objective if BM25 is fixed
+    wrapped_f = objective_function
+    if fixed_bm25 is not None:
+        fx_cs = int(round(float(fixed_bm25.get('chunk_size') or fixed_bm25.get('chunk_size_bm25'))))
+        fx_ov = int(round(float(fixed_bm25.get('overlap') or fixed_bm25.get('overlap_bm25'))))
+        fx_k1 = float(fixed_bm25.get('k1'))
+        fx_b = float(fixed_bm25.get('b'))
+        # Clamp bounds to those fixed values
+        pbounds['chunk_size_bm25'] = (fx_cs, fx_cs)
+        pbounds['overlap_bm25'] = (fx_ov, fx_ov)
+        pbounds['k1'] = (fx_k1, fx_k1)
+        pbounds['b'] = (fx_b, fx_b)
+
+        def wrapped_f(
+            chunk_size_bm25,
+            overlap_bm25,
+            k1,
+            b,
+            chunk_size_embed,
+            overlap_embed,
+            alpha,
+            beta,
+            model_selector,
+        ):
+            return objective_function(
+                fx_cs, fx_ov, fx_k1, fx_b,
+                chunk_size_embed, overlap_embed,
+                alpha, beta, model_selector
+            )
+
     # Initialize optimizer
     optimizer = BayesianOptimization(
-        f=objective_function,
+        f=wrapped_f,
         pbounds=pbounds,
         random_state=42,
         verbose=1  # Reduced verbosity since we have our own progress tracking
     )
+
+    # Make the GP very smooth (super long kernel length) to bias exploitation
+    # Fix kernel hyperparameters to avoid re-fitting to shorter scales
+    long_kernel = C(1.0, constant_value_bounds='fixed') * RBF(length_scale=1e5, length_scale_bounds='fixed')
+    try:
+        optimizer.set_gp_params(kernel=long_kernel, alpha=1e-6, normalize_y=True)
+    except Exception:
+        # Fallback in case set_gp_params signature differs
+        pass
 
     # Optionally register BM25-only seed observations
     num_seeds_registered = 0
@@ -548,9 +636,17 @@ def run_bayesian_optimization(
             try:
                 optimizer.register(params=full_params, target=float(target))
                 num_seeds_registered += 1
+                # Immediately persist seed observation to CSV and snapshot
+                _append_csv_row_from_params(full_params, float(target))
             except Exception:
                 # If any seed is out-of-bounds or duplicate, skip it
                 continue
+        # Write a snapshot JSON including the seeded observations
+        RESULTS_SNAPSHOT_FILE.write_text(json.dumps({
+            'best_config': optimizer.max,
+            'all_results': optimizer.res,
+            'bounds': pbounds
+        }, indent=2, default=str))
 
     # Run optimization with progress tracking
     total_trials = init_points + n_iter
@@ -575,7 +671,7 @@ def run_bayesian_optimization(
 
     # Phase 2: guided iterations with dual progress bars
     with tqdm(total=n_iter, desc="BO total", unit="iter") as pbar_total:
-        for _ in range(n_iter):
+        for i_iter in range(n_iter):
             # inner bar for evaluation progress (statements)
             inner_bar: Optional[tqdm] = None
             def _on_eval_progress(done: int) -> None:
@@ -638,7 +734,7 @@ def run_bayesian_optimization(
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     # Run Bayesian optimization
-    optimizer = run_bayesian_optimization(init_points=50, n_iter=1000)
+    optimizer = run_bayesian_optimization(init_points=0, n_iter=1000)
     
     # Print summary
     print("\n" + "="*50)
