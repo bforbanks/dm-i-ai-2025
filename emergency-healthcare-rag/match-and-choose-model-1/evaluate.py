@@ -14,8 +14,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Union
 from tqdm import tqdm
 
-# Force-disable disk caches for evaluation runs before importing topic_model
-os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "1")
+# Enable disk caches for evaluation runs before importing topic_model
+os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "0")
 
 # Add current directory to path for relative imports
 sys.path.insert(0, str(Path(__file__).parent))

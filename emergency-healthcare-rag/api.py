@@ -13,8 +13,8 @@ from pydantic import BaseModel
 HOST = "0.0.0.0"
 PORT = 8000
 
-# Disable any old on-disk caches for API process before imports that may load caches
-os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "1")
+# Enable on-disk caches for API process before imports that may load caches
+os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "0")
 
 # Import model-agnostic functions
 from model import predict, set_active_model, get_active_model

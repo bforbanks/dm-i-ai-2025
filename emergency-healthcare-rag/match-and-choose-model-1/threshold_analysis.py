@@ -8,8 +8,8 @@ import json
 import os
 import numpy as np
 from pathlib import Path
-# Ensure no old caches are used when running threshold analysis
-os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "1")
+# Enable caches when running threshold analysis
+os.environ["EHRAG_DISABLE_DISK_CACHE"] = os.environ.get("EHRAG_DISABLE_DISK_CACHE", "0")
 
 from topic_model import get_top_topics_with_scores
 
