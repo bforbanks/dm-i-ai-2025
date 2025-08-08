@@ -216,21 +216,21 @@ class LaneShift:
 
         if distance > 0:    
             break_time = np.sqrt(10 * distance + 50 * v0**2 + 5 * v0)
-            break_after = -10 * v0 + break_time
+            accelerate_time = -10 * v0 + break_time
             if np.isnan(break_time):
                 print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
                 return
-            break_after = round(break_after)
-            break_time = round(v0/0.1) +break_after
+            accelerate_time = round(accelerate_time)
+            break_time = round(v0/0.1) +accelerate_time
 
         elif distance < 0:
             break_time = np.sqrt(50*v0**2 - 5*v0 - 10*distance)
-            break_after = break_time + 10*v0
+            accelerate_time = break_time + 10*v0
             if np.isnan(break_time):
                 print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
                 return
-            break_after = round(break_after)
-            break_time = round(-v0/0.1) +break_after
+            accelerate_time = round(accelerate_time)
+            break_time = round(-v0/0.1) +accelerate_time
 
         else:
             print("WARNING: Was asked to move a distance of 0, idk why man you might as well not ask but I'll do nothing")
@@ -248,7 +248,7 @@ class LaneShift:
         # Quadratic equation to determine the number of ticks needed to reach the target distance
         # Derived from the discrete time difference equations with constant acceleration (x_{t+1} = x_t + v_t, v_{t+1} = v_t + a: a = 0.1)
         # ticks = int((-b + np.sqrt(b**2 - 4*c)) / 2)
-        actions = [action_dict[direction]]*round(break_after) + [action_dict[-direction]]*round(break_time)
+        actions = [action_dict[direction]]*round(accelerate_time) + [action_dict[-direction]]*round(break_time)
         self.last_lane = self.lane
         self.desired_lane = min(self.lane_ypos, key=lambda x: abs(self.lane_ypos[x] - (self.ypos + distance)))
         # print(f"DICIDED TO GO {'LEFT' if direction < 0 else 'RIGHT'} to lane {self.lane}, ticks needed: {ticks * (1 * brake)}")
