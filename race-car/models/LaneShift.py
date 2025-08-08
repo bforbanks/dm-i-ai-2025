@@ -12,7 +12,7 @@ class LaneShift:
         
         self.car_dimensions = (360, 179)
         
-        self.verbose = True
+        self.verbose = False
 
         # Starting lane is 3 (middle)
         self.lane = 3
@@ -305,7 +305,7 @@ class LaneShift:
     def return_action(self, state: dict) -> List[str]:
         """Logic for determining the next action based on the current state of the environment."""
         # For repeated runs, reset the internal state (ONLY FOR TESTING PURPOSES)
-        NPC_car_y_coordinate_ranges = [(62-510,241), (286-510,465-510), (510-510,689-510), (734-510,913-510), (958-510,1137-510)]
+        
         if not state["distance"]:
             self.reset()
 
@@ -316,7 +316,7 @@ class LaneShift:
         # current_front_velocity = parse[self.lane - 1]["velocity"]
         current_front_velocity = self.determine_velocity_front(state)
         collision_time_front = self.ticks_to_collision(state, current_front_velocity)
-        
+
         self.update_ypos(state)
         parse = self.parser.parse_sensors(state, self.ypos)
         # print(parse[self.lane]["x"], self.ypos)
@@ -339,11 +339,10 @@ class LaneShift:
             #     self.queue_action("DECELERATE")
             #     return self.pop_next_action()
 
-            
+        
         
         if collision_time_front and self.desired_lane == self.lane and not self.aborting:
-            if self.actions_left() + 0 > collision_time_front:
-                print(f"Collision time front: {collision_time_front}, actions left: {self.actions_left()}")
+            if self.actions_left() + 20 > collision_time_front:
                 if self.verbose: print("Call 1")
                 self.aborting = True
                 self.clear_action_queue()
@@ -391,7 +390,9 @@ class LaneShift:
             
             
             if not self.stand_still(state):
-                self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
+                if state["elapsed_ticks"] < 300:
+                    self.queue_action(["ACCELERATE", "NOTHING"])
+                else: self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
             return self.pop_next_action()
 
 
@@ -421,22 +422,27 @@ class LaneShift:
                 self.get_to_lane(self.lane + 1, state)
                 # self.queue_actions_to_position("right", state["velocity"]["y"])
 
-                print(f"DECIDED TO GO RIGHT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
+                # print(f"DECIDED TO GO RIGHT, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
                 return self.pop_next_action()
 
             if right_1 and not left_1 and self.lane > 1:
                 if self.verbose: print(f"Call 4. self.lane: {self.lane}")
+                
                 self.get_to_lane(self.lane - 1, state)
                 # self.queue_actions_to_position("left", state["velocity"]["y"])
 
                 return self.pop_next_action()
-            
+        
+        if (collision_time_front and collision_time_front < 50):
+            self.queue_action("DECELERATE")
+
+            return self.pop_next_action()
         if right_1 and left_1:
             if self.verbose: print(f"Call 5, {(right_1, left_1)}")
             
-            self.stand_still(state)
+            # self.stand_still(state)
 
-            # self.queue_action("DECELERATE")
+            self.queue_action("DECELERATE")
 
             # print(f"DECIDED TO DECELERATE, as left_1 is {left_1} and right_1 is {right_1}, lane: {self.lane}")
             return self.pop_next_action()
