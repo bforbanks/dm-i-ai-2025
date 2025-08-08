@@ -59,9 +59,9 @@ if __name__ == "__main__":
     expert_model = MODEL()
     print(f"Using model: {MODEL.__name__}")
     # expert_model = None
-    seed_values = [] #4172
+    seed_values = [8836662] #4172
     if not seed_values:
-        runs = 20
+        runs = 10
         seed_values = [random.randint(0, 10000) for _ in range(runs)]
     runs = len(seed_values)
     for i, seed_value in enumerate(seed_values):
@@ -74,6 +74,6 @@ if __name__ == "__main__":
             api_url="http://example.com/api/predict", seed_value=seed_value
         )
         game_loop(
-            verbose=False, model=expert_model
+            verbose=True, model=expert_model
         )  # For pygame window with expert system
     pygame.quit()

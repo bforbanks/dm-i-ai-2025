@@ -1,14 +1,31 @@
 import numpy as np
 from typing import List, Tuple
 from models.utilities.sensor_parser import SensorParser
+from models.laneshift_config import LaneShiftConfig, get_default_config
 
 class LaneShift:
 
-    def __init__(self):
-        height = 1200
-        margins = 40
+    def __init__(self, config: LaneShiftConfig | None = None):
+        # Configuration holding tunable hyper-parameters
+        self.config: LaneShiftConfig = config or get_default_config()
+
+        height = self.config.HEIGHT
+        margins = self.config.MARGINS
         usable_height = height - margins * 2
-        self.lane_height = usable_height / 5
+        self.lane_height = usable_height / self.config.LANE_COUNT
+
+        # Frequently tuned constants
+        self.front_buffer = self.config.FRONT_BUFFER
+        self.collision_ticks_threshold = self.config.COLLISION_TICKS_THRESHOLD
+        self.collision_time_threshold = self.config.COLLISION_TIME_THRESHOLD
+        self.lane_shift_distance = self.config.LANE_SHIFT_DISTANCE
+        self.action_queue_margin_front = self.config.ACTION_QUEUE_MARGIN_FRONT
+        self.action_queue_margin_side = self.config.ACTION_QUEUE_MARGIN_SIDE
+        
+        # Acceleration phase thresholds
+        self.start_acceleration_ticks = self.config.START_ACCELERATION_TICKS
+        self.early_accelerate_ticks = self.config.EARLY_ACCELERATE_TICKS
+        self.full_stop_acceleration_ticks = self.config.FULL_STOP_ACCELERATION_TICKS
         
         self.car_dimensions = (360, 179)
         
@@ -86,7 +103,7 @@ class LaneShift:
         self.aborting = False # Indicates whether the car has stopped an action to not die
         
 
-    # _____________________________________________________Functions that update internal state tracking_____________________________________________________
+    # ____________________________________________________Functions that update internal state tracking____________________________________________________
 
     def reset(self):
         """Reset the internal state of the car."""
@@ -171,12 +188,12 @@ class LaneShift:
 
         v0 = -1*v0 # The car is coming towards us
         
-        d = max(0, state["sensors"]["front"] - 250) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
+        d = max(0, state["sensors"]["front"] - self.front_buffer) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
 
         # Determine ticks to collision assuming a = 0.05 – true mean is 0, but set to 0.05 kind of arbitrarily to manage risk
         ticks_to_collision = (-(2/a * v0 - 1) + np.sqrt((2/a * v0 - 1)**2 + 8 * d / a)) / 2
         
-        return ticks_to_collision > 45
+        return ticks_to_collision > self.collision_ticks_threshold
         
     def closest_lane(self):
         """Returns the closest lane to the car's current y-position."""
@@ -196,12 +213,12 @@ class LaneShift:
             return None
         angle = np.pi/2 if direction == "front" else self.sensor_type_to_angle[self.sensor_to_type[direction]]
         v0 = max(0, -1*v0) # The car is coming towards us
-        d = max(0, np.sin(angle) * state["sensors"][direction] - 250) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
+        d = max(0, np.sin(angle) * state["sensors"][direction] - self.front_buffer) # Distance to front car (measured in pixels), 250 could be the sweet spot, 300 is safer
         # Determine ticks to collision assuming a = 0.05 – true mean is 0, but set to 0.05 kind of arbitrarily to manage risk
         return (-(2/a * v0 - 1) + np.sqrt((2/a * v0 - 1)**2 + 8 * d / a)) / 2
 
 
-    # _____________________________________________________Functions that define larger action sequences_____________________________________________________
+    # ____________________________________________________Functions that define larger action sequences____________________________________________________
 
     def queue_actions_to_position(self, distance: float | str, v0, brake = True) -> None:
         """Generates a list of actions to move the car to a specific y-position.
@@ -212,7 +229,7 @@ class LaneShift:
         """
 
         if isinstance(distance, str):
-            distance = 224 if distance == "right" else -224
+            distance = self.lane_shift_distance if distance == "right" else -self.lane_shift_distance
 
         if distance > 0:    
             break_time = np.sqrt(10 * distance + 50 * v0**2 + 5 * v0)
@@ -276,7 +293,7 @@ class LaneShift:
             return True
     
 
-    # ______________________________________________________________Functions that handle actions______________________________________________________________
+    # _____________________________________________________________Functions that handle actions_____________________________________________________________
     
     def queue_action(self, action: str | List) -> None:
         """Queue an action to be executed later."""
@@ -300,7 +317,7 @@ class LaneShift:
         
 
 
-    # ______________________________________________________________________Decision logic______________________________________________________________________
+    # _____________________________________________________________________Decision logic_____________________________________________________________________
 
     def return_action(self, state: dict) -> List[str]:
         """Logic for determining the next action based on the current state of the environment."""
@@ -318,7 +335,10 @@ class LaneShift:
         collision_time_front = self.ticks_to_collision(state, current_front_velocity)
 
         self.update_ypos(state)
+        if state["elapsed_ticks"] > 500:
+            pass
         parse = self.parser.parse_sensors(state, self.ypos)
+        # print(parse)
         # print(parse[self.lane]["x"], self.ypos)
         # if not self.actions_left() and state["velocity"]["y"] != 0:
         #     self.queue_action("STEER_RIGHT" if state["velocity"]["y"] < 0 else "STEER_LEFT")
@@ -342,7 +362,7 @@ class LaneShift:
         
         
         if collision_time_front and self.desired_lane == self.lane and not self.aborting:
-            if self.actions_left() + 20 > collision_time_front:
+            if self.actions_left() + self.action_queue_margin_front > collision_time_front:
                 if self.verbose: print("Call 1")
                 self.aborting = True
                 self.clear_action_queue()
@@ -354,7 +374,7 @@ class LaneShift:
             # current_side_velocity = self.determine_velocity_side(state, self.desired_lane - self.lane)
             current_side_velocity = parse[self.desired_lane - 1]["velocity"]
             collision_time_side = self.ticks_to_collision(state, current_side_velocity, direction=self.sensor_dict[self.desired_lane - self.lane])
-            if (collision_time_side and self.actions_left() + 200 > collision_time_side) and self.desired_lane != self.lane:
+            if (collision_time_side and self.actions_left() + self.action_queue_margin_side > collision_time_side) and self.desired_lane != self.lane:
                 self.aborting = True
                 
                 if self.verbose: print("Call 2")
@@ -378,7 +398,7 @@ class LaneShift:
         if self.action_queue:
             return self.pop_next_action()
         
-        # ACTION QUEUE LOGIC FROM HERE ______________________________________________________________________
+        # ACTION QUEUE LOGIC FROM HERE ____________________________________________________________________
 
         # Kill the car to hide score
         # if state["distance"] > 23000:
@@ -390,9 +410,15 @@ class LaneShift:
             
             
             if not self.stand_still(state):
-                if state["elapsed_ticks"] < 300:
+                t = state["elapsed_ticks"]
+                if t < self.start_acceleration_ticks:
+                    self.queue_action(["ACCELERATE"])
+                elif t < self.early_accelerate_ticks:
                     self.queue_action(["ACCELERATE", "NOTHING"])
-                else: self.queue_action(["ACCELERATE"])  # Accelerate if no car in front
+                elif t < self.full_stop_acceleration_ticks:
+                    self.queue_action(["NOTHING"])
+                else:
+                    self.queue_action(["ACCELERATE"])  # Late stage, keep speed up
             return self.pop_next_action()
 
 
@@ -416,7 +442,7 @@ class LaneShift:
         
 
         # i.e. "See car, go: nono"
-        if (not collision_time_front or collision_time_front > 50):
+        if (not collision_time_front or collision_time_front > self.collision_time_threshold):
             if left_1 and not right_1 and self.lane < 5:
                 if self.verbose: print("Call 3", f"{self.lane}, {left_1}, {right_1}")
                 self.get_to_lane(self.lane + 1, state)
@@ -433,7 +459,7 @@ class LaneShift:
 
                 return self.pop_next_action()
         
-        if (collision_time_front and collision_time_front < 50):
+        if (collision_time_front and collision_time_front < self.collision_time_threshold):
             self.queue_action("DECELERATE")
 
             return self.pop_next_action()
