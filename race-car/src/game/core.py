@@ -281,7 +281,7 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
             break
 
         if not actions:
-            action_list = model.return_action(state_to_state_dict(STATE)) if model else get_action()
+            action_list = model.return_action(state_to_state_dict(STATE), STATE) if model else get_action()
             actions.extend(action_list)
 
         action = actions.pop()
@@ -298,8 +298,9 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         place_car()
 
         if verbose:
-            print("Current action:", action)
-            print("Currnet tick:", STATE.ticks)
+            # print("Current action:", action)
+            # print("Currnet tick:", STATE.ticks)
+            pass
 
         # Update sensors
         for sensor in STATE.sensors:
