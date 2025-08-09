@@ -11,7 +11,7 @@ For evaluation we used the model models/LaneShift.py, which has the "return_acti
 
 ### TS challenge
 See the README_TS.md file in the branch.
-The model is too big to upload but the readme descibes how to train an identical model invluding the entire pipeline.
+The model is too big to upload but the readme descibes how to train an identical model invluding the entire pipeline. We can send the model upon request if needed.
 
 ### Healthcare RAG
 We mainly used UCloud for running our code. The API can be run in the ```emergency-healthcare-rag/``` folder with ```python api.py --no-use-condensed-topics --threshold NA``` with our settings used for the evaluation run.
