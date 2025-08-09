@@ -67,7 +67,7 @@ def save_json(obj, path):
 # =============================================================================
 
 # Model configuration
-MODEL_NAME = "reduced-custom-singleval-synth050"  # Name for the new ResEnc model
+MODEL_NAME = "conservative-custom-singleval-synth050"  # Name for the new ResEnc model
 TILING_SIZE = (
     384,
     384,
@@ -84,8 +84,6 @@ PATIENT_CONTROL_RATIO = 0.3  # Ratio of patient images to control images in trai
 USE_SYNTHETIC_TUMORS = True
 # Fraction (0.0-1.0) of synthetic tumor cases to include in training when USE_SYNTHETIC_TUMORS is True
 SYNTHETIC_TUMOR_FRACTION = 0.50
-# Naming prefix used for synthetic tumor cases placed into the same nnUNet dataset (imagesTr/labelsTr)
-SYNTHETIC_TUMOR_PREFIX = "controls_tumor"
 
 # Cross-validation vs Single Split configuration
 USE_SINGLE_SPLIT = True   # True for single train/val split, False for 5-fold cross-validation
@@ -96,7 +94,7 @@ DATASET_ID = 1  # Dataset ID (e.g., 1 for Dataset001_TumorSegmentation)
 BATCH_SIZE = 8  # Batch size for training
 RANDOM_SEED = 42  # Random seed for reproducibility
 
-SELECTED_MODEL_SIZE = "reduced-custom"  # CHANGED from conservative to reduced to prevent overfitting
+SELECTED_MODEL_SIZE = "conservative-custom" 
 
 # Resampling preference (Documentation: nnUNet will automatically resample images to the target spacing unless disabled)
 ENABLE_RESAMPLING = False  # Set to True to keep nnUNet default resampling, False to work on original image spacing/dimensions
@@ -130,6 +128,8 @@ SALT_PEPPER_PROBABILITY = 0.05  # Fraction of images to apply noise to (0.05 = 5
 SALT_PEPPER_DENSITY = 0.11  # Density of noise pixels (0.002 = 0.2% of pixels affected)
 SALT_PEPPER_SALT_RATIO = 0.5  # Ratio of salt (white) vs pepper (black) noise (0.5 = 50/50)
 
+# Naming prefix used for synthetic tumor cases placed into the same nnUNet dataset (imagesTr/labelsTr)
+SYNTHETIC_TUMOR_PREFIX = "controls_tumor"
 # =============================================================================
 # MODEL SIZE CONFIGURATION - REDUCE THESE FOR SMALLER MODELS
 # =============================================================================

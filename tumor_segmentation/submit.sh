@@ -29,7 +29,7 @@ python3 -m pip install -r requirements.txt
 # nnUNetv2_train 1 Standard-CV-synth010 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
 # nnUNetv2_train 1 Standard-CV-ctrl30 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
 # nnUNetv2_train 1 reducedcustom-singleval-ctrl30 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
-nnUNetv2_train 1 reducedcustom-singleval-synth100 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_500epochs --npz --c
+# nnUNetv2_train 1 reducedcustom-singleval-synth100 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_500epochs --npz --c
 # nnUNetv2_train 1 standard-crosval-synth100 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
 # nnUNetv2_train 1 conservative-custom-singleval-synth050 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
 # nnUNetv2_train 1 reduced-custom-singleval-synth050 0 -p nnUNetResEncUNetMPlans -tr nnUNetTrainer_250epochs --npz
