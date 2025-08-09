@@ -2,7 +2,7 @@
 
 End-to-end instructions to prepare data, plan/preprocess, train, and run inference with nnUNetv2 for this project.
 
-### 1) Install dependencies
+### 1) Install dependencies (readme in tumor_segmentation/)
 
 ```bash
 pip install -r requirements.txt
