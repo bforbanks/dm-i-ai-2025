@@ -15,9 +15,9 @@ pip install -r requirements.txt
 Run these in every new shell (or add to your shell profile):
 
 ```bash
-export nnUNet_raw="/zhome/4b/5/187216/dm-i-ai-2025/tumor_segmentation/data_nnUNet"
-export nnUNet_preprocessed="/zhome/4b/5/187216/dm-i-ai-2025/tumor_segmentation/data_nnUNet/preprocessed"
-export nnUNet_results="/zhome/4b/5/187216/dm-i-ai-2025/tumor_segmentation/data_nnUNet/results"
+export nnUNet_raw=".../dm-i-ai-2025/tumor_segmentation/data_nnUNet"
+export nnUNet_preprocessed=".../dm-i-ai-2025/tumor_segmentation/data_nnUNet/preprocessed"
+export nnUNet_results=".../dm-i-ai-2025/tumor_segmentation/data_nnUNet/results"
 ```
 
 ### 3) Convert dataset to nnUNetv2 format
