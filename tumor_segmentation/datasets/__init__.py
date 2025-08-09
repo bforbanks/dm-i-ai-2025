@@ -1,0 +1,1 @@
+from .synthetic_tumor_dataset import SyntheticTumorSliceDataset

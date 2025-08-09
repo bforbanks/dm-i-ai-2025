@@ -1,0 +1,3090 @@
+nohup: ignoring input
+INFO:     Started server process [2661554]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9052 (Press CTRL+C to quit)
+nnUNet + Refiner Combined API Configuration:
+  MODEL_FOLDER: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced-custom2
+  CONFIGURATION_NAME: CV-reduced-custom2
+  USE_FOLDS: 2
+  CHECKPOINT_NAME: checkpoint_best.pth
+  REFINER_MODEL_PATH: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced/fold_2/refiner_best.pth
+  TILE_STEP_SIZE: 0.5
+  USE_MIRRORING: True
+  USE_GAUSSIAN: True
+  PERFORM_EVERYTHING_ON_DEVICE: True
+  VALIDATION_API_URL: https://cases.dmiai.dk/api/v1/usecases/tumor-segmentation/validate/queue
+  PREDICT_URL: https://5ff4ebe3f622.ngrok-free.app/predict
+  SKIP_VALIDATION: False
+🔄 Loading nnUNet v2 predictor into memory...
+🚀 Using device: cuda
+✅ nnUNet v2 predictor loaded in 1.87 seconds
+   Model folder: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced-custom2
+   Configuration: CV-reduced-custom2
+   Fold: 2
+   Checkpoint: checkpoint_best.pth
+🔄 Loading Refiner model into memory...
+✅ Refiner model loaded in 1.94 seconds
+   Model path: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced/fold_2/refiner_best.pth
+   Input channels: 6
+   Number of classes: 2
+nnUNet + Refiner Combined API Configuration:
+  MODEL_FOLDER: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced-custom2
+  CONFIGURATION_NAME: CV-reduced-custom2
+  USE_FOLDS: 2
+  CHECKPOINT_NAME: checkpoint_best.pth
+  REFINER_MODEL_PATH: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced/fold_2/refiner_best.pth
+  TILE_STEP_SIZE: 0.5
+  USE_MIRRORING: True
+  USE_GAUSSIAN: True
+  PERFORM_EVERYTHING_ON_DEVICE: True
+  VALIDATION_API_URL: https://cases.dmiai.dk/api/v1/usecases/tumor-segmentation/validate/queue
+  PREDICT_URL: https://5ff4ebe3f622.ngrok-free.app/predict
+  SKIP_VALIDATION: False
+🔄 Loading nnUNet v2 predictor into memory...
+🚀 Using device: cuda
+✅ nnUNet v2 predictor loaded in 0.86 seconds
+   Model folder: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced-custom2
+   Configuration: CV-reduced-custom2
+   Fold: 2
+   Checkpoint: checkpoint_best.pth
+🔄 Loading Refiner model into memory...
+✅ Refiner model loaded in 0.57 seconds
+   Model path: data_nnUNet/results/Dataset001_TumorSegmentation/nnUNetTrainer__nnUNetResEncUNetMPlans__CV-reduced/fold_2/refiner_best.pth
+   Input channels: 6
+   Number of classes: 2
+INFO:     127.0.0.1:54708 - "GET /health HTTP/1.1" 200 OK
+🔍 Processing image with shape: (600, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 17%|█▋        | 1/6 [00:03<00:15,  3.06s/it] 67%|██████▋   | 4/6 [00:03<00:01,  1.65it/s]100%|██████████| 6/6 [00:03<00:00,  1.86it/s]
+   📊 nnUNet probabilities shape: (2, 1, 600, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9723]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 600, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 236 tumor pixels out of 240000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (600, 400, 3)
+🎯 Combined prediction #1 completed successfully in 9.23 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     127.0.0.1:54710 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 50%|█████     | 3/6 [00:00<00:00, 27.43it/s]100%|██████████| 6/6 [00:00<00:00, 28.48it/s]100%|██████████| 6/6 [00:00<00:00, 28.29it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0001]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0001]
+   📊 Refined mask: 0 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #2 completed successfully in 2.46 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s] 75%|███████▌  | 3/4 [00:00<00:00, 27.25it/s]100%|██████████| 4/4 [00:00<00:00, 27.66it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1666 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #3 completed successfully in 2.64 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s] 75%|███████▌  | 3/4 [00:00<00:00, 28.02it/s]100%|██████████| 4/4 [00:00<00:00, 28.30it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2714 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #4 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 50%|█████     | 3/6 [00:00<00:00, 27.52it/s]100%|██████████| 6/6 [00:00<00:00, 28.59it/s]100%|██████████| 6/6 [00:00<00:00, 28.40it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 525 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #5 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.52it/s]100%|██████████| 4/4 [00:00<00:00, 34.45it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1654 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #6 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (864, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.55it/s] 80%|████████  | 8/10 [00:00<00:00, 35.66it/s]100%|██████████| 10/10 [00:00<00:00, 35.75it/s]
+   📊 nnUNet probabilities shape: (2, 1, 864, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 864, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 345600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (864, 400, 3)
+🎯 Combined prediction #7 completed successfully in 2.79 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.84it/s]100%|██████████| 6/6 [00:00<00:00, 35.20it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 774 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #8 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.16it/s]100%|██████████| 6/6 [00:00<00:00, 35.86it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 452 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #9 completed successfully in 1.04 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (928, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.85it/s] 80%|████████  | 8/10 [00:00<00:00, 36.25it/s]100%|██████████| 10/10 [00:00<00:00, 36.23it/s]
+   📊 nnUNet probabilities shape: (2, 1, 928, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0012]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 928, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0024]
+   📊 Refined mask: 0 tumor pixels out of 371200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (928, 400, 3)
+🎯 Combined prediction #10 completed successfully in 2.80 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.67it/s]100%|██████████| 4/4 [00:00<00:00, 34.59it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 247 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #11 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (802, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.44it/s] 80%|████████  | 8/10 [00:00<00:00, 35.96it/s]100%|██████████| 10/10 [00:00<00:00, 35.90it/s]
+   📊 nnUNet probabilities shape: (2, 1, 802, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 802, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 554 tumor pixels out of 320800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (802, 400, 3)
+🎯 Combined prediction #12 completed successfully in 2.78 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.16it/s]100%|██████████| 4/4 [00:00<00:00, 35.09it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 450 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #13 completed successfully in 0.80 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.85it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 319 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #14 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.07it/s]100%|██████████| 6/6 [00:00<00:00, 35.73it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2367 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #15 completed successfully in 1.03 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.11it/s]100%|██████████| 4/4 [00:00<00:00, 35.05it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 781 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #16 completed successfully in 0.82 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.33it/s]100%|██████████| 6/6 [00:00<00:00, 35.90it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 736 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #17 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (487, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.30it/s]100%|██████████| 6/6 [00:00<00:00, 35.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 487, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 487, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1115 tumor pixels out of 194800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (487, 400, 3)
+🎯 Combined prediction #18 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (552, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.36it/s]100%|██████████| 6/6 [00:00<00:00, 35.83it/s]
+   📊 nnUNet probabilities shape: (2, 1, 552, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 552, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 426 tumor pixels out of 220800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (552, 400, 3)
+🎯 Combined prediction #19 completed successfully in 2.59 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.44it/s]100%|██████████| 4/4 [00:00<00:00, 35.37it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 757 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #20 completed successfully in 1.03 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.78it/s]100%|██████████| 6/6 [00:00<00:00, 35.50it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 398 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #21 completed successfully in 0.83 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.27it/s]100%|██████████| 6/6 [00:00<00:00, 35.85it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1537 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #22 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.17it/s]100%|██████████| 4/4 [00:00<00:00, 35.12it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 920 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #23 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.30it/s]100%|██████████| 6/6 [00:00<00:00, 35.84it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3695 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #24 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.17it/s]100%|██████████| 6/6 [00:00<00:00, 35.54it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 325 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #25 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.78it/s]100%|██████████| 6/6 [00:00<00:00, 35.56it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3019 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #26 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.34it/s]100%|██████████| 6/6 [00:00<00:00, 35.74it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 119 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #27 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.26it/s]100%|██████████| 6/6 [00:00<00:00, 35.90it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9994]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.9999]
+   📊 Refined mask: 1722 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #28 completed successfully in 1.12 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.47it/s]100%|██████████| 6/6 [00:00<00:00, 35.29it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1166 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #29 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.89it/s]100%|██████████| 4/4 [00:00<00:00, 34.83it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 8340 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #30 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.11it/s]100%|██████████| 6/6 [00:00<00:00, 35.79it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 589 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #31 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.24it/s]100%|██████████| 6/6 [00:00<00:00, 35.87it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 698 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #32 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (946, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.44it/s] 80%|████████  | 8/10 [00:00<00:00, 35.69it/s]100%|██████████| 10/10 [00:00<00:00, 35.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 946, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 946, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 362 tumor pixels out of 378400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (946, 400, 3)
+🎯 Combined prediction #33 completed successfully in 2.76 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.13it/s]100%|██████████| 4/4 [00:00<00:00, 35.08it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 591 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #34 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.86it/s]100%|██████████| 4/4 [00:00<00:00, 34.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2533 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #35 completed successfully in 0.78 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (826, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 35.09it/s] 80%|████████  | 8/10 [00:00<00:00, 36.50it/s]100%|██████████| 10/10 [00:00<00:00, 36.51it/s]
+   📊 nnUNet probabilities shape: (2, 1, 826, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 826, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 244 tumor pixels out of 330400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (826, 400, 3)
+🎯 Combined prediction #36 completed successfully in 2.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.63it/s]100%|██████████| 6/6 [00:00<00:00, 36.15it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 648 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #37 completed successfully in 1.07 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.28it/s]100%|██████████| 6/6 [00:00<00:00, 35.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4593 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #38 completed successfully in 0.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.11it/s]100%|██████████| 4/4 [00:00<00:00, 35.05it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3123 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #39 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.19it/s]100%|██████████| 4/4 [00:00<00:00, 35.13it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9990]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.9999]
+   📊 Refined mask: 983 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #40 completed successfully in 0.79 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.88it/s] 80%|████████  | 8/10 [00:00<00:00, 36.35it/s]100%|██████████| 10/10 [00:00<00:00, 36.38it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2169 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #41 completed successfully in 2.80 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.34it/s]100%|██████████| 4/4 [00:00<00:00, 35.28it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1853 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #42 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (502, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.40it/s]100%|██████████| 6/6 [00:00<00:00, 35.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 502, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 502, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 921 tumor pixels out of 200800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (502, 400, 3)
+🎯 Combined prediction #43 completed successfully in 2.39 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.43it/s]100%|██████████| 6/6 [00:00<00:00, 35.95it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3355 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #44 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.37it/s]100%|██████████| 6/6 [00:00<00:00, 35.98it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 292 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #45 completed successfully in 0.93 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.86it/s]100%|██████████| 6/6 [00:00<00:00, 35.57it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3419 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #46 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.18it/s]100%|██████████| 4/4 [00:00<00:00, 35.12it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1458 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #47 completed successfully in 0.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.09it/s]100%|██████████| 6/6 [00:00<00:00, 35.75it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9999]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 332 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #48 completed successfully in 1.08 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.26it/s]100%|██████████| 6/6 [00:00<00:00, 35.86it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1211 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #49 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.88it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4567 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #50 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (466, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.23it/s]100%|██████████| 4/4 [00:00<00:00, 35.17it/s]
+   📊 nnUNet probabilities shape: (2, 1, 466, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 466, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 252 tumor pixels out of 186400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (466, 400, 3)
+🎯 Combined prediction #51 completed successfully in 2.30 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.79it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1809 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #52 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.39it/s]100%|██████████| 6/6 [00:00<00:00, 36.03it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3492 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #53 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.25it/s]100%|██████████| 6/6 [00:00<00:00, 35.95it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 296 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #54 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.07it/s]100%|██████████| 4/4 [00:00<00:00, 35.01it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0110]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #55 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.44it/s]100%|██████████| 6/6 [00:00<00:00, 35.23it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9980]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 656 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #56 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.24it/s]100%|██████████| 6/6 [00:00<00:00, 35.85it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 448 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #57 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (804, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.87it/s] 80%|████████  | 8/10 [00:00<00:00, 36.30it/s]100%|██████████| 10/10 [00:00<00:00, 36.35it/s]
+   📊 nnUNet probabilities shape: (2, 1, 804, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 804, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4855 tumor pixels out of 321600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (804, 400, 3)
+🎯 Combined prediction #58 completed successfully in 1.28 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.49it/s] 80%|████████  | 8/10 [00:00<00:00, 36.16it/s]100%|██████████| 10/10 [00:00<00:00, 36.17it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1383 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #59 completed successfully in 1.11 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (502, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.49it/s]100%|██████████| 6/6 [00:00<00:00, 35.30it/s]
+   📊 nnUNet probabilities shape: (2, 1, 502, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 502, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4005 tumor pixels out of 200800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (502, 400, 3)
+🎯 Combined prediction #60 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (928, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.60it/s] 80%|████████  | 8/10 [00:00<00:00, 36.12it/s]100%|██████████| 10/10 [00:00<00:00, 36.13it/s]
+   📊 nnUNet probabilities shape: (2, 1, 928, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 928, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 371200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (928, 400, 3)
+🎯 Combined prediction #61 completed successfully in 1.09 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.34it/s]100%|██████████| 4/4 [00:00<00:00, 34.28it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 592 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #62 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.00it/s]100%|██████████| 4/4 [00:00<00:00, 34.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4369 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #63 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.52it/s]100%|██████████| 4/4 [00:00<00:00, 34.46it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 621 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #64 completed successfully in 1.00 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (991, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/12 [00:00<?, ?it/s] 33%|███▎      | 4/12 [00:00<00:00, 34.97it/s] 67%|██████▋   | 8/12 [00:00<00:00, 36.25it/s]100%|██████████| 12/12 [00:00<00:00, 36.69it/s]100%|██████████| 12/12 [00:00<00:00, 36.41it/s]
+   📊 nnUNet probabilities shape: (2, 1, 991, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 991, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2616 tumor pixels out of 396400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (991, 400, 3)
+🎯 Combined prediction #65 completed successfully in 2.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.55it/s]100%|██████████| 4/4 [00:00<00:00, 35.50it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0002]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #66 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.40it/s]100%|██████████| 6/6 [00:00<00:00, 36.02it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 964 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #67 completed successfully in 1.04 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.68it/s]100%|██████████| 6/6 [00:00<00:00, 35.34it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 6973 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #68 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.57it/s]100%|██████████| 4/4 [00:00<00:00, 34.51it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1156 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #69 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.53it/s]100%|██████████| 6/6 [00:00<00:00, 35.32it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0293]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0001]
+   📊 Refined mask: 0 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #70 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.97it/s]100%|██████████| 4/4 [00:00<00:00, 34.91it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 553 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #71 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.75it/s]100%|██████████| 6/6 [00:00<00:00, 35.52it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1225 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #72 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.44it/s]100%|██████████| 6/6 [00:00<00:00, 36.02it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1207 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #73 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.32it/s]100%|██████████| 4/4 [00:00<00:00, 35.26it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 930 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #74 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.47it/s]100%|██████████| 6/6 [00:00<00:00, 35.95it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 461 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #75 completed successfully in 1.00 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.35it/s]100%|██████████| 6/6 [00:00<00:00, 35.97it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 820 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #76 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.98it/s]100%|██████████| 6/6 [00:00<00:00, 35.69it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2037 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #77 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.49it/s]100%|██████████| 4/4 [00:00<00:00, 35.43it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3598 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #78 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.34it/s]100%|██████████| 6/6 [00:00<00:00, 35.97it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2246 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #79 completed successfully in 0.93 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.88it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2644 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #80 completed successfully in 1.14 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.96it/s]100%|██████████| 6/6 [00:00<00:00, 35.63it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1572 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #81 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.94it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3530 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #82 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (463, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.30it/s]100%|██████████| 4/4 [00:00<00:00, 35.25it/s]
+   📊 nnUNet probabilities shape: (2, 1, 463, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 463, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 699 tumor pixels out of 185200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (463, 400, 3)
+🎯 Combined prediction #83 completed successfully in 2.53 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.65it/s]100%|██████████| 6/6 [00:00<00:00, 36.17it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 101 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #84 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.25it/s]100%|██████████| 4/4 [00:00<00:00, 35.19it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2631 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #85 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.13it/s]100%|██████████| 6/6 [00:00<00:00, 35.82it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 921 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #86 completed successfully in 0.93 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (363, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.03it/s]100%|██████████| 4/4 [00:00<00:00, 34.97it/s]
+   📊 nnUNet probabilities shape: (2, 1, 363, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9999]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 363, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1234 tumor pixels out of 145200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (363, 400, 3)
+🎯 Combined prediction #87 completed successfully in 2.41 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 32.95it/s]100%|██████████| 6/6 [00:00<00:00, 34.33it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2590 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #88 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.91it/s]100%|██████████| 4/4 [00:00<00:00, 34.85it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 865 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #89 completed successfully in 0.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.08it/s]100%|██████████| 6/6 [00:00<00:00, 35.71it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 287 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #90 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.05it/s]100%|██████████| 6/6 [00:00<00:00, 35.77it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9991]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 193 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #91 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.34it/s]100%|██████████| 6/6 [00:00<00:00, 35.95it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1394 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #92 completed successfully in 0.84 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 35.09it/s] 80%|████████  | 8/10 [00:00<00:00, 36.39it/s]100%|██████████| 10/10 [00:00<00:00, 36.37it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 520 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #93 completed successfully in 1.20 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.16it/s]100%|██████████| 4/4 [00:00<00:00, 35.10it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1354 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #94 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.48it/s]100%|██████████| 4/4 [00:00<00:00, 35.42it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 174 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #95 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.05it/s]100%|██████████| 6/6 [00:00<00:00, 35.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 546 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #96 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.32it/s]100%|██████████| 4/4 [00:00<00:00, 35.26it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 988 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #97 completed successfully in 0.75 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.55it/s]100%|██████████| 4/4 [00:00<00:00, 35.49it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9996]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1072 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #98 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.34it/s]100%|██████████| 4/4 [00:00<00:00, 35.27it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1869 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #99 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.52it/s]100%|██████████| 4/4 [00:00<00:00, 34.46it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 669 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #100 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.30it/s]100%|██████████| 4/4 [00:00<00:00, 35.24it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9981]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.9999]
+   📊 Refined mask: 554 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #101 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (676, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/8 [00:00<?, ?it/s] 50%|█████     | 4/8 [00:00<00:00, 35.09it/s]100%|██████████| 8/8 [00:00<00:00, 36.48it/s]100%|██████████| 8/8 [00:00<00:00, 36.24it/s]
+   📊 nnUNet probabilities shape: (2, 1, 676, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 676, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1574 tumor pixels out of 270400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (676, 400, 3)
+🎯 Combined prediction #102 completed successfully in 2.56 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.86it/s]100%|██████████| 4/4 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1660 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #103 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.59it/s]100%|██████████| 4/4 [00:00<00:00, 35.52it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2688 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #104 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.87it/s]100%|██████████| 6/6 [00:00<00:00, 35.62it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 518 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #105 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.38it/s]100%|██████████| 4/4 [00:00<00:00, 34.32it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1653 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #106 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (864, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.12it/s] 80%|████████  | 8/10 [00:00<00:00, 35.94it/s]100%|██████████| 10/10 [00:00<00:00, 35.99it/s]
+   📊 nnUNet probabilities shape: (2, 1, 864, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 864, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 345600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (864, 400, 3)
+🎯 Combined prediction #107 completed successfully in 1.08 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.94it/s]100%|██████████| 6/6 [00:00<00:00, 35.71it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 794 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #108 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.17it/s]100%|██████████| 6/6 [00:00<00:00, 35.09it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 449 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #109 completed successfully in 0.82 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (928, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.89it/s] 80%|████████  | 8/10 [00:00<00:00, 36.22it/s]100%|██████████| 10/10 [00:00<00:00, 36.28it/s]
+   📊 nnUNet probabilities shape: (2, 1, 928, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0012]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 928, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0024]
+   📊 Refined mask: 0 tumor pixels out of 371200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (928, 400, 3)
+🎯 Combined prediction #110 completed successfully in 1.22 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.34it/s]100%|██████████| 4/4 [00:00<00:00, 34.28it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 251 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #111 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (802, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.83it/s] 80%|████████  | 8/10 [00:00<00:00, 36.16it/s]100%|██████████| 10/10 [00:00<00:00, 36.21it/s]
+   📊 nnUNet probabilities shape: (2, 1, 802, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 802, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 556 tumor pixels out of 320800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (802, 400, 3)
+🎯 Combined prediction #112 completed successfully in 1.03 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.81it/s]100%|██████████| 4/4 [00:00<00:00, 34.75it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 453 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #113 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.39it/s]100%|██████████| 6/6 [00:00<00:00, 35.96it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 317 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #114 completed successfully in 0.84 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.17it/s]100%|██████████| 6/6 [00:00<00:00, 35.86it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2404 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #115 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.04it/s]100%|██████████| 4/4 [00:00<00:00, 34.98it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 789 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #116 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.91it/s]100%|██████████| 6/6 [00:00<00:00, 35.60it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 738 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #117 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (487, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.32it/s]100%|██████████| 6/6 [00:00<00:00, 35.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 487, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 487, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1114 tumor pixels out of 194800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (487, 400, 3)
+🎯 Combined prediction #118 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (552, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.12it/s]100%|██████████| 6/6 [00:00<00:00, 35.70it/s]
+   📊 nnUNet probabilities shape: (2, 1, 552, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 552, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 429 tumor pixels out of 220800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (552, 400, 3)
+🎯 Combined prediction #119 completed successfully in 0.83 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.60it/s]100%|██████████| 4/4 [00:00<00:00, 34.54it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 761 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #120 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.20it/s]100%|██████████| 6/6 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 407 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #121 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.84it/s]100%|██████████| 6/6 [00:00<00:00, 35.47it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1541 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #122 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.77it/s]100%|██████████| 4/4 [00:00<00:00, 34.71it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 924 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #123 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.13it/s]100%|██████████| 6/6 [00:00<00:00, 35.73it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3697 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #124 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.08it/s]100%|██████████| 6/6 [00:00<00:00, 35.75it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 326 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #125 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.92it/s]100%|██████████| 6/6 [00:00<00:00, 35.61it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3051 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #126 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.16it/s]100%|██████████| 6/6 [00:00<00:00, 35.78it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 119 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #127 completed successfully in 0.87 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.31it/s]100%|██████████| 6/6 [00:00<00:00, 35.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 868 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #128 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.00it/s]100%|██████████| 6/6 [00:00<00:00, 35.64it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1167 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #129 completed successfully in 0.84 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.13it/s]100%|██████████| 4/4 [00:00<00:00, 35.07it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 8329 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #130 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.27it/s]100%|██████████| 6/6 [00:00<00:00, 35.67it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 588 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #131 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.16it/s]100%|██████████| 6/6 [00:00<00:00, 35.74it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 698 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #132 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (946, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.71it/s] 80%|████████  | 8/10 [00:00<00:00, 36.11it/s]100%|██████████| 10/10 [00:00<00:00, 36.12it/s]
+   📊 nnUNet probabilities shape: (2, 1, 946, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 946, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 362 tumor pixels out of 378400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (946, 400, 3)
+🎯 Combined prediction #133 completed successfully in 1.19 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.33it/s]100%|██████████| 4/4 [00:00<00:00, 34.27it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 596 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #134 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.19it/s]100%|██████████| 4/4 [00:00<00:00, 35.13it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2526 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #135 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (826, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 35.17it/s] 80%|████████  | 8/10 [00:00<00:00, 36.37it/s]100%|██████████| 10/10 [00:00<00:00, 36.36it/s]
+   📊 nnUNet probabilities shape: (2, 1, 826, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 826, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 248 tumor pixels out of 330400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (826, 400, 3)
+🎯 Combined prediction #136 completed successfully in 1.20 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.43it/s]100%|██████████| 6/6 [00:00<00:00, 35.26it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 651 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #137 completed successfully in 0.94 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.87it/s]100%|██████████| 6/6 [00:00<00:00, 35.65it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4576 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #138 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 33.51it/s]100%|██████████| 4/4 [00:00<00:00, 33.46it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3113 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #139 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.12it/s]100%|██████████| 4/4 [00:00<00:00, 35.05it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1351 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #140 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 35.01it/s] 80%|████████  | 8/10 [00:00<00:00, 36.31it/s]100%|██████████| 10/10 [00:00<00:00, 36.33it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2182 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #141 completed successfully in 1.13 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.52it/s]100%|██████████| 4/4 [00:00<00:00, 34.47it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1856 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #142 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (502, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 33.22it/s]100%|██████████| 6/6 [00:00<00:00, 34.21it/s]
+   📊 nnUNet probabilities shape: (2, 1, 502, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 502, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 921 tumor pixels out of 200800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (502, 400, 3)
+🎯 Combined prediction #143 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.24it/s]100%|██████████| 6/6 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3352 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #144 completed successfully in 1.00 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.18it/s]100%|██████████| 6/6 [00:00<00:00, 35.79it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 295 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #145 completed successfully in 0.93 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.29it/s]100%|██████████| 6/6 [00:00<00:00, 35.83it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3418 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #146 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.47it/s]100%|██████████| 4/4 [00:00<00:00, 35.41it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1429 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #147 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.14it/s]100%|██████████| 6/6 [00:00<00:00, 35.76it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9999]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 335 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #148 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.17it/s]100%|██████████| 6/6 [00:00<00:00, 35.75it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1231 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #149 completed successfully in 1.08 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.04it/s]100%|██████████| 6/6 [00:00<00:00, 35.67it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4605 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #150 completed successfully in 0.84 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (466, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 32.73it/s]100%|██████████| 4/4 [00:00<00:00, 32.68it/s]
+   📊 nnUNet probabilities shape: (2, 1, 466, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 466, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 249 tumor pixels out of 186400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (466, 400, 3)
+🎯 Combined prediction #151 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.12it/s]100%|██████████| 6/6 [00:00<00:00, 35.71it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1809 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #152 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.04it/s]100%|██████████| 6/6 [00:00<00:00, 35.70it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3465 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #153 completed successfully in 0.83 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.33it/s]100%|██████████| 6/6 [00:00<00:00, 35.94it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 294 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #154 completed successfully in 1.07 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.86it/s]100%|██████████| 4/4 [00:00<00:00, 34.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0109]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #155 completed successfully in 0.77 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.33it/s]100%|██████████| 6/6 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1842 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #156 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.21it/s]100%|██████████| 6/6 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 454 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #157 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (804, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.57it/s] 80%|████████  | 8/10 [00:00<00:00, 36.13it/s]100%|██████████| 10/10 [00:00<00:00, 36.19it/s]
+   📊 nnUNet probabilities shape: (2, 1, 804, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 804, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4849 tumor pixels out of 321600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (804, 400, 3)
+🎯 Combined prediction #158 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 32.88it/s] 80%|████████  | 8/10 [00:00<00:00, 35.27it/s]100%|██████████| 10/10 [00:00<00:00, 35.27it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1383 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #159 completed successfully in 1.12 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (502, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.81it/s]100%|██████████| 6/6 [00:00<00:00, 35.53it/s]
+   📊 nnUNet probabilities shape: (2, 1, 502, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 502, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4002 tumor pixels out of 200800 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (502, 400, 3)
+🎯 Combined prediction #160 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (928, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.73it/s] 80%|████████  | 8/10 [00:00<00:00, 36.37it/s]100%|██████████| 10/10 [00:00<00:00, 36.40it/s]
+   📊 nnUNet probabilities shape: (2, 1, 928, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 928, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 371200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (928, 400, 3)
+🎯 Combined prediction #161 completed successfully in 1.06 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.81it/s]100%|██████████| 4/4 [00:00<00:00, 34.76it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 588 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #162 completed successfully in 0.83 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.20it/s]100%|██████████| 4/4 [00:00<00:00, 35.14it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 4397 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #163 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.38it/s]100%|██████████| 4/4 [00:00<00:00, 35.32it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 633 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #164 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (991, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/12 [00:00<?, ?it/s] 33%|███▎      | 4/12 [00:00<00:00, 35.05it/s] 67%|██████▋   | 8/12 [00:00<00:00, 36.35it/s]100%|██████████| 12/12 [00:00<00:00, 36.87it/s]100%|██████████| 12/12 [00:00<00:00, 36.57it/s]
+   📊 nnUNet probabilities shape: (2, 1, 991, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 991, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2618 tumor pixels out of 396400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (991, 400, 3)
+🎯 Combined prediction #165 completed successfully in 1.22 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.37it/s]100%|██████████| 4/4 [00:00<00:00, 34.31it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0002]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0000]
+   📊 Refined mask: 0 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #166 completed successfully in 0.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.26it/s]100%|██████████| 6/6 [00:00<00:00, 35.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 964 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #167 completed successfully in 0.98 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.31it/s]100%|██████████| 6/6 [00:00<00:00, 35.91it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 7074 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #168 completed successfully in 0.95 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.14it/s]100%|██████████| 4/4 [00:00<00:00, 35.08it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1173 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #169 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.08it/s]100%|██████████| 6/6 [00:00<00:00, 35.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.0293]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 0.0001]
+   📊 Refined mask: 0 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #170 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.14it/s]100%|██████████| 4/4 [00:00<00:00, 34.08it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 557 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #171 completed successfully in 0.77 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.56it/s]100%|██████████| 6/6 [00:00<00:00, 35.37it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1234 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #172 completed successfully in 0.99 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.72it/s]100%|██████████| 6/6 [00:00<00:00, 35.49it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1238 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #173 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.50it/s]100%|██████████| 4/4 [00:00<00:00, 35.44it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 930 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #174 completed successfully in 1.04 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.04it/s]100%|██████████| 6/6 [00:00<00:00, 35.67it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 461 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #175 completed successfully in 0.91 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.37it/s]100%|██████████| 6/6 [00:00<00:00, 35.98it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 818 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #176 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.13it/s]100%|██████████| 6/6 [00:00<00:00, 35.81it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2048 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #177 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.99it/s]100%|██████████| 4/4 [00:00<00:00, 34.93it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3611 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #178 completed successfully in 0.92 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 34.55it/s]100%|██████████| 6/6 [00:00<00:00, 35.31it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2239 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #179 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.25it/s]100%|██████████| 6/6 [00:00<00:00, 35.90it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2651 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #180 completed successfully in 1.02 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.39it/s]100%|██████████| 6/6 [00:00<00:00, 36.02it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1570 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #181 completed successfully in 1.09 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.10it/s]100%|██████████| 6/6 [00:00<00:00, 35.77it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 3628 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #182 completed successfully in 1.60 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (463, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.47it/s]100%|██████████| 4/4 [00:00<00:00, 35.41it/s]
+   📊 nnUNet probabilities shape: (2, 1, 463, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 463, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 703 tumor pixels out of 185200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (463, 400, 3)
+🎯 Combined prediction #183 completed successfully in 0.80 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.26it/s]100%|██████████| 6/6 [00:00<00:00, 35.89it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 109 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #184 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.46it/s]100%|██████████| 4/4 [00:00<00:00, 35.40it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2626 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #185 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.23it/s]100%|██████████| 6/6 [00:00<00:00, 35.85it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 926 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #186 completed successfully in 0.85 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (363, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.06it/s]100%|██████████| 4/4 [00:00<00:00, 35.00it/s]
+   📊 nnUNet probabilities shape: (2, 1, 363, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 363, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1272 tumor pixels out of 145200 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (363, 400, 3)
+🎯 Combined prediction #187 completed successfully in 0.90 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.59it/s]100%|██████████| 6/6 [00:00<00:00, 36.09it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 2586 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #188 completed successfully in 1.01 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.08it/s]100%|██████████| 4/4 [00:00<00:00, 35.02it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 192 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #189 completed successfully in 0.86 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.17it/s]100%|██████████| 6/6 [00:00<00:00, 35.80it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 294 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #190 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.32it/s]100%|██████████| 6/6 [00:00<00:00, 35.89it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 0.9992]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 193 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #191 completed successfully in 0.97 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.32it/s]100%|██████████| 6/6 [00:00<00:00, 35.97it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1411 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #192 completed successfully in 1.08 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (865, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/10 [00:00<?, ?it/s] 40%|████      | 4/10 [00:00<00:00, 34.97it/s] 80%|████████  | 8/10 [00:00<00:00, 36.40it/s]100%|██████████| 10/10 [00:00<00:00, 36.40it/s]
+   📊 nnUNet probabilities shape: (2, 1, 865, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 865, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 530 tumor pixels out of 346000 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (865, 400, 3)
+🎯 Combined prediction #193 completed successfully in 1.06 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.43it/s]100%|██████████| 4/4 [00:00<00:00, 34.37it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1359 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #194 completed successfully in 0.88 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.32it/s]100%|██████████| 4/4 [00:00<00:00, 35.25it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 182 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #195 completed successfully in 0.89 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (489, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/6 [00:00<?, ?it/s] 67%|██████▋   | 4/6 [00:00<00:00, 35.61it/s]100%|██████████| 6/6 [00:00<00:00, 36.14it/s]
+   📊 nnUNet probabilities shape: (2, 1, 489, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 489, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 555 tumor pixels out of 195600 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (489, 400, 3)
+🎯 Combined prediction #196 completed successfully in 0.96 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.09it/s]100%|██████████| 4/4 [00:00<00:00, 35.03it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 988 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #197 completed successfully in 0.87 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 34.83it/s]100%|██████████| 4/4 [00:00<00:00, 34.77it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1113 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #198 completed successfully in 0.83 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.23it/s]100%|██████████| 4/4 [00:00<00:00, 35.16it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1873 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #199 completed successfully in 1.06 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.21it/s]100%|██████████| 4/4 [00:00<00:00, 35.15it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 670 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #200 completed successfully in 0.84 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (426, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/4 [00:00<?, ?it/s]100%|██████████| 4/4 [00:00<00:00, 35.11it/s]100%|██████████| 4/4 [00:00<00:00, 35.05it/s]
+   📊 nnUNet probabilities shape: (2, 1, 426, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 426, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 214 tumor pixels out of 170400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (426, 400, 3)
+🎯 Combined prediction #201 completed successfully in 0.81 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+🔍 Processing image with shape: (676, 400, 3)
+🧠 Step 1: Running nnUNet v2 prediction...
+  0%|          | 0/8 [00:00<?, ?it/s] 50%|█████     | 4/8 [00:00<00:00, 34.87it/s]100%|██████████| 8/8 [00:00<00:00, 36.15it/s]100%|██████████| 8/8 [00:00<00:00, 35.92it/s]
+   📊 nnUNet probabilities shape: (2, 1, 676, 400)
+   📊 Tumor probabilities range: [0.0000, 1.0000]
+🔧 Step 2: Generating refiner features...
+   📊 Refiner features shape: (6, 676, 400)
+🔬 Step 3: Running Refiner model...
+   📊 Refined probabilities range: [0.0000, 1.0000]
+   📊 Refined mask: 1573 tumor pixels out of 270400 total
+📦 Step 4: Preparing output...
+   ✅ Final output shape: (676, 400, 3)
+🎯 Combined prediction #202 completed successfully in 1.10 seconds
+   🧠 nnUNet → 🔬 Refiner → 📋 Final binary mask
+INFO:     168.61.101.143:0 - "POST /predict HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2661554]

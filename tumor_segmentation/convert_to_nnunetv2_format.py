@@ -17,6 +17,7 @@ Based on nnUNet v2 documentation requirements:
 import os
 import json
 import shutil
+import argparse
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -98,6 +99,8 @@ def convert_dataset_to_nnunetv2_format(
     patients_img_dir = Path(source_data_dir) / "patients" / "imgs"
     patients_label_dir = Path(source_data_dir) / "patients" / "labels"
     controls_img_dir = Path(source_data_dir) / "controls" / "imgs"
+    controls_tumor_img_dir = Path(source_data_dir) / "controls_tumor" / "imgs"
+    controls_tumor_label_dir = Path(source_data_dir) / "controls_tumor" / "labels"
 
     # Check if source directories exist
     if not patients_img_dir.exists():
@@ -106,6 +109,13 @@ def convert_dataset_to_nnunetv2_format(
         raise ValueError(f"Patients labels directory not found: {patients_label_dir}")
     if not controls_img_dir.exists():
         raise ValueError(f"Controls images directory not found: {controls_img_dir}")
+    
+    # Check for optional synthetic tumor dataset
+    has_synthetic_tumors = controls_tumor_img_dir.exists() and controls_tumor_label_dir.exists()
+    if has_synthetic_tumors:
+        print(f"   ✅ Found synthetic tumor dataset: {controls_tumor_img_dir}")
+    else:
+        print(f"   ⚠️  No synthetic tumor dataset found (optional): {controls_tumor_img_dir}")
 
     # Process patient images and labels
     patient_images = list(patients_img_dir.glob("patient_*.png"))
@@ -206,8 +216,57 @@ def convert_dataset_to_nnunetv2_format(
 
         control_count += 1
 
+    # Process synthetic tumor images and labels (if available)
+    synthetic_tumor_count = 0
+    if has_synthetic_tumors:
+        synthetic_tumor_images = list(controls_tumor_img_dir.glob("*.png"))
+        print(f"   Found {len(synthetic_tumor_images)} synthetic tumor images")
+
+        for img_path in synthetic_tumor_images:
+            # Extract control number and ensure proper naming for synthetic tumors
+            control_num = img_path.stem  # control_XXX
+            
+            # Check if corresponding label exists
+            label_path = controls_tumor_label_dir / f"{control_num}.png"
+            if not label_path.exists():
+                print(f"   ⚠️  Warning: No label found for synthetic tumor {control_num}, skipping...")
+                continue
+
+            # Use controls_tumor prefix for nnUNet naming
+            synthetic_case_name = f"controls_tumor{control_num.replace('control_', '')}"
+
+            # Copy and ensure image is grayscale with nnUNet v2 naming convention
+            new_img_name = f"{synthetic_case_name}_0000.png"
+            new_img_path = images_tr_dir / new_img_name
+
+            # Read and convert to grayscale if needed
+            with Image.open(img_path) as img:
+                if img.mode != "L":
+                    img = img.convert("L")
+                img.save(new_img_path)
+
+            # Convert and save label (these are real tumor masks, not empty like controls)
+            binary_mask = convert_segmentation_to_binary(str(label_path))
+
+            new_label_name = f"{synthetic_case_name}.png"
+            new_label_path = labels_tr_dir / new_label_name
+
+            # Save binary mask as PNG - ensure values are exactly 0 and 1
+            img = Image.fromarray(binary_mask, mode="L")
+            img.save(new_label_path)
+
+            # Verify the saved image has correct values
+            saved_mask = cv2.imread(str(new_label_path), cv2.IMREAD_GRAYSCALE)
+            if saved_mask is not None:
+                # Convert any non-zero values back to 1
+                saved_mask = (saved_mask > 0).astype(np.uint8)
+                # Save again with correct values
+                Image.fromarray(saved_mask, mode="L").save(new_label_path)
+
+            synthetic_tumor_count += 1
+
     # Create dataset.json
-    total_training_cases = patient_count + control_count
+    total_training_cases = patient_count + control_count + synthetic_tumor_count
 
     dataset_json = {
         "channel_names": {
@@ -226,6 +285,8 @@ def convert_dataset_to_nnunetv2_format(
     print(f"✅ Conversion completed successfully!")
     print(f"   Patient cases: {patient_count}")
     print(f"   Control cases: {control_count}")
+    if has_synthetic_tumors:
+        print(f"   Synthetic tumor cases: {synthetic_tumor_count}")
     print(f"   Total training cases: {total_training_cases}")
     print(f"   Dataset JSON: {dataset_json_path}")
 
@@ -336,11 +397,44 @@ def main():
     print("🚀 Tumor Segmentation Dataset to nnUNet v2 Converter")
     print("=" * 60)
 
-    # Configuration
-    source_data_dir = "data"
-    output_dir = "data_nnUNet"
-    dataset_id = 1
-    dataset_name = "TumorSegmentation"
+    # CLI arguments
+    parser = argparse.ArgumentParser(
+        description=(
+            "Convert tumor segmentation dataset to nnUNet v2 format. "
+            "Use --dataset-id 2 to create Dataset002_* for nnUNet (-d 2)."
+        )
+    )
+    parser.add_argument(
+        "--source-data-dir",
+        type=str,
+        default="data",
+        help="Path to the source data directory (default: data)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data_nnUNet",
+        help="Path to the nnUNet raw/output directory (default: data_nnUNet)",
+    )
+    parser.add_argument(
+        "--dataset-id",
+        "-d",
+        type=int,
+        default=1,
+        help="Numeric dataset ID (e.g., 1 -> Dataset001_*, 2 -> Dataset002_*)",
+    )
+    parser.add_argument(
+        "--dataset-name",
+        type=str,
+        default="TumorSegmentation",
+        help="Dataset name suffix (default: TumorSegmentation)",
+    )
+
+    args = parser.parse_args()
+    source_data_dir = args.source_data_dir
+    output_dir = args.output_dir
+    dataset_id = args.dataset_id
+    dataset_name = args.dataset_name
 
     try:
         # Convert dataset

@@ -2,7 +2,7 @@ import torch
 import os
 import torch.nn as nn
 import timm
-from tumor_segmentation.models.base_model import BaseModel
+from models.base_model import BaseModel
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Only show error messages
 ON_HPC = "ON_HPC" in os.environ

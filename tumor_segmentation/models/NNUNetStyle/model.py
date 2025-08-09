@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from tumor_segmentation.models.base_model import BaseModel
+from models.base_model import BaseModel
 
 
 class NNUNetStyle(BaseModel):

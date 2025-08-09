@@ -5,7 +5,7 @@ Model Evaluation Script for Tumor Segmentation
 This script evaluates a trained tumor segmentation model on:
 1. Validation set (with ground truth) - computes standard metrics
 2. Evaluation set (without ground truth) - analyzes prediction statistics
-
+#
 Usage:
     python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/
     python evaluate_model.py --checkpoint path/to/model.ckpt --data_dir data/ --batch_size 8

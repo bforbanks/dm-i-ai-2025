@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dtos import TumorPredictRequestDto, TumorPredictResponseDto
 from utils import validate_segmentation, encode_request, decode_request
+from post_processing import filter_disconnected_tumors_3d
 
 # nnUNet v2 imports (required)
 try:
@@ -38,6 +39,9 @@ PORT = int(os.getenv("PORT", "9052"))  # Different port to avoid conflicts
 
 # Performance optimization settings
 SKIP_VALIDATION = os.getenv("SKIP_VALIDATION", "false").lower() == "true"  # Skip validation for speed
+
+# Connected component filtering settings
+ENABLE_CONNECTED_COMPONENT_FILTERING = os.getenv("ENABLE_CC_FILTERING", "true").lower() == "true"  # Filter disconnected tumors
 
 # Validation API configuration
 VALIDATION_API_URL = os.getenv("VALIDATION_API_URL", "https://cases.dmiai.dk/api/v1/usecases/tumor-segmentation/validate/queue")
@@ -77,6 +81,7 @@ print(f"  PERFORM_EVERYTHING_ON_DEVICE: {PERFORM_EVERYTHING_ON_DEVICE}")
 print(f"  VALIDATION_API_URL: {VALIDATION_API_URL}")
 print(f"  PREDICT_URL: {PREDICT_URL}")
 print(f"  SKIP_VALIDATION: {SKIP_VALIDATION}")
+print(f"  ENABLE_CONNECTED_COMPONENT_FILTERING: {ENABLE_CONNECTED_COMPONENT_FILTERING}")
 
 # Initialize the nnUNet v2 predictor in memory
 def initialize_predictor():
@@ -235,6 +240,17 @@ def save_image_for_nnunetv2(img: np.ndarray, output_path: str) -> str:
 
 @app.post("/predict", response_model=TumorPredictResponseDto)
 def predict_endpoint(request: TumorPredictRequestDto):
+    """Predict endpoint using nnUNet v2 predictor with .pth model - returns binary mask"""
+    return _predict_internal(request, return_probabilities=False)
+
+
+@app.post("/predict_with_probabilities", response_model=TumorPredictResponseDto)
+def predict_with_probabilities_endpoint(request: TumorPredictRequestDto):
+    """Predict endpoint using nnUNet v2 predictor with .pth model - returns probability maps"""
+    return _predict_internal(request, return_probabilities=True)
+
+
+def _predict_internal(request: TumorPredictRequestDto, return_probabilities: bool = False):
     """Predict endpoint using nnUNet v2 predictor with .pth model"""
     global prediction_counter, last_prediction_time
     
@@ -245,37 +261,24 @@ def predict_endpoint(request: TumorPredictRequestDto):
         raise RuntimeError("nnUNet v2 predictor is not loaded. Please check model initialization.")
     
     # Decode the request
-    decode_start = time.time()
     img: np.ndarray = decode_request(request)
-    decode_time = time.time() - decode_start
-    print(f"   ⏱️  Decode request: {decode_time:.3f}s")
     
     # Preprocess image for nnUNet v2
-    preprocess_start = time.time()
     img = preprocess_image_for_nnunetv2(img)
-    preprocess_time = time.time() - preprocess_start
-    print(f"   ⏱️  Preprocess image: {preprocess_time:.3f}s")
     
     # Create temporary directories
-    temp_start = time.time()
     temp_dir = tempfile.mkdtemp(prefix="nnunetv2_pth_")
     input_image_path = os.path.join(temp_dir, "image_0000.png")
     output_image_path = os.path.join(temp_dir, "segmentation_0000.png")
     
     # Create directories
     os.makedirs(temp_dir, exist_ok=True)
-    temp_time = time.time() - temp_start
-    print(f"   ⏱️  Create temp directories: {temp_time:.3f}s")
         
     try:
         # Save input image with proper naming for nnUNet v2
-        save_start = time.time()
         save_image_for_nnunetv2(img, input_image_path)
-        save_time = time.time() - save_start
-        print(f"   ⏱️  Save input image: {save_time:.3f}s")
         
         # Run prediction using nnUNet v2 predictor (single image, one by one as requested)
-        predict_start = time.time()
         
         # Load image using the same I/O class as training (NaturalImage2DIO)
         # This ensures proper axis ordering and properties matching the training data
@@ -284,9 +287,14 @@ def predict_endpoint(request: TumorPredictRequestDto):
         # Use the recommended single numpy array prediction method from nnUNet documentation
         # This follows the exact pattern shown in the readme for single image prediction
         # Parameters: input_image, image_properties, segmentation_previous_stage, output_file_truncated, save_or_return_probabilities
-        predicted_segmentation = predictor.predict_single_npy_array(
-            img_loaded, props, None, None, False
-        )
+        if return_probabilities:
+            predicted_segmentation, predicted_probabilities = predictor.predict_single_npy_array(
+                img_loaded, props, None, None, True
+            )
+        else:
+            predicted_segmentation = predictor.predict_single_npy_array(
+                img_loaded, props, None, None, False
+            )
         
         # Ensure we have a valid result
         if predicted_segmentation is None:
@@ -297,55 +305,90 @@ def predict_endpoint(request: TumorPredictRequestDto):
         if predicted_segmentation.ndim == 3 and predicted_segmentation.shape[0] == 1:
             predicted_segmentation = predicted_segmentation.squeeze(0)
         
-        predict_time = time.time() - predict_start
-        print(f"   ⏱️  nnUNet v2 prediction (single numpy array): {predict_time:.3f}s")
+        # Handle probability maps if requested
+        if return_probabilities:
+            print(f"   📊 Raw probability shape: {predicted_probabilities.shape}")
+            print(f"   📊 Raw probability min/max: {predicted_probabilities.min():.6f}/{predicted_probabilities.max():.6f}")
+            
+            # nnUNet returns probabilities as (num_classes, H, W) where num_classes=2 for binary segmentation
+            # We want the probability of the positive class (tumor), which is index 1
+            if predicted_probabilities.ndim == 3 and predicted_probabilities.shape[0] == 2:
+                # Take the probability of the positive class (tumor)
+                predicted_probabilities = predicted_probabilities[1]  # Shape: (H, W)
+                print(f"   📊 Selected tumor class probabilities, shape: {predicted_probabilities.shape}")
+            elif predicted_probabilities.ndim == 4 and predicted_probabilities.shape[0] == 2:
+                # Handle case where there's an extra batch dimension
+                predicted_probabilities = predicted_probabilities[1, 0]  # Shape: (H, W)
+                print(f"   📊 Selected tumor class probabilities (with batch), shape: {predicted_probabilities.shape}")
+            elif predicted_probabilities.ndim == 3 and predicted_probabilities.shape[0] == 1:
+                predicted_probabilities = predicted_probabilities.squeeze(0)
+                print(f"   📊 Squeezed probabilities, shape: {predicted_probabilities.shape}")
+            else:
+                print(f"   ⚠️  Unexpected probability shape: {predicted_probabilities.shape}")
+            
+            # For probability maps, we return the probabilities instead of binary mask
+            result_to_encode = predicted_probabilities
+        else:
+            result_to_encode = predicted_segmentation
         
-        # Convert binary values (0, 1) to 8-bit values (0, 255) for validation
-        if predicted_segmentation.max() == 1:
-            predicted_segmentation = (predicted_segmentation * 255).astype(np.uint8)
+
         
-        # CRITICAL FIX: The validation system expects the segmentation to have the same shape as the input image
+        # Handle different data types based on whether we're returning probabilities
+        if return_probabilities:
+            # For probability maps, values are already in [0,1] range, convert to 8-bit for encoding
+            if result_to_encode.max() <= 1.0:
+                result_to_encode = (result_to_encode * 255).astype(np.uint8)
+            print(f"   📊 Returning probability maps (max: {result_to_encode.max()}, min: {result_to_encode.min()})")
+        else:
+            # Convert binary values (0, 1) to 8-bit values (0, 255) for validation
+            if result_to_encode.max() == 1:
+                result_to_encode = (result_to_encode * 255).astype(np.uint8)
+            
+            # Apply connected component filtering to remove disconnected tumors (if enabled)
+            if ENABLE_CONNECTED_COMPONENT_FILTERING:
+                print("🔧 Applying connected component filtering to remove disconnected tumors...")
+                original_img = decode_request(request)  # Get original input for body detection
+                result_to_encode = filter_disconnected_tumors_3d(original_img, result_to_encode)
+                print(f"   ✅ Connected component filtering completed")
+            else:
+                print("⏭️  Connected component filtering disabled")
+        
+        # CRITICAL FIX: The validation system expects the result to have the same shape as the input image
         # The input image was RGB (H, W, 3) but we converted it to grayscale (H, W) for nnUNet
-        # We need to expand the segmentation back to (H, W, 3) to match the original input shape
+        # We need to expand the result back to (H, W, 3) to match the original input shape
         original_img_shape = decode_request(request).shape  # Get original input shape
         print(f"   📊 Original input shape: {original_img_shape}")
-        print(f"   📊 Segmentation shape before fix: {predicted_segmentation.shape}")
+        print(f"   📊 Result shape before fix: {result_to_encode.shape}")
         
-        # If the original input was RGB (3 channels), expand the segmentation to match
+        # If the original input was RGB (3 channels), expand the result to match
         if len(original_img_shape) == 3 and original_img_shape[2] == 3:
-            # Expand (H, W) to (H, W, 3) by repeating the segmentation across channels
-            predicted_segmentation = np.stack([predicted_segmentation] * 3, axis=-1)
-            print(f"   📊 Segmentation shape after fix: {predicted_segmentation.shape}")
+            # Expand (H, W) to (H, W, 3) by repeating the result across channels
+            result_to_encode = np.stack([result_to_encode] * 3, axis=-1)
+            print(f"   📊 Result shape after fix: {result_to_encode.shape}")
         
-        # Ensure the segmentation has the exact same shape as the original input
-        if predicted_segmentation.shape != original_img_shape:
-            print(f"   ⚠️  Shape mismatch! Expected {original_img_shape}, got {predicted_segmentation.shape}")
-            # Resize segmentation to match original input shape if needed
-            if len(original_img_shape) == 3 and len(predicted_segmentation.shape) == 2:
-                predicted_segmentation = np.stack([predicted_segmentation] * original_img_shape[2], axis=-1)
-            elif len(original_img_shape) == 2 and len(predicted_segmentation.shape) == 3:
-                predicted_segmentation = predicted_segmentation[:, :, 0]  # Take first channel
+        # Ensure the result has the exact same shape as the original input
+        if result_to_encode.shape != original_img_shape:
+            print(f"   ⚠️  Shape mismatch! Expected {original_img_shape}, got {result_to_encode.shape}")
+            # Resize result to match original input shape if needed
+            if len(original_img_shape) == 3 and len(result_to_encode.shape) == 2:
+                result_to_encode = np.stack([result_to_encode] * original_img_shape[2], axis=-1)
+            elif len(original_img_shape) == 2 and len(result_to_encode.shape) == 3:
+                result_to_encode = result_to_encode[:, :, 0]  # Take first channel
         
         # Final verification that shapes match
-        if predicted_segmentation.shape != original_img_shape:
-            raise RuntimeError(f"Failed to match shapes: expected {original_img_shape}, got {predicted_segmentation.shape}")
+        if result_to_encode.shape != original_img_shape:
+            raise RuntimeError(f"Failed to match shapes: expected {original_img_shape}, got {result_to_encode.shape}")
         else:
-            print(f"   ✅ Shape verification passed: {predicted_segmentation.shape}")
+            print(f"   ✅ Shape verification passed: {result_to_encode.shape}")
         
-        # Validate the segmentation (can be skipped for speed)
-        if not SKIP_VALIDATION:
-            validate_start = time.time()
+        # Validate the segmentation (can be skipped for speed, and only for binary masks)
+        if not SKIP_VALIDATION and not return_probabilities:
             # Use the original image for validation, not the preprocessed grayscale image
             original_img = decode_request(request)
-            validate_segmentation(original_img, predicted_segmentation)
-            validate_time = time.time() - validate_start
-            print(f"   ⏱️  Validate segmentation: {validate_time:.3f}s")
+            validate_segmentation(original_img, result_to_encode)
         
         # Encode the response
-        encode_start = time.time()
-        encoded_segmentation = encode_request(predicted_segmentation)
-        encode_time = time.time() - encode_start
-        print(f"   ⏱️  Encode response: {encode_time:.3f}s")
+        encoded_result = encode_request(result_to_encode)
         
         # Calculate prediction time and update counter
         prediction_end_time = time.time()
@@ -353,21 +396,13 @@ def predict_endpoint(request: TumorPredictRequestDto):
         last_prediction_time = prediction_duration
         prediction_counter += 1
         
-        print(f"🎯 Prediction #{prediction_counter} completed successfully!")
-        print(f"   Total predictions so far: {prediction_counter}")
-        print(f"   Previous prediction took: {prediction_duration:.2f} seconds")
-        print(f"   📊 Breakdown:")
-        print(f"      - Decode: {decode_time:.3f}s")
-        print(f"      - Preprocess: {preprocess_time:.3f}s")
-        print(f"      - Temp dirs: {temp_time:.3f}s")
-        print(f"      - Save image: {save_time:.3f}s")
-        print(f"      - nnUNet prediction (single numpy array): {predict_time:.3f}s")
-        if not SKIP_VALIDATION:
-            print(f"      - Validation: {validate_time:.3f}s")
-        print(f"      - Encode: {encode_time:.3f}s")
-        print(f"      - Total: {prediction_duration:.3f}s")
+        print(f"🎯 Prediction #{prediction_counter} completed successfully in {prediction_duration:.2f} seconds")
+        if return_probabilities:
+            print(f"   📊 Returned probability maps")
+        else:
+            print(f"   📊 Returned binary mask")
         
-        response = TumorPredictResponseDto(img=encoded_segmentation)
+        response = TumorPredictResponseDto(img=encoded_result)
         return response
         
     except Exception as e:
@@ -375,13 +410,10 @@ def predict_endpoint(request: TumorPredictRequestDto):
         raise RuntimeError(f"Prediction failed: {e}")
     finally:
         # Clean up temporary directory
-        cleanup_start = time.time()
         try:
             shutil.rmtree(temp_dir)
         except:
             pass
-        cleanup_time = time.time() - cleanup_start
-        print(f"   ⏱️  Cleanup temp dir: {cleanup_time:.3f}s")
 
 
 @app.post("/queue-validation")

@@ -1,0 +1,11 @@
+{
+  "channel_names": {
+    "0": "PET"
+  },
+  "labels": {
+    "background": 0,
+    "tumor": 1
+  },
+  "numTraining": 1460,
+  "file_ending": ".png"
+}

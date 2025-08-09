@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from tumor_segmentation.models.base_model import BaseModel
+from models.base_model import BaseModel
 import math
 import os
 from typing import Optional, Tuple, List

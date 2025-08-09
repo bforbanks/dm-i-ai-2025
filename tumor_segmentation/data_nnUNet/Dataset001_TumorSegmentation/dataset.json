@@ -6,6 +6,6 @@
     "background": 0,
     "tumor": 1
   },
-  "numTraining": 608,
+  "numTraining": 1034,
   "file_ending": ".png"
 }

@@ -1,0 +1,22 @@
+t=2025-08-08T13:04:25+0200 lvl=info msg="no configuration paths supplied"
+t=2025-08-08T13:04:25+0200 lvl=info msg="using configuration at default config path" path=/zhome/4b/5/187216/.config/ngrok/ngrok.yml
+t=2025-08-08T13:04:25+0200 lvl=info msg="open config file" path=/zhome/4b/5/187216/.config/ngrok/ngrok.yml err=nil
+t=2025-08-08T13:04:25+0200 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040 allow_hosts=[]
+t=2025-08-08T13:04:25+0200 lvl=info msg="client session established" obj=tunnels.session
+t=2025-08-08T13:04:25+0200 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2025-08-08T13:04:25+0200 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:9052 url=https://fea93853bf61.ngrok-free.app
+t=2025-08-08T13:04:25+0200 lvl=info msg="update available" obj=updater
+t=2025-08-08T13:05:14+0200 lvl=info msg="join connections" obj=join id=5b03be63e2d2 l=127.0.0.1:9052 r=168.61.101.143:46928
+t=2025-08-08T13:05:25+0200 lvl=info msg="join connections" obj=join id=424a9ba3e6e0 l=127.0.0.1:9052 r=168.61.101.143:34436
+t=2025-08-08T13:25:14+0200 lvl=info msg="join connections" obj=join id=f21ca16f65d4 l=127.0.0.1:9052 r=168.61.101.143:54024
+t=2025-08-08T13:25:19+0200 lvl=info msg="join connections" obj=join id=9e413cee5ac0 l=127.0.0.1:9052 r=168.61.101.143:56602
+t=2025-08-08T13:25:45+0200 lvl=info msg="join connections" obj=join id=c822f8a99419 l=127.0.0.1:9052 r=168.61.101.143:41342
+t=2025-08-08T13:41:52+0200 lvl=info msg="join connections" obj=join id=94ddbe57ac7f l=127.0.0.1:9052 r=168.61.101.143:49714
+t=2025-08-08T13:41:59+0200 lvl=info msg="join connections" obj=join id=d011e49b8fa5 l=127.0.0.1:9052 r=168.61.101.143:53730
+t=2025-08-08T13:49:13+0200 lvl=info msg="join connections" obj=join id=421845966c46 l=127.0.0.1:9052 r=168.61.101.143:51556
+t=2025-08-08T13:49:17+0200 lvl=info msg="join connections" obj=join id=0f7c23f3e0bf l=127.0.0.1:9052 r=168.61.101.143:60996
+t=2025-08-08T13:54:50+0200 lvl=info msg="join connections" obj=join id=e50b665ec7c9 l=127.0.0.1:9052 r=168.61.101.143:37908
+t=2025-08-08T13:54:57+0200 lvl=info msg="join connections" obj=join id=bb07b3d0518f l=127.0.0.1:9052 r=168.61.101.143:46810
+t=2025-08-08T19:04:26+0200 lvl=info msg="update available" obj=updater
+t=2025-08-09T01:04:27+0200 lvl=info msg="update available" obj=updater
+t=2025-08-09T07:04:27+0200 lvl=info msg="update available" obj=updater

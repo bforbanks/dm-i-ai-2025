@@ -235,8 +235,8 @@ class BaseModel(pl.LightningModule):
             target_sample = target[i]  # [1, H, W]
 
             # Flatten predictions and targets for this sample
-            pred_flat = pred_sample.view(-1)
-            target_flat = target_sample.view(-1)
+            pred_flat = pred_sample.reshape(-1)
+            target_flat = target_sample.reshape(-1)
 
             # Calculate intersection and sum of cardinalities
             # intersection = TP, pred_sum = TP + FP, target_sum = TP + FN

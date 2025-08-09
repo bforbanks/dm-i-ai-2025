@@ -18,7 +18,7 @@ try:
 except ImportError as e:
     raise ImportError(f"nnUNet v2 is required for NNUNetV2Style model. Please install nnunetv2: {e}")
 
-from tumor_segmentation.models.base_model import BaseModel
+from models.base_model import BaseModel
 
 
 class NNUNetV2Style(BaseModel):

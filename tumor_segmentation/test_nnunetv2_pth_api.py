@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 # API configuration
-API_URL = "http://localhost:9052"
+API_URL = "http://localhost:9052"  # Combined nnUNet + Refiner API
 HEALTH_ENDPOINT = f"{API_URL}/health"
 PREDICT_ENDPOINT = f"{API_URL}/predict"
 

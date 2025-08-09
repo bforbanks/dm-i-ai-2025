@@ -1,0 +1,5208 @@
+{
+    "dataset_name": "Dataset001_TumorSegmentation",
+    "plans_name": "nnUNetResEncUNetMPlans",
+    "original_median_spacing_after_transp": [
+        999.0,
+        1.0,
+        1.0
+    ],
+    "original_median_shape_after_transp": [
+        1,
+        489,
+        400
+    ],
+    "image_reader_writer": "NaturalImage2DIO",
+    "transpose_forward": [
+        0,
+        1,
+        2
+    ],
+    "transpose_backward": [
+        0,
+        1,
+        2
+    ],
+    "configurations": {
+        "2d": {
+            "data_identifier": "nnUNetPlans_2d",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 14,
+            "patch_size": [
+                512,
+                448
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "resampling_fn_data": "resample_data_or_seg_to_shape",
+            "resampling_fn_seg": "resample_data_or_seg_to_shape",
+            "resampling_fn_data_kwargs": {
+                "is_seg": false,
+                "order": 3,
+                "order_z": 0,
+                "force_separate_z": null
+            },
+            "resampling_fn_seg_kwargs": {
+                "is_seg": true,
+                "order": 1,
+                "order_z": 0,
+                "force_separate_z": null
+            },
+            "resampling_fn_probabilities": "resample_data_or_seg_to_shape",
+            "resampling_fn_probabilities_kwargs": {
+                "is_seg": false,
+                "order": 1,
+                "order_z": 0,
+                "force_separate_z": null
+            },
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        320
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        320
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-standard": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-standard",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-resample-autotile": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-resample-autotile",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                512,
+                448
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "batch_dice": true,
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        4
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "data_augmentation": {
+                "rotation": {
+                    "probability": 0.3,
+                    "range": [
+                        -15,
+                        15
+                    ]
+                },
+                "scaling": {
+                    "probability": 0.3,
+                    "range": [
+                        0.65,
+                        1.6
+                    ]
+                },
+                "elastic_deformation": {
+                    "probability": 0.3
+                },
+                "brightness": {
+                    "probability": 0.3
+                },
+                "gamma": {
+                    "probability": 0.5,
+                    "range": [
+                        0.7,
+                        1.5
+                    ]
+                },
+                "mirror": {
+                    "probability": 0.5
+                }
+            },
+            "weight_decay": 1e-05,
+            "overfitting_prevention": {
+                "data_augmentation": {
+                    "rotation": {
+                        "probability": 0.3,
+                        "range": [
+                            -15,
+                            15
+                        ]
+                    },
+                    "scaling": {
+                        "probability": 0.3,
+                        "range": [
+                            0.65,
+                            1.6
+                        ]
+                    },
+                    "elastic_deformation": {
+                        "probability": 0.3
+                    },
+                    "brightness": {
+                        "probability": 0.3
+                    },
+                    "gamma": {
+                        "probability": 0.5,
+                        "range": [
+                            0.7,
+                            1.5
+                        ]
+                    },
+                    "mirror": {
+                        "probability": 0.5
+                    }
+                },
+                "weight_decay": 1e-05,
+                "instance_normalization": true,
+                "dropout_replacement": "none",
+                "cross_validation": true,
+                "mixed_precision": true,
+                "deterministic": true
+            }
+        },
+        "CV-conservative-resample-autotile": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-resample-autotile",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                512,
+                448
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "batch_dice": true,
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        320
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "data_augmentation": {
+                "rotation": {
+                    "probability": 0.3,
+                    "range": [
+                        -15,
+                        15
+                    ]
+                },
+                "scaling": {
+                    "probability": 0.3,
+                    "range": [
+                        0.65,
+                        1.6
+                    ]
+                },
+                "elastic_deformation": {
+                    "probability": 0.3
+                },
+                "brightness": {
+                    "probability": 0.3
+                },
+                "gamma": {
+                    "probability": 0.5,
+                    "range": [
+                        0.7,
+                        1.5
+                    ]
+                },
+                "mirror": {
+                    "probability": 0.5
+                }
+            },
+            "weight_decay": 1e-05,
+            "overfitting_prevention": {
+                "data_augmentation": {
+                    "rotation": {
+                        "probability": 0.3,
+                        "range": [
+                            -15,
+                            15
+                        ]
+                    },
+                    "scaling": {
+                        "probability": 0.3,
+                        "range": [
+                            0.65,
+                            1.6
+                        ]
+                    },
+                    "elastic_deformation": {
+                        "probability": 0.3
+                    },
+                    "brightness": {
+                        "probability": 0.3
+                    },
+                    "gamma": {
+                        "probability": 0.5,
+                        "range": [
+                            0.7,
+                            1.5
+                        ]
+                    },
+                    "mirror": {
+                        "probability": 0.5
+                    }
+                },
+                "weight_decay": 1e-05,
+                "instance_normalization": true,
+                "dropout_replacement": "none",
+                "cross_validation": true,
+                "mixed_precision": true,
+                "deterministic": true
+            }
+        },
+        "CV-standard-resample-autotile": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-standard-resample-autotile",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                512,
+                448
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "batch_dice": true,
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "data_augmentation": {
+                "rotation": {
+                    "probability": 0.3,
+                    "range": [
+                        -15,
+                        15
+                    ]
+                },
+                "scaling": {
+                    "probability": 0.3,
+                    "range": [
+                        0.65,
+                        1.6
+                    ]
+                },
+                "elastic_deformation": {
+                    "probability": 0.3
+                },
+                "brightness": {
+                    "probability": 0.3
+                },
+                "gamma": {
+                    "probability": 0.5,
+                    "range": [
+                        0.7,
+                        1.5
+                    ]
+                },
+                "mirror": {
+                    "probability": 0.5
+                }
+            },
+            "weight_decay": 1e-05,
+            "overfitting_prevention": {
+                "data_augmentation": {
+                    "rotation": {
+                        "probability": 0.3,
+                        "range": [
+                            -15,
+                            15
+                        ]
+                    },
+                    "scaling": {
+                        "probability": 0.3,
+                        "range": [
+                            0.65,
+                            1.6
+                        ]
+                    },
+                    "elastic_deformation": {
+                        "probability": 0.3
+                    },
+                    "brightness": {
+                        "probability": 0.3
+                    },
+                    "gamma": {
+                        "probability": 0.5,
+                        "range": [
+                            0.7,
+                            1.5
+                        ]
+                    },
+                    "mirror": {
+                        "probability": 0.5
+                    }
+                },
+                "weight_decay": 1e-05,
+                "instance_normalization": true,
+                "dropout_replacement": "none",
+                "cross_validation": true,
+                "mixed_precision": true,
+                "deterministic": true
+            }
+        },
+        "CV-reduced-custom": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 4,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                true
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": "torch.nn.modules.dropout.Dropout2d",
+                    "dropout_op_kwargs": {
+                        "p": 0.2
+                    },
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true,
+            "weight_decay": 0.001,
+            "loss_function": {
+                "name": "gdl_focal",
+                "alpha": 0.5,
+                "gamma": 2.0
+            },
+            "optimizer": {
+                "name": "SGD",
+                "lr": 0.0001,
+                "momentum": 0.99,
+                "lr_policy": "poly",
+                "poly_power": 0.9
+            },
+            "data_augmentation": {
+                "rotation": {
+                    "probability": 0.6,
+                    "range": [
+                        -10,
+                        10
+                    ]
+                },
+                "scaling": {
+                    "probability": 0.6,
+                    "range": [
+                        0.6,
+                        1.8
+                    ]
+                },
+                "elastic_deformation": {
+                    "probability": 0.5
+                },
+                "brightness": {
+                    "probability": 0.5
+                },
+                "gamma": {
+                    "probability": 0.7,
+                    "range": [
+                        0.7,
+                        1.5
+                    ]
+                },
+                "mirror": {
+                    "probability": 0.5
+                },
+                "gaussian_noise": {
+                    "probability": 0.5,
+                    "var_range": [
+                        0,
+                        0.05
+                    ]
+                }
+            }
+        },
+        "CV-reduced-custom2": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom2",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                64,
+                64
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-64x64": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-64x64",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                64,
+                64
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-128x128": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-128x128",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                128,
+                128
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-256x256": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-256x256",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-32x32": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-32x32",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                64,
+                64
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-85pat": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-85pat",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                64,
+                64
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-85pat-v2": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-85pat-v2",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-synthetic-100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-synthetic-100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-standard-synthetic-100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-standard-synthetic-100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-synthetic-100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-synthetic-100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-synthetic-075-noise": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-synthetic-075-noise",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-reduced-custom-synthetic-075-noise-20": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-reduced-custom-synthetic-075-noise-20",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-005": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-005",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-010": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-010",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-015": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-015",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-020": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-020",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-040": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-040",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "CV-conservative-custom-synthetic-075-noise-040-singleVal": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_CV-conservative-custom-synthetic-075-noise-040-singleVal",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                320,
+                320
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-singleval-synth100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-singleval-synth100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-singleval-synth35": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-singleval-synth35",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-singleval-synth10": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-singleval-synth10",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-singleval-ctrl30": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-singleval-ctrl30",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-CV-synth100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-CV-synth100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-CV-synth035": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-CV-synth035",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-CV-synth010": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-CV-synth010",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "Standard-CV-ctrl30": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_Standard-CV-ctrl30",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "reducedcustom-singleval-ctrl30": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_reducedcustom-singleval-ctrl30",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "reducedcustom-singleval-synth100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_reducedcustom-singleval-synth100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 5,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "standard-crosval-synth100": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_standard-crosval-synth100",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                256,
+                256
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 7,
+                    "features_per_stage": [
+                        32,
+                        64,
+                        128,
+                        256,
+                        512,
+                        512,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        3,
+                        4,
+                        6,
+                        6,
+                        6,
+                        6
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        },
+        "conservative-custom-singleval-synth050": {
+            "inherits_from": "2d",
+            "data_identifier": "nnUNetPlans_conservative-custom-singleval-synth050",
+            "preprocessor_name": "DefaultPreprocessor",
+            "batch_size": 8,
+            "patch_size": [
+                384,
+                384
+            ],
+            "median_image_size_in_voxels": [
+                489.0,
+                400.0
+            ],
+            "spacing": [
+                1.0,
+                1.0
+            ],
+            "normalization_schemes": [
+                "ZScoreNormalization"
+            ],
+            "use_mask_for_norm": [
+                false
+            ],
+            "architecture": {
+                "network_class_name": "dynamic_network_architectures.architectures.unet.ResidualEncoderUNet",
+                "arch_kwargs": {
+                    "n_stages": 6,
+                    "features_per_stage": [
+                        16,
+                        32,
+                        64,
+                        128,
+                        256,
+                        512
+                    ],
+                    "conv_op": "torch.nn.modules.conv.Conv2d",
+                    "kernel_sizes": [
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ],
+                        [
+                            3,
+                            3
+                        ]
+                    ],
+                    "strides": [
+                        [
+                            1,
+                            1
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            2
+                        ]
+                    ],
+                    "n_blocks_per_stage": [
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        3
+                    ],
+                    "n_conv_per_stage_decoder": [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    "conv_bias": true,
+                    "norm_op": "torch.nn.modules.instancenorm.InstanceNorm2d",
+                    "norm_op_kwargs": {
+                        "eps": 1e-05,
+                        "affine": true
+                    },
+                    "dropout_op": null,
+                    "dropout_op_kwargs": null,
+                    "nonlin": "torch.nn.LeakyReLU",
+                    "nonlin_kwargs": {
+                        "inplace": true
+                    }
+                },
+                "_kw_requires_import": [
+                    "conv_op",
+                    "norm_op",
+                    "dropout_op",
+                    "nonlin"
+                ]
+            },
+            "batch_dice": true
+        }
+    },
+    "experiment_planner_used": "nnUNetPlannerResEncM",
+    "label_manager": "LabelManager",
+    "foreground_intensity_properties_per_channel": {
+        "0": {
+            "max": 239.0,
+            "mean": 58.64480943229735,
+            "median": 30.0,
+            "min": 0.0,
+            "percentile_00_5": 0.0,
+            "percentile_99_5": 200.0,
+            "std": 65.01235322952341
+        }
+    }
+}

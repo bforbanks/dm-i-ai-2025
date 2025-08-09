@@ -8,6 +8,12 @@ This script:
 3. Calculates Dice scores against ground truth
 4. Creates a visualization showing the n worst and n best performing patients
 5. Uses the same 4-column layout as DiceAnalysisCallback (worst original, worst overlay, best original, best overlay)
+
+Postprocess mode:
+1. Saves all predicted masks in postprocess_dataset folder
+2. Creates JSON files with dice scores and false positive ratios
+3. Creates stratified train/validation splits
+4. Creates hard/easy image subsets for both patients and controls
 """
 
 import requests
@@ -21,6 +27,7 @@ import matplotlib.patches as mpatches
 from pathlib import Path
 import glob
 import json
+import shutil
 
 def load_image(image_path):
     """Load image from file"""
@@ -69,7 +76,7 @@ def decode_segmentation(segmentation_base64):
     return segmentation
 
 def predict_segmentation(image, api_url="http://localhost:9052"):
-    """Make prediction using the API"""
+    """Make prediction using the API - returns binary mask"""
     # Encode image
     image_base64 = encode_image(image)
     
@@ -91,6 +98,32 @@ def predict_segmentation(image, api_url="http://localhost:9052"):
             
     except requests.exceptions.RequestException as e:
         print(f"❌ Request failed: {e}")
+        return None
+
+
+def predict_segmentation_with_probabilities(image, api_url="http://localhost:9052"):
+    """Make prediction using the API - returns probability maps"""
+    # Encode image
+    image_base64 = encode_image(image)
+    
+    # Make request
+    try:
+        response = requests.post(
+            f"{api_url}/predict_with_probabilities",
+            json={"img": image_base64},
+            timeout=60
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            probabilities = decode_segmentation(result["img"])
+            return probabilities
+        else:
+            print(f"❌ Probability prediction failed with status code: {response.status_code}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Probability request failed: {e}")
         return None
 
 def create_overlay_with_ground_truth(pred_binary, target_binary):
@@ -119,6 +152,38 @@ def calculate_dice_score(pred_binary, target_binary):
     
     dice = (2.0 * intersection) / (np.sum(pred_binary > 0) + np.sum(target_binary > 0))
     return dice
+
+def load_nnunet_fold_split(nnunet_preprocessed_dir: str, fold: int):
+    """Load nnUNet fold splits to ensure alignment with trained model.
+    
+    Args:
+        nnunet_preprocessed_dir: Path to nnUNet preprocessed directory 
+        fold: Fold number (e.g., 2 for fold_2)
+        
+    Returns:
+        Dict with 'train' and 'val' keys containing patient lists
+    """
+    splits_file = os.path.join(nnunet_preprocessed_dir, "splits_final.json")
+    if not os.path.exists(splits_file):
+        raise FileNotFoundError(f"nnUNet splits file not found: {splits_file}")
+    
+    try:
+        with open(splits_file, 'r') as f:
+            nnunet_splits = json.load(f)
+        
+        if fold >= len(nnunet_splits):
+            raise ValueError(f"Fold {fold} not found. Available folds: 0-{len(nnunet_splits)-1}")
+        
+        fold_data = nnunet_splits[fold]
+        print(f"📂 Loaded nnUNet fold {fold} splits:")
+        print(f"   Training cases: {len(fold_data['train'])}")
+        print(f"   Validation cases: {len(fold_data['val'])}")
+        
+        return fold_data
+    except Exception as e:
+        print(f"❌ Error loading nnUNet fold {fold} from {splits_file}: {e}")
+        return None
+
 
 def load_split_data(split_path="data_nnUNet/split.json"):
     """Load train/val split data from JSON file"""
@@ -234,6 +299,12 @@ def create_worstdice_visualization(images, predictions, ground_truths, names, di
     axes[0, 3].legend(handles=[green_patch, red_patch, blue_patch], loc='lower right', fontsize=8)
     
     plt.tight_layout()
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
@@ -312,6 +383,12 @@ def analyze_patient_set(patient_data, set_name, args):
     
     # Save detailed results
     results_path = os.path.join(args.output_dir, f"dice_scores_{set_name}.csv")
+    
+    # Ensure output directory exists
+    results_dir = os.path.dirname(results_path)
+    if results_dir:
+        os.makedirs(results_dir, exist_ok=True)
+    
     with open(results_path, 'w') as f:
         f.write("Patient,Dice_Score\n")
         for i, (name, score) in enumerate(zip(names, dice_scores)):
@@ -346,6 +423,14 @@ def main():
                        help="Maximum number of patients to process (default: all)")
     parser.add_argument("--use-val-split", action="store_true",
                        help="Use train/val split from split.json and analyze each set separately")
+    parser.add_argument("--nnunet-fold", type=int, default=None,
+                       help="Use nnUNet fold splits instead of split.json (e.g., 2 for fold_2)")
+    parser.add_argument("--nnunet-preprocessed-dir", default="data_nnUNet/preprocessed/Dataset001_TumorSegmentation",
+                       help="Path to nnUNet preprocessed directory")
+    parser.add_argument("--analyze-for-postprocess", action="store_true",
+                       help="Analyze patients for postprocessing (saves masks, calculates metrics, creates splits)")
+    parser.add_argument("--control-patient-split", type=float, default=0.3,
+                       help="Ratio of controls to patients in training folder (default: 0.3 for 70%% patients, 30%% controls)")
     
     args = parser.parse_args()
     
@@ -355,6 +440,9 @@ def main():
     print(f"Output directory: {args.output_dir}")
     print(f"Top K worst/best: {args.top_k}")
     print(f"Use validation split: {args.use_val_split}")
+    if args.nnunet_fold is not None:
+        print(f"nnUNet fold: {args.nnunet_fold}")
+        print(f"nnUNet preprocessed dir: {args.nnunet_preprocessed_dir}")
     if args.max_patients:
         print(f"Max patients to process: {args.max_patients}")
     print()
@@ -362,10 +450,338 @@ def main():
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
     
-    if args.use_val_split:
+    if args.analyze_for_postprocess:
+        print("🚀 Analyzing patients for postprocessing...")
+        
+        # Create postprocess dataset directory
+        postprocess_dir = "postprocess_dataset"
+        os.makedirs(postprocess_dir, exist_ok=True)
+        
+        # Find all patient files
+        patient_data = find_all_patient_files()
+        print(f"Found {len(patient_data)} patients with both images and labels")
+        
+        # Limit patients if requested
+        if args.max_patients and args.max_patients < len(patient_data):
+            print(f"Limiting analysis to first {args.max_patients} patients")
+            patient_data = patient_data[:args.max_patients]
+        
+        # Process patients and save masks
+        patient_results = {}
+        successful_patients = []
+        
+        print(f"\n1. Processing {len(patient_data)} patients and saving masks...")
+        for i, (patient_num, img_path, label_path) in enumerate(patient_data):
+            print(f"Processing {i+1}/{len(patient_data)}: patient_{patient_num:03d}", end=" ")
+            
+            try:
+                # Load image and ground truth
+                image = load_image(img_path)
+                ground_truth = load_ground_truth(label_path)
+                
+                # Make predictions - both binary and probability
+                segmentation = predict_segmentation(image, args.api_url)
+                probabilities = predict_segmentation_with_probabilities(image, args.api_url)
+                
+                if segmentation is not None and probabilities is not None:
+                    # Calculate Dice score using binary mask
+                    pred_binary = (segmentation > 0.5).astype(np.float32)
+                    dice_score = calculate_dice_score(pred_binary, ground_truth)
+                    
+                    # Save binary prediction mask
+                    pred_mask_path = os.path.join(postprocess_dir, f"patient_{patient_num:03d}_prediction.png")
+                    cv2.imwrite(pred_mask_path, (pred_binary * 255).astype(np.uint8))
+                    
+                    # Convert probabilities from [0-255] range back to [0-1] range
+                    prob_normalized = probabilities.astype(np.float32) / 255.0
+                    
+                    # Save probability map (scaled to 0-255 for visualization)
+                    prob_map_path = os.path.join(postprocess_dir, f"patient_{patient_num:03d}_probabilities.png")
+                    cv2.imwrite(prob_map_path, probabilities.astype(np.uint8))
+                    
+                    # Save raw probability map as numpy array for later use
+                    prob_raw_path = os.path.join(postprocess_dir, f"patient_{patient_num:03d}_probabilities.npy")
+                    np.save(prob_raw_path, prob_normalized)
+                    
+                    # Store results
+                    patient_results[f"patient_{patient_num:03d}"] = {
+                        "dice_score": dice_score,
+                        "mask_path": pred_mask_path,
+                        "prob_map_path": prob_map_path,
+                        "prob_raw_path": prob_raw_path
+                    }
+                    successful_patients.append(patient_num)
+                    
+                    print(f"✅ Dice = {dice_score:.4f}")
+                else:
+                    print("❌ Failed")
+                    
+            except Exception as e:
+                print(f"❌ Error: {e}")
+        
+        print(f"\n📊 Successfully processed {len(successful_patients)} patients")
+        
+        # Find control files
+        print(f"\n2. Processing control subjects...")
+        control_pattern = "data/controls/imgs/control_*.png"
+        control_files = sorted(glob.glob(control_pattern))
+        
+        control_results = {}
+        successful_controls = []
+        
+        for i, control_path in enumerate(control_files):
+            control_num = int(Path(control_path).name.replace("control_", "").replace(".png", ""))
+            print(f"Processing control {i+1}/{len(control_files)}: control_{control_num:03d}", end=" ")
+            
+            try:
+                # Load control image
+                image = load_image(control_path)
+                
+                # Make predictions - both binary and probability
+                segmentation = predict_segmentation(image, args.api_url)
+                probabilities = predict_segmentation_with_probabilities(image, args.api_url)
+                
+                if segmentation is not None and probabilities is not None:
+                    # Calculate false positive ratio using binary mask
+                    pred_binary = (segmentation > 0.5).astype(np.float32)
+                    fp_pixels = np.sum(pred_binary > 0)
+                    total_pixels = pred_binary.size
+                    fp_ratio = fp_pixels / total_pixels if total_pixels > 0 else 0.0
+                    
+                    # Save binary prediction mask
+                    pred_mask_path = os.path.join(postprocess_dir, f"control_{control_num:03d}_prediction.png")
+                    cv2.imwrite(pred_mask_path, (pred_binary * 255).astype(np.uint8))
+                    
+                    # Convert probabilities from [0-255] range back to [0-1] range
+                    prob_normalized = probabilities.astype(np.float32) / 255.0
+                    
+                    # Save probability map (scaled to 0-255 for visualization)
+                    prob_map_path = os.path.join(postprocess_dir, f"control_{control_num:03d}_probabilities.png")
+                    cv2.imwrite(prob_map_path, probabilities.astype(np.uint8))
+                    
+                    # Save raw probability map as numpy array for later use
+                    prob_raw_path = os.path.join(postprocess_dir, f"control_{control_num:03d}_probabilities.npy")
+                    np.save(prob_raw_path, prob_normalized)
+                    
+                    # Store results
+                    control_results[f"control_{control_num:03d}"] = {
+                        "fp_ratio": fp_ratio,
+                        "fp_pixels": int(fp_pixels),
+                        "total_pixels": int(total_pixels),
+                        "mask_path": pred_mask_path,
+                        "prob_map_path": prob_map_path,
+                        "prob_raw_path": prob_raw_path
+                    }
+                    successful_controls.append(control_num)
+                    
+                    print(f"✅ FP ratio = {fp_ratio:.6f}")
+                else:
+                    print("❌ Failed")
+                    
+            except Exception as e:
+                print(f"❌ Error: {e}")
+        
+        print(f"\n📊 Successfully processed {len(successful_controls)} controls")
+        
+        # Save JSON files
+        print(f"\n3. Saving JSON files...")
+        
+        # Save patient dice scores
+        with open(os.path.join(postprocess_dir, "patient_dice_scores.json"), 'w') as f:
+            json.dump(patient_results, f, indent=2)
+        
+        # Save control FP ratios
+        with open(os.path.join(postprocess_dir, "control_fp_ratios.json"), 'w') as f:
+            json.dump(control_results, f, indent=2)
+        
+        # Create stratified splits for patients
+        print(f"\n4. Creating stratified patient splits...")
+        patient_names = list(patient_results.keys())
+        dice_scores = [patient_results[name]["dice_score"] for name in patient_names]
+        
+        # Sort by dice score for stratification
+        sorted_indices = np.argsort(dice_scores)
+        sorted_patients = [patient_names[i] for i in sorted_indices]
+        
+        # Create validation set (20% with stratification)
+        val_size = max(1, int(0.2 * len(sorted_patients)))
+        val_patients = []
+        train_patients = []
+        
+        # Stratified sampling: take every 5th patient for validation
+        for i, patient in enumerate(sorted_patients):
+            if i % 5 == 0 and len(val_patients) < val_size:
+                val_patients.append(patient)
+            else:
+                train_patients.append(patient)
+        
+        # Create folders - we'll create the binary and probability versions below
+        
+        # Create parallel folder structures for binary masks and probability maps
+        train_binary_dir = os.path.join(postprocess_dir, "train_binary")
+        val_binary_dir = os.path.join(postprocess_dir, "validation_binary")
+        train_prob_dir = os.path.join(postprocess_dir, "train_probabilities")
+        val_prob_dir = os.path.join(postprocess_dir, "validation_probabilities")
+        
+        os.makedirs(train_binary_dir, exist_ok=True)
+        os.makedirs(val_binary_dir, exist_ok=True)
+        os.makedirs(train_prob_dir, exist_ok=True)
+        os.makedirs(val_prob_dir, exist_ok=True)
+        
+        # Move patient files to appropriate folders (both binary and probability)
+        for patient in train_patients:
+            # Binary masks
+            src_binary = patient_results[patient]["mask_path"]
+            dst_binary = os.path.join(train_binary_dir, os.path.basename(src_binary))
+            shutil.copy2(src_binary, dst_binary)
+            
+            # Probability maps
+            src_prob = patient_results[patient]["prob_map_path"]
+            dst_prob = os.path.join(train_prob_dir, os.path.basename(src_prob).replace("_prediction.png", "_probabilities.png"))
+            shutil.copy2(src_prob, dst_prob)
+        
+        for patient in val_patients:
+            # Binary masks
+            src_binary = patient_results[patient]["mask_path"]
+            dst_binary = os.path.join(val_binary_dir, os.path.basename(src_binary))
+            shutil.copy2(src_binary, dst_binary)
+            
+            # Probability maps
+            src_prob = patient_results[patient]["prob_map_path"]
+            dst_prob = os.path.join(val_prob_dir, os.path.basename(src_prob).replace("_prediction.png", "_probabilities.png"))
+            shutil.copy2(src_prob, dst_prob)
+        
+        # Calculate median dice on training set only
+        train_dice_scores = [patient_results[name]["dice_score"] for name in train_patients]
+        median_dice = np.median(train_dice_scores)
+        
+        # Create hard/easy subsets for patients
+        hard_images_patients = [name for name in train_patients if patient_results[name]["dice_score"] < median_dice]
+        easy_images_patients = [name for name in train_patients if patient_results[name]["dice_score"] >= median_dice]
+        
+        # Process controls  
+        print(f"\n5. Processing control splits...")
+        control_names = list(control_results.keys())
+        fp_ratios = [control_results[name]["fp_ratio"] for name in control_names]
+        
+        # Count controls with FP > 0 from ENTIRE control set
+        controls_with_fp_all = [name for name in control_names if control_results[name]["fp_ratio"] > 0]
+        print(f"\n📊 Controls with FP > 0 (from entire set): {len(controls_with_fp_all)}")
+        
+        # Calculate how many controls we need for 70-30 split in training folder
+        num_train_patients = len(train_patients)
+        # If we want 70% patients and 30% controls in training:
+        # patients / (patients + controls) = 0.7
+        # controls / (patients + controls) = 0.3
+        # So: controls = patients * 0.3 / 0.7
+        num_controls_for_train = int(num_train_patients * args.control_patient_split / (1 - args.control_patient_split))
+        num_controls_for_train = min(num_controls_for_train, len(control_names))  # Don't exceed available controls
+        
+        print(f"📊 Training folder target: {num_train_patients} patients + {num_controls_for_train} controls")
+        
+        # Sort controls by FP ratio for stratified sampling
+        sorted_control_indices = np.argsort(fp_ratios)
+        sorted_controls = [control_names[i] for i in sorted_control_indices]
+        
+        # Put ALL controls with FP > 0 in training folder
+        control_train = controls_with_fp_all.copy()
+        
+        # Add more controls to reach the target ratio (stratified sampling)
+        controls_without_fp = [name for name in control_names if control_results[name]["fp_ratio"] == 0]
+        additional_controls_needed = num_controls_for_train - len(control_train)
+        
+        if additional_controls_needed > 0 and len(controls_without_fp) > 0:
+            # Take additional controls stratified by their order (even though FP=0)
+            step = max(1, len(controls_without_fp) // additional_controls_needed)
+            for i in range(0, len(controls_without_fp), step):
+                if len(control_train) < num_controls_for_train:
+                    control_train.append(controls_without_fp[i])
+        
+        # Remaining controls go to control_rest
+        control_rest = [name for name in control_names if name not in control_train]
+        
+        # Create folders (remove control_rest_dir creation as we don't need it anymore)
+        # Control rest will just be the remaining controls not in training
+        
+        # Copy control files to training folders (both binary and probability)
+        for control in control_train:
+            # Binary masks
+            src_binary = control_results[control]["mask_path"]
+            dst_binary = os.path.join(train_binary_dir, os.path.basename(src_binary))
+            shutil.copy2(src_binary, dst_binary)
+            
+            # Probability maps
+            src_prob = control_results[control]["prob_map_path"]
+            dst_prob = os.path.join(train_prob_dir, os.path.basename(src_prob).replace("_prediction.png", "_probabilities.png"))
+            shutil.copy2(src_prob, dst_prob)
+        
+        # Create hard/easy subsets for controls using ALL controls with FP > 0
+        if len(controls_with_fp_all) > 0:
+            control_fp_ratios_all = [control_results[name]["fp_ratio"] for name in controls_with_fp_all]
+            median_fp = np.median(control_fp_ratios_all)
+            
+            hard_images_control = [name for name in controls_with_fp_all if control_results[name]["fp_ratio"] >= median_fp]
+            easy_images_control = [name for name in controls_with_fp_all if control_results[name]["fp_ratio"] < median_fp]
+        else:
+            hard_images_control = []
+            easy_images_control = []
+        
+        # Create comprehensive JSON with all splits and subsets
+        comprehensive_results = {
+            "patient_splits": {
+                "train": train_patients,
+                "validation": val_patients,
+                "hard_images_patients": hard_images_patients,
+                "easy_images_patients": easy_images_patients
+            },
+            "control_splits": {
+                "train": control_train,
+                "control_rest": control_rest,
+                "hard_images_control": hard_images_control
+            },
+            "statistics": {
+                "total_patients": len(patient_results),
+                "total_controls": len(control_results),
+                "train_patients": len(train_patients),
+                "val_patients": len(val_patients),
+                "train_controls": len(control_train),
+                "control_rest": len(control_rest),
+                "controls_with_fp": len(controls_with_fp_all),
+                "median_dice_train": float(median_dice),
+                "median_fp_controls": float(np.median([control_results[name]["fp_ratio"] for name in controls_with_fp_all])) if controls_with_fp_all else 0.0
+            }
+        }
+        
+        with open(os.path.join(postprocess_dir, "comprehensive_splits.json"), 'w') as f:
+            json.dump(comprehensive_results, f, indent=2)
+        
+        print(f"\n🎉 Postprocessing analysis completed successfully!")
+        print("=" * 60)
+        print(f"📁 Postprocess dataset saved to: {postprocess_dir}")
+        print(f"📊 Patient dice scores: {len(patient_results)} patients")
+        print(f"📊 Control FP ratios: {len(control_results)} controls")
+        print(f"📊 Controls with FP > 0 (from entire set): {len(controls_with_fp_all)}")
+        print(f"📁 Train folders: {len(train_patients)} patients + {len(control_train)} controls")
+        print(f"   ├── train_binary/: Binary masks")
+        print(f"   └── train_probabilities/: Probability maps")
+        print(f"   └── Patient:Control ratio = {len(train_patients)/(len(train_patients)+len(control_train))*100:.1f}%:{len(control_train)/(len(train_patients)+len(control_train))*100:.1f}%")
+        print(f"📁 Validation folders: {len(val_patients)} patients")
+        print(f"   ├── validation_binary/: Binary masks")
+        print(f"   └── validation_probabilities/: Probability maps")
+        print(f"📁 Control rest (not in training): {len(control_rest)} controls")
+        print(f"📊 Hard patient images: {len(hard_images_patients)}")
+        print(f"📊 Easy patient images: {len(easy_images_patients)}")
+        print(f"📊 Hard control images: {len(hard_images_control)}")
+
+    elif args.use_val_split:
         # Load split data
-        print("🔍 Loading train/val split data...")
-        split_data = load_split_data()
+        if args.nnunet_fold is not None:
+            print(f"🔍 Loading nnUNet fold {args.nnunet_fold} split data...")
+            split_data = load_nnunet_fold_split(args.nnunet_preprocessed_dir, args.nnunet_fold)
+        else:
+            print("🔍 Loading train/val split data from split.json...")
+            split_data = load_split_data()
+        
         if split_data is None:
             print("❌ Failed to load split data! Exiting.")
             return

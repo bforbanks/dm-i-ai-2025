@@ -1,0 +1,82 @@
+
+#######################################################################
+Please cite the following paper when using nnU-Net:
+Isensee, F., Jaeger, P. F., Kohl, S. A., Petersen, J., & Maier-Hein, K. H. (2021). nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nature methods, 18(2), 203-211.
+#######################################################################
+ 
+2025-08-08 13:12:45.962146: Using torch.compile... 
+2025-08-08 13:12:50.182421: do_dummy_2d_data_aug: False 
+2025-08-08 13:12:50.186849: Using splits from existing split file: /zhome/4b/5/187216/dm-i-ai-2025/tumor_segmentation/data_nnUNet/preprocessed/Dataset001_TumorSegmentation/splits_final.json 
+2025-08-08 13:12:50.188806: The split file contains 1 splits. 
+2025-08-08 13:12:50.189489: Desired fold for training: 0 
+2025-08-08 13:12:50.190174: This split has 581 training and 27 validation cases. 
+
+This is the configuration used by this training:
+Configuration name: reducedcustom-singleval-synth100
+ {'data_identifier': 'nnUNetPlans_reducedcustom-singleval-synth100', 'preprocessor_name': 'DefaultPreprocessor', 'batch_size': 8, 'patch_size': [256, 256], 'median_image_size_in_voxels': [489.0, 400.0], 'spacing': [1.0, 1.0], 'normalization_schemes': ['ZScoreNormalization'], 'use_mask_for_norm': [False], 'resampling_fn_data': 'resample_data_or_seg_to_shape', 'resampling_fn_seg': 'resample_data_or_seg_to_shape', 'resampling_fn_data_kwargs': {'is_seg': False, 'order': 3, 'order_z': 0, 'force_separate_z': None}, 'resampling_fn_seg_kwargs': {'is_seg': True, 'order': 1, 'order_z': 0, 'force_separate_z': None}, 'resampling_fn_probabilities': 'resample_data_or_seg_to_shape', 'resampling_fn_probabilities_kwargs': {'is_seg': False, 'order': 1, 'order_z': 0, 'force_separate_z': None}, 'architecture': {'network_class_name': 'dynamic_network_architectures.architectures.unet.ResidualEncoderUNet', 'arch_kwargs': {'n_stages': 5, 'features_per_stage': [32, 64, 128, 256, 512], 'conv_op': 'torch.nn.modules.conv.Conv2d', 'kernel_sizes': [[3, 3], [3, 3], [3, 3], [3, 3], [3, 3]], 'strides': [[1, 1], [2, 2], [2, 2], [2, 2], [2, 2]], 'n_blocks_per_stage': [2, 2, 3, 3, 3], 'n_conv_per_stage_decoder': [1, 1, 1, 1], 'conv_bias': True, 'norm_op': 'torch.nn.modules.instancenorm.InstanceNorm2d', 'norm_op_kwargs': {'eps': 1e-05, 'affine': True}, 'dropout_op': None, 'dropout_op_kwargs': None, 'nonlin': 'torch.nn.LeakyReLU', 'nonlin_kwargs': {'inplace': True}}, '_kw_requires_import': ['conv_op', 'norm_op', 'dropout_op', 'nonlin']}, 'batch_dice': True, 'inherits_from': '2d'} 
+ 
+These are the global plan.json settings:
+ {'dataset_name': 'Dataset001_TumorSegmentation', 'plans_name': 'nnUNetResEncUNetMPlans', 'original_median_spacing_after_transp': [999.0, 1.0, 1.0], 'original_median_shape_after_transp': [1, 489, 400], 'image_reader_writer': 'NaturalImage2DIO', 'transpose_forward': [0, 1, 2], 'transpose_backward': [0, 1, 2], 'experiment_planner_used': 'nnUNetPlannerResEncM', 'label_manager': 'LabelManager', 'foreground_intensity_properties_per_channel': {'0': {'max': 239.0, 'mean': 58.64480943229735, 'median': 30.0, 'min': 0.0, 'percentile_00_5': 0.0, 'percentile_99_5': 200.0, 'std': 65.01235322952341}}} 
+ 
+2025-08-08 13:12:51.051103: Unable to plot network architecture: nnUNet_compile is enabled! 
+2025-08-08 13:12:52.866008: Training done. 
+2025-08-08 13:12:52.964167: Using splits from existing split file: /zhome/4b/5/187216/dm-i-ai-2025/tumor_segmentation/data_nnUNet/preprocessed/Dataset001_TumorSegmentation/splits_final.json 
+2025-08-08 13:12:52.968149: The split file contains 1 splits. 
+2025-08-08 13:12:52.968974: Desired fold for training: 0 
+2025-08-08 13:12:52.969803: This split has 581 training and 27 validation cases. 
+2025-08-08 13:12:52.970784: predicting patient_002 
+2025-08-08 13:12:52.977072: patient_002, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:01.224877: predicting patient_013 
+2025-08-08 13:13:01.235736: patient_013, shape torch.Size([1, 1, 889, 400]), rank 0 
+2025-08-08 13:13:01.705363: predicting patient_014 
+2025-08-08 13:13:01.724828: patient_014, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:02.007847: predicting patient_015 
+2025-08-08 13:13:02.015666: patient_015, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:02.226473: predicting patient_019 
+2025-08-08 13:13:02.253255: patient_019, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:02.499768: predicting patient_025 
+2025-08-08 13:13:02.506749: patient_025, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:02.741957: predicting patient_030 
+2025-08-08 13:13:02.756329: patient_030, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:02.967268: predicting patient_036 
+2025-08-08 13:13:02.975183: patient_036, shape torch.Size([1, 1, 427, 400]), rank 0 
+2025-08-08 13:13:03.194430: predicting patient_042 
+2025-08-08 13:13:03.200903: patient_042, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:03.406209: predicting patient_060 
+2025-08-08 13:13:03.416826: patient_060, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:03.958984: predicting patient_065 
+2025-08-08 13:13:03.962957: patient_065, shape torch.Size([1, 1, 486, 400]), rank 0 
+2025-08-08 13:13:04.309273: predicting patient_066 
+2025-08-08 13:13:04.320648: patient_066, shape torch.Size([1, 1, 739, 400]), rank 0 
+2025-08-08 13:13:04.782143: predicting patient_074 
+2025-08-08 13:13:04.786384: patient_074, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:05.003040: predicting patient_099 
+2025-08-08 13:13:05.007099: patient_099, shape torch.Size([1, 1, 477, 400]), rank 0 
+2025-08-08 13:13:05.194691: predicting patient_111 
+2025-08-08 13:13:05.198160: patient_111, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:05.421247: predicting patient_120 
+2025-08-08 13:13:05.425420: patient_120, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:05.610872: predicting patient_121 
+2025-08-08 13:13:05.614219: patient_121, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:05.819407: predicting patient_125 
+2025-08-08 13:13:05.823675: patient_125, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:06.009577: predicting patient_128 
+2025-08-08 13:13:06.013016: patient_128, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:06.218044: predicting patient_131 
+2025-08-08 13:13:06.222264: patient_131, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:06.426477: predicting patient_134 
+2025-08-08 13:13:06.430645: patient_134, shape torch.Size([1, 1, 444, 400]), rank 0 
+2025-08-08 13:13:06.634206: predicting patient_142 
+2025-08-08 13:13:06.638295: patient_142, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:06.828716: predicting patient_152 
+2025-08-08 13:13:06.834635: patient_152, shape torch.Size([1, 1, 865, 400]), rank 0 
+2025-08-08 13:13:07.238370: predicting patient_161 
+2025-08-08 13:13:07.243145: patient_161, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:07.429098: predicting patient_171 
+2025-08-08 13:13:07.433104: patient_171, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:07.637359: predicting patient_176 
+2025-08-08 13:13:07.640946: patient_176, shape torch.Size([1, 1, 489, 400]), rank 0 
+2025-08-08 13:13:07.847174: predicting patient_177 
+2025-08-08 13:13:07.851568: patient_177, shape torch.Size([1, 1, 426, 400]), rank 0 
+2025-08-08 13:13:17.993311: Validation complete 
+2025-08-08 13:13:17.994258: Mean Validation Dice:  0.7126405052334971 
