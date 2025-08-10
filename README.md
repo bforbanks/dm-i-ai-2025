@@ -12,6 +12,9 @@ For evaluation we used the model models/LaneShift.py, which has the "return_acti
 ### TS challenge
 See the README_TS.md file in the branch.
 The model is too big to upload but the readme descibes how to train an identical model including the entire pipeline. We can send the model upon request if needed.
+To be on the safe side, here is a download link for a folder which can be copied into the tumor_segmentation/data_nnUNet/results folder and work seamlessly with the API and validation inference scripts provided (please see the Readme):
+
+https://drive.google.com/drive/folders/1Opo2QZjZKaJEdoPFVJYXQQrqwL3uen6g?usp=sharing
 
 ### Healthcare RAG
 We mainly used UCloud for running our code. The API can be run in the ```emergency-healthcare-rag/``` folder with ```python api.py --no-use-condensed-topics --threshold NA``` with our settings used for the evaluation run.
