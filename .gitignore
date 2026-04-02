@@ -165,3 +165,7 @@ cython_debug/
 
 # Custom
 docs/*
+
+# Race car — dataset archives (too large for GitHub; keep local or use LFS)
+laneshift_dataset.npz
+race-car/laneshift_dataset.npz
