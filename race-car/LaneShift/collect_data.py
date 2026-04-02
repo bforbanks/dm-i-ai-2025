@@ -6,11 +6,12 @@ Run from the project root (dm-i-ai-2025/):
     python race-car/LaneShift/collect_data.py [--n-games 10000] [--save-path laneshift_dataset.npz]
 
 Output .npz (ragged games stored as flat arrays + length index):
-    sensors      float32 [total_ticks, 16]  – raw sensor distances; NaN = no detection
-    car_x        float32 [total_ticks, 5]   – NPC car x-pos per lane; NaN = lane empty
-    car_vx       float32 [total_ticks, 5]   – NPC car relative x-velocity (car - ego) per lane; NaN = lane empty
-    ego_xy       float32 [total_ticks, 2]   – ego car screen position [x, y]
-    game_lengths int32   [N_games]          – ticks per game; use np.split() to recover games
+    sensors        float32 [total_ticks, 16]  – raw sensor distances; NaN = no detection
+    car_x          float32 [total_ticks, 5]   – NPC car x-pos per lane; NaN = lane empty
+    car_vx         float32 [total_ticks, 5]   – NPC car relative x-velocity (car - ego) per lane; NaN = lane empty
+    ego_xy         float32 [total_ticks, 2]   – ego car screen position [x, y]
+    game_lengths   int32   [N_games]          – ticks per game; use np.split() to recover games
+    game_distances float32 [N_games]          – total distance driven by ego car per game
 
 Recover game i:
     starts = np.concatenate([[0], np.cumsum(game_lengths[:-1])])
@@ -212,7 +213,8 @@ def _run_game(seed: int) -> tuple[np.ndarray, np.ndarray]:
         _core.STATE.ticks += 1
         _check_collisions()
 
-    return np.stack(game_sensors), np.stack(game_car_x), np.stack(game_car_vx), np.stack(game_ego_xy)
+    final_distance = float(_core.STATE.distance)
+    return np.stack(game_sensors), np.stack(game_car_x), np.stack(game_car_vx), np.stack(game_ego_xy), final_distance
 
 
 # ── main collection loop ─────────────────────────────────────────────────────
@@ -230,15 +232,16 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
     n_workers = max(1, mp.cpu_count() * 15 // 16)
     tqdm.write(f"Using {n_workers}/{mp.cpu_count()} workers")
 
-    all_sensors:      list[np.ndarray] = []
-    all_car_x:        list[np.ndarray] = []
-    all_car_vx:       list[np.ndarray] = []
-    all_ego_xy:       list[np.ndarray] = []
-    all_game_lengths: list[int]        = []
+    all_sensors:        list[np.ndarray] = []
+    all_car_x:          list[np.ndarray] = []
+    all_car_vx:         list[np.ndarray] = []
+    all_ego_xy:         list[np.ndarray] = []
+    all_game_lengths:   list[int]        = []
+    all_game_distances: list[float]      = []
 
     seeds = range(seed_start, seed_start + n_games)
     with mp.Pool(n_workers) as pool:
-        for sensors, car_x, car_vx, ego_xy in tqdm(
+        for sensors, car_x, car_vx, ego_xy, distance in tqdm(
             pool.imap_unordered(_run_game, seeds),
             total=n_games, desc="collecting", unit="game",
         ):
@@ -247,12 +250,14 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
             all_car_vx.append(car_vx)
             all_ego_xy.append(ego_xy)
             all_game_lengths.append(len(sensors))
+            all_game_distances.append(distance)
 
-    sensors_arr      = np.concatenate(all_sensors, axis=0)   # [total_ticks, 16]
-    car_x_arr        = np.concatenate(all_car_x,   axis=0)   # [total_ticks, 5]
-    car_vx_arr       = np.concatenate(all_car_vx,  axis=0)   # [total_ticks, 5]
-    ego_xy_arr       = np.concatenate(all_ego_xy,  axis=0)   # [total_ticks, 2]
-    game_lengths_arr = np.array(all_game_lengths, dtype=np.int32)  # [n_games]
+    sensors_arr        = np.concatenate(all_sensors, axis=0)           # [total_ticks, 16]
+    car_x_arr          = np.concatenate(all_car_x,   axis=0)           # [total_ticks, 5]
+    car_vx_arr         = np.concatenate(all_car_vx,  axis=0)           # [total_ticks, 5]
+    ego_xy_arr         = np.concatenate(all_ego_xy,  axis=0)           # [total_ticks, 2]
+    game_lengths_arr   = np.array(all_game_lengths,   dtype=np.int32)  # [n_games]
+    game_distances_arr = np.array(all_game_distances, dtype=np.float32)  # [n_games]
 
     out = save_path if os.path.isabs(save_path) else os.path.abspath(save_path)
     np.savez_compressed(
@@ -262,20 +267,25 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
         car_vx=car_vx_arr,
         ego_xy=ego_xy_arr,
         game_lengths=game_lengths_arr,
+        game_distances=game_distances_arr,
     )
 
     total_ticks = int(game_lengths_arr.sum())
     tqdm.write("")
-    tqdm.write(f"Saved → {out}")
-    tqdm.write(f"  games        : {n_games}")
-    tqdm.write(f"  total ticks  : {total_ticks:,}")
-    tqdm.write(f"  sensors      : {sensors_arr.shape}  {sensors_arr.dtype}")
-    tqdm.write(f"  car_x        : {car_x_arr.shape}   {car_x_arr.dtype}")
-    tqdm.write(f"  car_vx       : {car_vx_arr.shape}  {car_vx_arr.dtype}")
-    tqdm.write(f"  ego_xy       : {ego_xy_arr.shape}  {ego_xy_arr.dtype}")
+    tqdm.write(f"Saved -> {out}")
+    tqdm.write(f"  games          : {n_games}")
+    tqdm.write(f"  total ticks    : {total_ticks:,}")
+    tqdm.write(f"  sensors        : {sensors_arr.shape}  {sensors_arr.dtype}")
+    tqdm.write(f"  car_x          : {car_x_arr.shape}   {car_x_arr.dtype}")
+    tqdm.write(f"  car_vx         : {car_vx_arr.shape}  {car_vx_arr.dtype}")
+    tqdm.write(f"  ego_xy         : {ego_xy_arr.shape}  {ego_xy_arr.dtype}")
     tqdm.write(
-        f"  game_lengths : {game_lengths_arr.shape}  min={game_lengths_arr.min()}"
+        f"  game_lengths   : {game_lengths_arr.shape}  min={game_lengths_arr.min()}"
         f"  max={game_lengths_arr.max()}  mean={game_lengths_arr.mean():.1f}"
+    )
+    tqdm.write(
+        f"  game_distances : {game_distances_arr.shape}  min={game_distances_arr.min():.0f}"
+        f"  max={game_distances_arr.max():.0f}  mean={game_distances_arr.mean():.0f}"
     )
 
 

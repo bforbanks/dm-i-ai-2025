@@ -39,6 +39,7 @@ class Sensor:
         self.text = ""
 
         self.state = state
+        self.intersection_point = None
 
     def update(self):
         """
@@ -56,29 +57,34 @@ class Sensor:
 
         # Reset reading
         self.reading = None
+        self.intersection_point = None
         sensor_line = Line(car_center, sensor_beam_end)
 
         min_reading = None
+        min_point = None
 
         # Sense cars
         for car in self.state.cars:
             if car == self.state.ego:
                 continue
             bounds = car.get_bounds()
-            reading = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
+            reading, point = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
             if reading is not None and 0 <= reading <= self.sensor_strength:
                 if min_reading is None or reading < min_reading:
                     min_reading = reading
+                    min_point = point
 
         # Sense walls
         for wall in self.state.road.walls:
             bounds = wall.get_bounds()
-            reading = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
+            reading, point = self.get_sensor_reading_for_bounding_box(bounds, sensor_line, car_center)
             if reading is not None and 0 <= reading <= self.sensor_strength:
                 if min_reading is None or reading < min_reading:
                     min_reading = reading
+                    min_point = point
 
         self.reading = min_reading
+        self.intersection_point = min_point
 
         # Update text
         if self.reading is not None:
@@ -86,24 +92,26 @@ class Sensor:
         else:
             self.text = ""
 
-    def get_sensor_reading_for_bounding_box(self, bb: pygame.Rect, sensor_line: dict, car_center: Vector) -> Optional[float]:
+    def get_sensor_reading_for_bounding_box(self, bb: pygame.Rect, sensor_line: dict, car_center: Vector):
         """
         Calculate the sensor reading for a bounding box.
 
         :param bb: The bounding box as a pygame.Rect.
         :param sensor_line: The sensor line as a dictionary with 'start' and 'end' keys.
         :param car_center: The center of the car as a Vector.
-        :return: The distance to the closest intersection, or None if no intersection.
+        :return: Tuple of (distance, intersection_point), or (None, None) if no intersection.
         """
         lines = get_lines_of_rectangle(bb)
         min_distance = None
+        closest_point = None
         for line in lines:
             intersection = get_intersection_point(sensor_line, line)
             if intersection:
                 distance = car_center.distance(intersection)
                 if min_distance is None or distance < min_distance:
                     min_distance = distance
-        return min_distance
+                    closest_point = intersection
+        return min_distance, closest_point
 
     def draw(self, surface: pygame.Surface):
         """

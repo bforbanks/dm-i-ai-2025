@@ -1,7 +1,7 @@
 import pygame
 from time import sleep
 #import requests
-#from typing import List, Optional
+from typing import List, Optional
 from ..mathematics.randomizer import seed, random_choice, random_number
 from ..elements.car import Car
 from ..elements.road import Road
@@ -40,8 +40,23 @@ STATE = None
 def intersects(rect1, rect2):
     return rect1.colliderect(rect2)
 
+def state_to_state_dict(state: 'GameState') -> dict:
+    sensors_dict = {sensor.name: sensor.reading for sensor in state.sensors}
+    return {
+        "did_crash":     state.crashed,
+        "elapsed_ticks": state.ticks,
+        "distance":      state.distance,
+        "velocity":      {"x": state.ego.velocity.x, "y": state.ego.velocity.y},
+        "sensors":       sensors_dict,
+    }
+
+
 # Game logic
-def handle_action(action: str):
+def handle_action(actions):
+    if isinstance(actions, list):
+        action = actions.pop(0) if actions else "NOTHING"
+    else:
+        action = actions
     if action == "ACCELERATE":
         STATE.ego.speed_up()
     elif action == "DECELERATE":
@@ -234,7 +249,7 @@ def update_game(current_action: str):
 # Main game loop
 ACTION_LOG = []
 
-def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "actions_log.json"):
+def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "actions_log.json", model=None):
     global STATE
     clock = pygame.time.Clock()
     screen = None
@@ -242,8 +257,13 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Race Car Game")
 
+    actions = []   # action buffer for multi-action model returns
+
     while True:
-        delta = clock.tick(60)  # Limit to 60 FPS
+        if verbose:
+            delta = clock.tick(60)  # Limit to 60 FPS
+        else:
+            delta = clock.tick(100000000000)
         STATE.elapsed_game_time += delta
         STATE.ticks += 1
 
@@ -252,8 +272,17 @@ def game_loop(verbose: bool = True, log_actions: bool = True, log_path: str = "a
             print(f"Game over: Crashed: {STATE.crashed}, Ticks: {STATE.ticks}, Elapsed time: {STATE.elapsed_game_time} ms, Distance: {STATE.distance}")
             break
 
-        # Handle action - get_action() is a method for using arrow keys to steer - implement own logic here!
-        action = get_action()
+        # Get next action — refill buffer from model/keyboard only when empty
+        if not actions:
+            if model is not None:
+                action_result = model.return_action(state_to_state_dict(STATE))
+            else:
+                action_result = get_action()
+            if isinstance(action_result, list):
+                actions.extend(action_result)
+            else:
+                actions.append(action_result)
+        action = actions.pop(0) if actions else "NOTHING"
 
         # Log the action with tick
         if log_actions:

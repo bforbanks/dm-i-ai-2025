@@ -46,6 +46,39 @@ back_left_back, left_side_back
 - At most 4 of the 5 lanes have an NPC car simultaneously (only 4 NPC cars in bucket)
 - Early ticks of each game have all-NaN ground truth (cars haven't spawned yet)
 
+### Empirical value ranges (from 10 000-game dataset, ~23.4M ticks)
+
+**car_x (NPC x-position):**
+| Stat | Value |
+|------|-------|
+| min | -1000.0 px (hard despawn boundary) |
+| max | 2600.0 px (hard despawn boundary) |
+| mean | ~621 px |
+| std | ~1162 px |
+| p1 | -990.5 px |
+| p99 | 2217.9 px |
+
+Distribution is broad and close to uniform over the full range — cars are placed uniformly on spawn at ±50% screen width and drift across. All 5 lanes behave identically.
+
+**car_vx (relative velocity = car.vx − ego.vx):**
+| Stat | Value |
+|------|-------|
+| min | −27.7 px/tick |
+| max | +26.4 px/tick |
+| mean | −7.6 px/tick |
+| std | 7.0 px/tick |
+| p1 | −23.6 | p5 | −20.0 | p95 | +2.7 | p99 | +5.5 |
+
+Strong negative skew — ego tends to be faster than NPCs (it accelerates actively). Positive vx means an NPC is overtaking the ego. The near-zero p95 means it's rare for an NPC to be substantially faster than ego.
+
+**ego_xy:**
+- `ego.x` = **always exactly 620** (game logic never moves ego horizontally; only heading changes). This column carries **zero information** and should be dropped from model input.
+- `ego.y`: range 40–982 px, mean ≈ 586. This is ego's lane position and does matter.
+
+**sensors (non-NaN only):**
+- Range: 89–1000 px (sensor_strength = 1000)
+- Mean ≈ 525, std ≈ 234, p5 = 141, p95 = 846
+
 ### Issues / design choices
 - **Broken imports in LaneShift.py**: `LaneShift.py` imports from `models.utilities.sensor_parser` and `models.laneshift_config`, which are aliases for the actual files in `LaneShift/`. The script patches `sys.modules` before import to resolve this without touching the original files.
 - **Headless pygame**: `SDL_VIDEODRIVER=dummy` + `SDL_AUDIODRIVER=dummy` env vars before `pygame.init()`. A `1×1` display mode is still required because `Road.__init__` creates a `pygame.Surface` and `Car.load_sprite` calls `pygame.image.load`.
@@ -89,3 +122,10 @@ Minimising expected cross-entropy H(p, q) over q is equivalent to minimising KL(
 - Should we also predict NPC car velocity? That might be useful for the LaneShift agent to replace `sensor_parser.py`'s velocity estimates.
 - How many game seeds to use for train/val/test split?
 - Should early (all-NaN) ticks be excluded from training?
+
+## Decisions / clarifications
+- **Histogram x-range**: [-1000, 2600] confirmed from empirical data (hard despawn bounds).
+- **ego.x**: always 620, no information content — drop from model input.
+- **ego.y**: meaningful (lane position from steering), keep.
+- **Model is recursive**: each tick sees its own previous output as input (belief propagation).
+- **Sensor history window**: last 5 ticks, backward-filled if at start of game.
