@@ -12,11 +12,10 @@
 #BSUB -N
 
 module load cuda/11.6
-source ~/dm-i-ai-2025/venv/bin/activate
+source ~/Desktop/dm-i-ai-2025/venv/bin/activate
 
-# export WANDB_API_KEY="your_key_here"
-
-cd ~/dm-i-ai-2025
+cd ~/Desktop/dm-i-ai-2025
+[ -f race-car/WorldModel/train_run_1/wandb.env ] && . race-car/WorldModel/train_run_1/wandb.env
 
 python race-car/WorldModel/train.py \
     --model     model_b \
@@ -24,10 +23,10 @@ python race-car/WorldModel/train.py \
     --run-name  model_b \
     --project   laneshift-worldmodel \
     --out-dir   race-car/WorldModel/checkpoints \
-    --epochs    50 \
+    --epochs    5000 \
     --batch-size 32 \
     --T-seg     120 \
     --lr        3e-4 \
     --lambda-vel 0.1 \
-    --patience  5 \
+    --patience  10 \
     --num-workers 4

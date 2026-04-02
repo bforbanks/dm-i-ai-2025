@@ -125,6 +125,7 @@ celerybeat.pid
 
 # Environments
 .env
+race-car/WorldModel/train_run_1/wandb.env
 .venv
 env/
 venv/

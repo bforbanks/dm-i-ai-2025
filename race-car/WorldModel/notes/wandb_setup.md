@@ -4,38 +4,45 @@
 
 ```bash
 ssh sXXXXXX@login1.gbar.dtu.dk
-cd ~/dm-i-ai-2025
+cd ~/Desktop/dm-i-ai-2025
 source venv/bin/activate
 pip install wandb
 ```
 
-## 2. Log in interactively (do once — stores API key in ~/.netrc)
+## 2. API key for batch jobs (pick one)
+
+### Option A — `wandb.env` (recommended for submit scripts)
+
+The job scripts in `train_run_1/` source `wandb.env` if it exists (file is gitignored).
+
+```bash
+cd ~/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1
+cp wandb.env.example wandb.env
+# Edit wandb.env: set export WANDB_API_KEY="..."
+```
+
+### Option B — Log in interactively (stores key in ~/.netrc)
 
 ```bash
 wandb login
 # Paste your API key from https://wandb.ai/settings (copy "API keys" section)
 ```
 
-This writes your key to `~/.netrc` and persists across sessions and batch jobs.
+This writes your key to `~/.netrc` and persists across sessions and batch jobs. LSF jobs still see it if the cluster reads `~/.netrc` for your user (usually yes).
 
-**Alternative — environment variable (more portable):**
+### Option C — `~/.bashrc`
 
-Add to `~/.bashrc`:
 ```bash
 export WANDB_API_KEY="your_key_here"
 ```
 
-Or set it directly in your job `.sh` script before the Python call:
-```bash
-export WANDB_API_KEY="your_key_here"
-python race-car/WorldModel/train.py ...
-```
+Note: non-interactive batch jobs may not source `~/.bashrc` unless your site does; prefer A or B.
 
 ## 3. Verify it works on an interactive node
 
 ```bash
 voltash       # open interactive GPU node
-source ~/dm-i-ai-2025/venv/bin/activate
+source ~/Desktop/dm-i-ai-2025/venv/bin/activate
 python -c "import wandb; wandb.login(); print('wandb OK')"
 ```
 

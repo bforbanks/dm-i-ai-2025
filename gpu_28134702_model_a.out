@@ -1,0 +1,8 @@
+Device: cuda
+Loading laneshift_dataset.npz …
+  split=train  games=8100  segments=156190
+Loading laneshift_dataset.npz …
+  split=val  games=1000  segments=18822
+Model: model_a  |  Parameters: 277,394
+Epoch 001/5000  train_loss=4.1826 (pos=2.9347 vel=12.4791)  val_loss=3.4459 (pos=2.5657 vel=8.8025)  lr=3.00e-04  t=2231s
+  ✓ New best val_loss=3.4459 saved to race-car/WorldModel/checkpoints/model_a_best.pt

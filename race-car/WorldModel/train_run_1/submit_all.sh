@@ -3,7 +3,7 @@
 # Run from the root of dm-i-ai-2025/ after SSHing into the HPC.
 #
 # Usage:
-#   cd ~/dm-i-ai-2025
+#   cd ~/Desktop/dm-i-ai-2025
 #   bash race-car/WorldModel/train_run_1/submit_all.sh
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
