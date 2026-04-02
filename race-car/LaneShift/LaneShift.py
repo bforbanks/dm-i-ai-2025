@@ -3,6 +3,21 @@ from typing import List, Tuple
 from models.utilities.sensor_parser import SensorParser
 from models.laneshift_config import LaneShiftConfig, get_default_config
 
+
+def _tqdm_safe_print(*args, sep=" ", end="\n", file=None, flush=False):
+    """Like print, but routes one-line stdout messages through tqdm.write when possible."""
+    if file is not None or end != "\n":
+        print(*args, sep=sep, end=end, file=file, flush=flush)
+        return
+    line = sep.join(str(a) for a in args)
+    try:
+        from tqdm import tqdm
+
+        tqdm.write(line)
+    except Exception:
+        print(line, flush=flush)
+
+
 class LaneShift:
 
     def __init__(self, config: LaneShiftConfig | None = None):
@@ -235,7 +250,9 @@ class LaneShift:
             break_time = np.sqrt(10 * distance + 50 * v0**2 + 5 * v0)
             accelerate_time = -10 * v0 + break_time
             if np.isnan(break_time):
-                print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                _tqdm_safe_print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                accelerate_time = 0
+                break_time = 0
                 return
             accelerate_time = round(accelerate_time)
             break_time = round(v0/0.1) +accelerate_time
@@ -244,13 +261,17 @@ class LaneShift:
             break_time = np.sqrt(50*v0**2 - 5*v0 - 10*distance)
             accelerate_time = break_time + 10*v0
             if np.isnan(break_time):
-                print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                _tqdm_safe_print("WARNING: Yo you're asking too much of me here, I can't break that fast. I'll just do nothing")
+                accelerate_time = 0
+                break_time = 0
                 return
             accelerate_time = round(accelerate_time)
             break_time = round(-v0/0.1) +accelerate_time
 
         else:
-            print("WARNING: Was asked to move a distance of 0, idk why man you might as well not ask but I'll do nothing")
+            _tqdm_safe_print("WARNING: Was asked to move a distance of 0, idk why man you might as well not ask but I'll do nothing")
+            accelerate_time = 0
+            break_time = 0
         
         action_dict = {-1: "STEER_LEFT", 0: "NOTHING", 1: "STEER_RIGHT"}
         
@@ -280,7 +301,8 @@ class LaneShift:
     def get_to_closest_lane(self, state: dict, brake = True) -> None:
         """Queues actions to move the car to the closest lane based on its current y-position."""
         closest_lane = self.closest_lane()
-        if self.verbose: print(f"Closest lane to y-position {self.ypos} is {closest_lane} with y-position {self.lane_ypos[closest_lane]}")
+        if self.verbose:
+            _tqdm_safe_print(f"Closest lane to y-position {self.ypos} is {closest_lane} with y-position {self.lane_ypos[closest_lane]}")
         self.last_lane = self.lane
         self.desired_lane = closest_lane
         self.get_to_lane(closest_lane, state, brake=brake)
@@ -311,7 +333,8 @@ class LaneShift:
     def clear_action_queue(self) -> None:
         """Clear the action queue, and sets the aborting flag to True."""
         
-        if self.verbose: print("Clearing action queue")
+        if self.verbose:
+            _tqdm_safe_print("Clearing action queue")
         
         self.action_queue.clear()
         
@@ -363,7 +386,8 @@ class LaneShift:
         
         if collision_time_front and self.desired_lane == self.lane and not self.aborting:
             if self.actions_left() + self.action_queue_margin_front > collision_time_front:
-                if self.verbose: print("Call 1")
+                if self.verbose:
+                    _tqdm_safe_print("Call 1")
                 self.aborting = True
                 self.clear_action_queue()
                 
@@ -377,7 +401,8 @@ class LaneShift:
             if (collision_time_side and self.actions_left() + self.action_queue_margin_side > collision_time_side) and self.desired_lane != self.lane:
                 self.aborting = True
                 
-                if self.verbose: print("Call 2")
+                if self.verbose:
+                    _tqdm_safe_print("Call 2")
                 self.clear_action_queue()
                 self.get_to_lane(self.last_lane, state, brake = True)
                 # self.action_queue = self.action_queue[:self.actions_left() // 2]
@@ -389,7 +414,8 @@ class LaneShift:
         # if self.actions
 
         if self.aborting and not (-1 < state["velocity"]["y"] < 1):
-            if self.verbose: print("Call 8")
+            if self.verbose:
+                _tqdm_safe_print("Call 8")
             self.aborting = False
             self.clear_action_queue()
 
@@ -444,7 +470,8 @@ class LaneShift:
         # i.e. "See car, go: nono"
         if (not collision_time_front or collision_time_front > self.collision_time_threshold):
             if left_1 and not right_1 and self.lane < 5:
-                if self.verbose: print("Call 3", f"{self.lane}, {left_1}, {right_1}")
+                if self.verbose:
+                    _tqdm_safe_print("Call 3", f"{self.lane}, {left_1}, {right_1}")
                 self.get_to_lane(self.lane + 1, state)
                 # self.queue_actions_to_position("right", state["velocity"]["y"])
 
@@ -452,7 +479,8 @@ class LaneShift:
                 return self.pop_next_action()
 
             if right_1 and not left_1 and self.lane > 1:
-                if self.verbose: print(f"Call 4. self.lane: {self.lane}")
+                if self.verbose:
+                    _tqdm_safe_print(f"Call 4. self.lane: {self.lane}")
                 
                 self.get_to_lane(self.lane - 1, state)
                 # self.queue_actions_to_position("left", state["velocity"]["y"])
@@ -464,7 +492,8 @@ class LaneShift:
 
             return self.pop_next_action()
         if right_1 and left_1:
-            if self.verbose: print(f"Call 5, {(right_1, left_1)}")
+            if self.verbose:
+                _tqdm_safe_print(f"Call 5, {(right_1, left_1)}")
             
             # self.stand_still(state)
 
@@ -476,11 +505,13 @@ class LaneShift:
         
         unsafe = right_1 if self.lane < 4 else left_1
         if unsafe:
-            if self.verbose: print("Call 6", f"{(right_1, left_1, self.lane < 4)}")
+            if self.verbose:
+                _tqdm_safe_print("Call 6", f"{(right_1, left_1, self.lane < 4)}")
             self.queue_action("DECELERATE")
             return self.pop_next_action()
 
-        if self.verbose: print(f"Call 7, {(right_1, left_1)}")
+        if self.verbose:
+            _tqdm_safe_print(f"Call 7, {(right_1, left_1)}")
         
         self.get_to_lane(1 + self.lane if self.lane == 3 else np.sign(3 - self.lane) + self.lane, state, True) # If both directions seem good, go towards the middle
         # self.queue_actions_to_position(224 if self.lane == 3 else np.sign(3 - self.lane) * 224, state["velocity"]["y"], True) # Cool way of writing "go towards the middle lane (right if you're already in the middle)"

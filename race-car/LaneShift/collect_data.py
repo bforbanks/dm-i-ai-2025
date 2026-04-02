@@ -2,8 +2,8 @@
 """
 Collect full games of (raw_sensor, ground_truth_car_x) data from LaneShift.
 
-Run from the race-car/ directory:
-    python LaneShift/collect_data.py [--n-games 10000] [--save-path laneshift_dataset.npz]
+Run from the project root (dm-i-ai-2025/):
+    python race-car/LaneShift/collect_data.py [--n-games 10000] [--save-path laneshift_dataset.npz]
 
 Output .npz (ragged games stored as flat arrays + length index):
     sensors      float32 [total_ticks, 16]  – raw sensor distances; NaN = no detection
@@ -23,9 +23,11 @@ Recover game i:
 
 import sys
 import os
+import multiprocessing as mp
 import numpy as np
 import importlib.util
 import types
+from tqdm import tqdm
 import argparse
 
 # ── path / import setup ──────────────────────────────────────────────────────
@@ -57,6 +59,22 @@ os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 import pygame
 pygame.init()
 pygame.display.set_mode((1, 1))   # minimal surface; required by Road/Car sprite loading
+
+# SDL_VIDEODRIVER=dummy skips SDL_image initialisation, so pygame.image.load
+# can only read BMP files.  Patch it to use Pillow instead, which decodes the
+# PNG independently and hands raw bytes to pygame.image.frombuffer.
+from PIL import Image as _PILImage
+
+def _pil_load(path: str) -> pygame.Surface:
+    # Car.load_sprite passes a path relative to race-car/; make it absolute
+    # so the script works regardless of the current working directory.
+    if not os.path.isabs(path):
+        path = os.path.join(RACECAR_DIR, path)
+    img  = _PILImage.open(path).convert("RGBA")
+    surf = pygame.image.frombuffer(img.tobytes(), img.size, "RGBA")
+    return surf
+
+pygame.image.load = _pil_load
 
 from src.game.core import initialize_game_state, update_game, intersects
 import src.game.core as _core
@@ -209,29 +227,26 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
 
     This avoids padding while keeping everything in one efficient .npz file.
     """
+    n_workers = max(1, mp.cpu_count() * 15 // 16)
+    tqdm.write(f"Using {n_workers}/{mp.cpu_count()} workers")
+
     all_sensors:      list[np.ndarray] = []
     all_car_x:        list[np.ndarray] = []
     all_car_vx:       list[np.ndarray] = []
     all_ego_xy:       list[np.ndarray] = []
     all_game_lengths: list[int]        = []
 
-    for game_idx in range(n_games):
-        sensors, car_x, car_vx, ego_xy = _run_game(seed_start + game_idx)
-
-        all_sensors.append(sensors)
-        all_car_x.append(car_x)
-        all_car_vx.append(car_vx)
-        all_ego_xy.append(ego_xy)
-        all_game_lengths.append(len(sensors))
-
-        reason = "crashed" if _core.STATE.crashed else "timeout"
-        if (game_idx + 1) % 100 == 0 or game_idx == 0:
-            total_ticks = sum(all_game_lengths)
-            print(
-                f"game {game_idx+1:5d}/{n_games}"
-                f"  last: {len(sensors):4d} ticks [{reason}]"
-                f"  total ticks so far: {total_ticks:,}"
-            )
+    seeds = range(seed_start, seed_start + n_games)
+    with mp.Pool(n_workers) as pool:
+        for sensors, car_x, car_vx, ego_xy in tqdm(
+            pool.imap_unordered(_run_game, seeds),
+            total=n_games, desc="collecting", unit="game",
+        ):
+            all_sensors.append(sensors)
+            all_car_x.append(car_x)
+            all_car_vx.append(car_vx)
+            all_ego_xy.append(ego_xy)
+            all_game_lengths.append(len(sensors))
 
     sensors_arr      = np.concatenate(all_sensors, axis=0)   # [total_ticks, 16]
     car_x_arr        = np.concatenate(all_car_x,   axis=0)   # [total_ticks, 5]
@@ -239,11 +254,7 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
     ego_xy_arr       = np.concatenate(all_ego_xy,  axis=0)   # [total_ticks, 2]
     game_lengths_arr = np.array(all_game_lengths, dtype=np.int32)  # [n_games]
 
-    out = (
-        os.path.join(RACECAR_DIR, save_path)
-        if not os.path.isabs(save_path)
-        else save_path
-    )
+    out = save_path if os.path.isabs(save_path) else os.path.abspath(save_path)
     np.savez_compressed(
         out,
         sensors=sensors_arr,
@@ -254,14 +265,18 @@ def collect(n_games: int = 10_000, seed_start: int = 0, save_path: str = "lanesh
     )
 
     total_ticks = int(game_lengths_arr.sum())
-    print(f"\nSaved → {out}")
-    print(f"  games        : {n_games}")
-    print(f"  total ticks  : {total_ticks:,}")
-    print(f"  sensors      : {sensors_arr.shape}  {sensors_arr.dtype}")
-    print(f"  car_x        : {car_x_arr.shape}   {car_x_arr.dtype}")
-    print(f"  car_vx       : {car_vx_arr.shape}  {car_vx_arr.dtype}")
-    print(f"  ego_xy       : {ego_xy_arr.shape}  {ego_xy_arr.dtype}")
-    print(f"  game_lengths : {game_lengths_arr.shape}  min={game_lengths_arr.min()}  max={game_lengths_arr.max()}  mean={game_lengths_arr.mean():.1f}")
+    tqdm.write("")
+    tqdm.write(f"Saved → {out}")
+    tqdm.write(f"  games        : {n_games}")
+    tqdm.write(f"  total ticks  : {total_ticks:,}")
+    tqdm.write(f"  sensors      : {sensors_arr.shape}  {sensors_arr.dtype}")
+    tqdm.write(f"  car_x        : {car_x_arr.shape}   {car_x_arr.dtype}")
+    tqdm.write(f"  car_vx       : {car_vx_arr.shape}  {car_vx_arr.dtype}")
+    tqdm.write(f"  ego_xy       : {ego_xy_arr.shape}  {ego_xy_arr.dtype}")
+    tqdm.write(
+        f"  game_lengths : {game_lengths_arr.shape}  min={game_lengths_arr.min()}"
+        f"  max={game_lengths_arr.max()}  mean={game_lengths_arr.mean():.1f}"
+    )
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
