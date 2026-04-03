@@ -112,8 +112,8 @@ All six architectures in `MODEL_CONFIGS` are supported (same tick-wise `forward`
 Separate from segment jobs A–F and from experiment 7. Trains **`ModelALgWithParser`**: same GRU size as `model_a_lg`, plus a **20-D** tick input from `LaneShift/sensor_parser.py` (per lane: `x/1000`, `x_mask`, `v/28`, `v_mask`; **0** when the parser has no value).
 
 - Script: `train_exp8.py` · submit: `submit_exp8_parser.sh`
-- Dataset: `parser_dataset.py` precomputes parser features in **one pass** over the `.npz` (parser reset each game).
-- First epoch startup includes parser precompute (can take a few minutes).
+- Dataset: `parser_dataset.py` loads or precomputes parser features in **one pass** over the `.npz` (parser reset each game). Cache file: **`<dataset_stem>.sensor_parser_feats.npz`** next to the dataset (invalidated by source file size/mtime and tick count). Flags: **`--no-parser-cache`**, **`--force-parser-recompute`**.
+- First run may take a long time on large datasets; later runs load the cache quickly.
 
 ```bash
 cd ~/Desktop/dm-i-ai-2025
@@ -129,7 +129,7 @@ bsub < race-car/WorldModel/train_run_1/submit_exp8_parser.sh
 Training runs a **tick loop** over padded games (like exp7), with optional **`--tbptt-chunk`** (default **200**) to cap backprop through time.
 
 - Script: `simple_mlp_fullgame.py` · submit: `submit_exp9_simple_mlp.sh`
-- Dataset: `LaneShiftGameDatasetWithParser` · collate pads `parser` when present.
+- Dataset: `LaneShiftGameDatasetWithParser` (same **`.sensor_parser_feats.npz`** cache and flags as exp8) · collate pads `parser` when present.
 - Default **`--batch-size 4`** — raise only if VRAM allows (cost scales with `T_max × B`).
 - Optional **`--max-ticks`** to cap sequence length for speed / memory.
 
@@ -145,7 +145,7 @@ bsub < race-car/WorldModel/train_run_1/submit_exp9_simple_mlp.sh
 Each job writes:
 
 - `checkpoints/{model}_best.pt`  — best checkpoint by val loss
-- `gpu_{JOB_ID}.out` / `.err`  — LSF stdout/stderr
+- `race-car/WorldModel/gpu_logs/gpu_{JOB_ID}_….out` / `.err`  — LSF stdout/stderr (submit from repo root so paths resolve)
 - W&B run at project `laneshift-worldmodel`
 
 ---

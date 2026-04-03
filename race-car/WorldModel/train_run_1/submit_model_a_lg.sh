@@ -6,8 +6,8 @@
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 12:00
 #BSUB -R "rusage[mem=16GB]"
-#BSUB -o gpu_%J_model_a_lg.out
-#BSUB -e gpu_%J_model_a_lg.err
+#BSUB -o race-car/WorldModel/gpu_logs/gpu_%J_model_a_lg.out
+#BSUB -e race-car/WorldModel/gpu_logs/gpu_%J_model_a_lg.err
 #BSUB -B
 #BSUB -N
 

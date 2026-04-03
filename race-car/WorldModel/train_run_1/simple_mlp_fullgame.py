@@ -244,6 +244,10 @@ def main() -> None:
     ap.add_argument("--num-workers", type=int, default=0)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--no-shuffle-batches", action="store_true")
+    ap.add_argument("--no-parser-cache", action="store_true",
+                    help="do not read or write .sensor_parser_feats.npz beside --data")
+    ap.add_argument("--force-parser-recompute", action="store_true",
+                    help="ignore cache and overwrite after recompute")
     ap.add_argument("--no-wandb", action="store_true")
     args = ap.parse_args()
 
@@ -253,11 +257,15 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tbptt = args.tbptt_chunk
 
+    pc = not args.no_parser_cache
+    pf = args.force_parser_recompute
     train_ds = LaneShiftGameDatasetWithParser(
         args.data, split="train", seed=args.seed, max_ticks=args.max_ticks,
+        parser_use_cache=pc, parser_force_recompute=pf,
     )
     val_ds = LaneShiftGameDatasetWithParser(
         args.data, split="val", seed=args.seed, max_ticks=args.max_ticks,
+        parser_use_cache=pc, parser_force_recompute=pf,
     )
 
     train_sampler = tfg.LengthSortedBatchSampler(

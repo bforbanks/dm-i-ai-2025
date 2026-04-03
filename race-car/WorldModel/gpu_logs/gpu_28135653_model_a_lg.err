@@ -1,0 +1,38 @@
+Loaded module: cuda/11.6
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: lucasrgpedersen (lucasrgpedersen-dtu) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /zhome/2e/b/205201/Desktop/dm-i-ai-2025/wandb/run-20260402_235307-g7kqct3g
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run model_a_lg
+wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/g7kqct3g
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading history steps 244-244, summary, console lines 360-363
+wandb: 
+wandb: Run history:
+wandb:      epoch ▁▁▁▁▁▂▂▂▂▂▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:         lr ████████▇▇▇▇▇▇▇▇▇▇▇▇▆▆▆▆▆▆▆▅▅▅▅▄▄▄▃▃▃▂▂▁
+wandb: train/loss █▇▃▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▂▁▁▁▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  train/pos █▆▅▄▄▃▃▃▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▃▁▁▁▁▁▇▅▁▁▁▁▁▁▁▁▁
+wandb:  train/vel █▆▃▃▂▂▂▂▁▁▁▁▁▁▁▁▁▃▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁
+wandb:   val/loss █▇▄▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:    val/pos █▇▆▅▄▄▃▃▃▃▂▂▂▂▂▂▂▄▂▂▂▂▁▁▁▁▄▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:    val/vel █▄▃▃▂▂▂▂▂▁▁▁▁▁▁▁▁▂▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb: best_val_loss 2.21768
+wandb:         epoch 245
+wandb:            lr 0.0003
+wandb:    train/loss 2.15646
+wandb:     train/pos 1.71208
+wandb:     train/vel 4.4438
+wandb:      val/loss 2.24912
+wandb:       val/pos 1.76841
+wandb:       val/vel 4.80712
+wandb: 
+wandb: 🚀 View run model_a_lg at: https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/g7kqct3g
+wandb: ⭐️ View project at: https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260402_235307-g7kqct3g/logs

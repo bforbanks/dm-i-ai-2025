@@ -1,0 +1,64 @@
+Loading laneshift_dataset.npz (full-game mode) …
+  split=train  games=8100  (full-game items; max_ticks=None)
+Precomputing SensorParser features (one pass over all games) …
+  Wrote SensorParser cache → /zhome/2e/b/205201/Desktop/dm-i-ai-2025/laneshift_dataset.sensor_parser_feats.npz
+  parser_feats shape=(23424108, 20)
+Loading laneshift_dataset.npz (full-game mode) …
+  split=val  games=1000  (full-game items; max_ticks=None)
+Loaded SensorParser cache (/zhome/2e/b/205201/Desktop/dm-i-ai-2025/laneshift_dataset.sensor_parser_feats.npz)
+SimpleRecurrentFullGameMLP(hidden=128, parser_dim=20, tbptt_chunk=200)  |  91,722 params  |  cuda
+Epoch 001/10000  train=5.1253  val=4.3790  lr=1.00e-03  772s
+  ✓ best val=4.3790 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 002/10000  train=3.9980  val=3.7269  lr=1.00e-03  772s
+  ✓ best val=3.7269 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 003/10000  train=3.5979  val=3.4710  lr=1.00e-03  772s
+  ✓ best val=3.4710 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 004/10000  train=3.3955  val=3.3236  lr=1.00e-03  773s
+  ✓ best val=3.3236 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 005/10000  train=3.2562  val=3.1889  lr=1.00e-03  754s
+  ✓ best val=3.1889 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 006/10000  train=3.1798  val=3.1308  lr=1.00e-03  736s
+  ✓ best val=3.1308 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 007/10000  train=3.1471  val=3.1085  lr=1.00e-03  736s
+  ✓ best val=3.1085 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 008/10000  train=3.1144  val=3.0371  lr=1.00e-03  728s
+  ✓ best val=3.0371 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 009/10000  train=3.0615  val=3.0833  lr=1.00e-03  732s
+Epoch 010/10000  train=2.9931  val=3.1435  lr=1.00e-03  732s
+Epoch 011/10000  train=2.9994  val=2.9419  lr=1.00e-03  731s
+  ✓ best val=2.9419 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 012/10000  train=2.9733  val=2.9227  lr=1.00e-03  731s
+  ✓ best val=2.9227 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 013/10000  train=2.9595  val=2.9172  lr=1.00e-03  730s
+  ✓ best val=2.9172 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 014/10000  train=2.9132  val=2.8947  lr=1.00e-03  729s
+  ✓ best val=2.8947 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 015/10000  train=2.8773  val=2.8258  lr=1.00e-03  729s
+  ✓ best val=2.8258 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 016/10000  train=2.8745  val=2.7860  lr=1.00e-03  730s
+  ✓ best val=2.7860 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 017/10000  train=2.8355  val=2.7539  lr=1.00e-03  742s
+  ✓ best val=2.7539 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 018/10000  train=2.8321  val=2.7784  lr=1.00e-03  745s
+Epoch 019/10000  train=2.8150  val=2.7488  lr=1.00e-03  746s
+  ✓ best val=2.7488 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 020/10000  train=2.7875  val=2.7771  lr=1.00e-03  746s
+Epoch 021/10000  train=2.7701  val=2.7012  lr=1.00e-03  745s
+  ✓ best val=2.7012 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 022/10000  train=2.7476  val=2.7660  lr=1.00e-03  746s
+Epoch 023/10000  train=2.7464  val=2.7365  lr=1.00e-03  746s
+Epoch 024/10000  train=2.7392  val=2.6880  lr=1.00e-03  747s
+  ✓ best val=2.6880 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 025/10000  train=2.7057  val=3.0427  lr=1.00e-03  746s
+Epoch 026/10000  train=2.7141  val=3.0076  lr=1.00e-03  748s
+Epoch 027/10000  train=2.7028  val=2.6464  lr=1.00e-03  757s
+  ✓ best val=2.6464 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 028/10000  train=2.7161  val=2.6372  lr=1.00e-03  755s
+  ✓ best val=2.6372 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 029/10000  train=2.6847  val=3.0062  lr=1.00e-03  742s
+Epoch 030/10000  train=2.6700  val=2.6569  lr=1.00e-03  744s
+Epoch 031/10000  train=2.6726  val=2.7035  lr=1.00e-03  743s
+Epoch 032/10000  train=2.6685  val=2.6244  lr=1.00e-03  741s
+  ✓ best val=2.6244 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt
+Epoch 033/10000  train=2.6653  val=2.5964  lr=1.00e-03  753s
+  ✓ best val=2.5964 → race-car/WorldModel/checkpoints/simple_mlp_fullgame_parser_best.pt

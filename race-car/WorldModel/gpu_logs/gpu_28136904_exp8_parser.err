@@ -1,0 +1,15 @@
+Loaded module: cuda/11.6
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_exp8.py", line 257, in <module>
+    
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_exp8.py", line 156, in main
+    np.random.seed(args.seed)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/parser_dataset.py", line 33, in __init__
+    self.parser_feats = load_or_precompute_parser_features(
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/parser_features.py", line 84, in load_or_precompute_parser_features
+    out = precompute_parser_features(sensors, ego_y, lengths).astype(np.float32)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/parser_features.py", line 165, in precompute_parser_features
+    state = sensor_row_to_state_dict(sensors[idx])
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/parser_features.py", line 121, in sensor_row_to_state_dict
+    sensors[name] = None if np.isnan(v) else v
+KeyboardInterrupt

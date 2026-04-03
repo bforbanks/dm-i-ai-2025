@@ -144,6 +144,10 @@ def main() -> None:
     ap.add_argument("--patience", type=int, default=5)
     ap.add_argument("--num-workers", type=int, default=4)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--no-parser-cache", action="store_true",
+                    help="do not read or write .sensor_parser_feats.npz beside --data")
+    ap.add_argument("--force-parser-recompute", action="store_true",
+                    help="ignore cache and overwrite after recompute")
     ap.add_argument("--no-wandb", action="store_true")
     args = ap.parse_args()
 
@@ -153,11 +157,15 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}  parser_dim={PARSER_DIM}", flush=True)
 
+    pc = not args.no_parser_cache
+    pf = args.force_parser_recompute
     train_ds = LaneShiftDatasetWithParser(
         args.data, split="train", T_seg=args.T_seg, seed=args.seed,
+        parser_use_cache=pc, parser_force_recompute=pf,
     )
     val_ds = LaneShiftDatasetWithParser(
         args.data, split="val", T_seg=args.T_seg, seed=args.seed,
+        parser_use_cache=pc, parser_force_recompute=pf,
     )
     train_loader = DataLoader(
         train_ds,
