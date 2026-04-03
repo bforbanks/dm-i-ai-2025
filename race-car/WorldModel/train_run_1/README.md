@@ -86,6 +86,60 @@ learn compact, informative beliefs quickly (A and C).
 
 ---
 
+## 7. Experiment 7 — full-game training (separate from jobs A–F)
+
+`train_fullgame.py` + `submit_exp7_fullgame.sh` train on **whole games** (one batch row = one game from start to end). Games are **sorted by length** and batched so padding within a batch is minimized; loss ignores padded timesteps. RNN state resets **only at the start of each game** (row), not every 120 ticks.
+
+- **Not** included in `submit_all.sh` — submit manually when you want this run.
+- **`--tbptt-chunk`**: default `200` detaches hidden state every *N* ticks to limit backprop memory through time (`0` = full BPTT over the whole padded length; can OOM on long games).
+- **`--max-ticks`**: optional cap on game length (prefix of each game).
+- **`--num-workers`**: default `0` (safe with the custom batch sampler).
+- Checkpoint is `{run_name}_best.pt` with extra keys `train_mode`, `max_ticks`, `tbptt_chunk`.
+
+```bash
+cd ~/Desktop/dm-i-ai-2025
+bsub < race-car/WorldModel/train_run_1/submit_exp7_fullgame.sh
+# or locally:
+python race-car/WorldModel/train_run_1/train_fullgame.py --model model_a --data laneshift_dataset.npz
+```
+
+All six architectures in `MODEL_CONFIGS` are supported (same tick-wise `forward` as `train.py`).
+
+---
+
+## 8. Experiment 8 — `model_a_lg` + SensorParser vector
+
+Separate from segment jobs A–F and from experiment 7. Trains **`ModelALgWithParser`**: same GRU size as `model_a_lg`, plus a **20-D** tick input from `LaneShift/sensor_parser.py` (per lane: `x/1000`, `x_mask`, `v/28`, `v_mask`; **0** when the parser has no value).
+
+- Script: `train_exp8.py` · submit: `submit_exp8_parser.sh`
+- Dataset: `parser_dataset.py` precomputes parser features in **one pass** over the `.npz` (parser reset each game).
+- First epoch startup includes parser precompute (can take a few minutes).
+
+```bash
+cd ~/Desktop/dm-i-ai-2025
+bsub < race-car/WorldModel/train_run_1/submit_exp8_parser.sh
+```
+
+---
+
+## 9. Experiment 9 — minimal MLP on full games
+
+**One GELU hidden layer** (default **1024**), then a linear head. Per-tick input = **preprocessed sensors + ego_y + SensorParser (20-D) + previous tick’s softmax position belief (flattened) + previous tick’s predicted velocities** — same feedback idea as Model A/D, without a GRU/CNN.
+
+Training runs a **tick loop** over padded games (like exp7), with optional **`--tbptt-chunk`** (default **200**) to cap backprop through time.
+
+- Script: `simple_mlp_fullgame.py` · submit: `submit_exp9_simple_mlp.sh`
+- Dataset: `LaneShiftGameDatasetWithParser` · collate pads `parser` when present.
+- Default **`--batch-size 4`** — raise only if VRAM allows (cost scales with `T_max × B`).
+- Optional **`--max-ticks`** to cap sequence length for speed / memory.
+
+```bash
+cd ~/Desktop/dm-i-ai-2025
+bsub < race-car/WorldModel/train_run_1/submit_exp9_simple_mlp.sh
+```
+
+---
+
 ## Expected outputs
 
 Each job writes:

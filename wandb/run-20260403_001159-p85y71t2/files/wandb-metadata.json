@@ -1,0 +1,66 @@
+{
+  "os": "Linux-6.1.166-1.el9.elrepo.x86_64-x86_64-with-glibc2.34",
+  "python": "CPython 3.9.25",
+  "startedAt": "2026-04-02T22:11:59.375218Z",
+  "args": [
+    "--model",
+    "model_b",
+    "--data",
+    "laneshift_dataset.npz",
+    "--run-name",
+    "model_b",
+    "--project",
+    "laneshift-worldmodel",
+    "--out-dir",
+    "race-car/WorldModel/checkpoints",
+    "--epochs",
+    "5000",
+    "--batch-size",
+    "32",
+    "--T-seg",
+    "120",
+    "--lr",
+    "3e-4",
+    "--lambda-vel",
+    "0.1",
+    "--patience",
+    "10",
+    "--num-workers",
+    "4"
+  ],
+  "program": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train.py",
+  "codePath": "race-car/WorldModel/train.py",
+  "codePathLocal": "race-car/WorldModel/train.py",
+  "git": {
+    "remote": "https://github.com/bforbanks/dm-i-ai-2025.git",
+    "commit": "2049de6f99488741a30a458866e7898b87bd1a0b"
+  },
+  "email": "lucas191202@gmail.com",
+  "root": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025",
+  "host": "n-62-11-15",
+  "executable": "/usr/bin/python",
+  "cpu_count": 32,
+  "cpu_count_logical": 32,
+  "gpu": "Tesla V100-PCIE-32GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "76817485824",
+      "used": "7978377216"
+    }
+  },
+  "memory": {
+    "total": "404872486912"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla V100-PCIE-32GB",
+      "memoryTotal": "34359738368",
+      "cudaCores": 5120,
+      "architecture": "Volta",
+      "uuid": "GPU-7b368c32-9c95-0312-816d-f7d1c1c0bf3a"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "h1zyatbq6aqeyfc3ayz8tg413avg65ia"
+}

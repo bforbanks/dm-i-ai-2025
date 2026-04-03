@@ -1,0 +1,105 @@
+_wandb:
+    value:
+        cli_version: 0.25.1
+        e:
+            o6kihal8oyy08yegublce0z1s0fx6g6g:
+                args:
+                    - --model
+                    - model_a_lg
+                    - --data
+                    - laneshift_dataset.npz
+                    - --run-name
+                    - model_a_fullgame
+                    - --project
+                    - laneshift-worldmodel
+                    - --out-dir
+                    - race-car/WorldModel/checkpoints
+                    - --epochs
+                    - "5000"
+                    - --batch-size
+                    - "512"
+                    - --lr
+                    - "1e-3"
+                    - --lambda-vel
+                    - "0.1"
+                    - --patience
+                    - "10"
+                    - --tbptt-chunk
+                    - "100"
+                    - --num-workers
+                    - "0"
+                codePath: race-car/WorldModel/train_run_1/train_fullgame.py
+                codePathLocal: race-car/WorldModel/train_run_1/train_fullgame.py
+                cpu_count: 32
+                cpu_count_logical: 32
+                cudaVersion: "13.1"
+                disk:
+                    /:
+                        total: "76817485824"
+                        used: "8038866944"
+                email: lucas191202@gmail.com
+                executable: /usr/bin/python
+                git:
+                    commit: 2049de6f99488741a30a458866e7898b87bd1a0b
+                    remote: https://github.com/bforbanks/dm-i-ai-2025.git
+                gpu: NVIDIA A100-PCIE-40GB
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-PCIE-40GB
+                      uuid: GPU-3115652d-1f7f-55b8-e673-6114aac8e132
+                host: n-62-12-23
+                memory:
+                    total: "810713288704"
+                os: Linux-6.1.166-1.el9.elrepo.x86_64-x86_64-with-glibc2.34
+                program: /zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py
+                python: CPython 3.9.25
+                root: /zhome/2e/b/205201/Desktop/dm-i-ai-2025
+                startedAt: "2026-04-02T22:41:46.372561Z"
+                writerId: o6kihal8oyy08yegublce0z1s0fx6g6g
+        m: []
+        python_version: 3.9.25
+        t:
+            "1":
+                - 1
+            "2":
+                - 1
+            "3":
+                - 13
+                - 16
+            "4": 3.9.25
+            "5": 0.25.1
+            "12": 0.25.1
+            "13": linux-x86_64
+batch_size:
+    value: 512
+bins:
+    value: 64
+cls:
+    value: ModelA
+cnn_dim:
+    value: 64
+epochs:
+    value: 5000
+fuse_dim:
+    value: 512
+gru_hidden:
+    value: 256
+lambda_vel:
+    value: 0.1
+lr:
+    value: 0.001
+max_ticks:
+    value: null
+model:
+    value: model_a_lg
+n_params:
+    value: 796050
+patience:
+    value: 10
+tbptt_chunk:
+    value: 100
+train_mode:
+    value: fullgame

@@ -1,0 +1,227 @@
+Device: cuda
+Loading laneshift_dataset.npz …
+  split=train  games=8100  segments=156190
+Loading laneshift_dataset.npz …
+  split=val  games=1000  segments=18822
+Model: model_a  |  Parameters: 277,394
+Epoch 001/5000  train_loss=5.6740 (pos=3.6486 vel=20.2533)  val_loss=5.2100 (pos=3.4813 vel=17.2877)  lr=3.00e-04  t=77s
+  ✓ New best val_loss=5.2100 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 002/5000  train_loss=5.1087 (pos=3.4168 vel=16.9188)  val_loss=4.9938 (pos=3.3521 vel=16.4168)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=4.9938 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 003/5000  train_loss=4.9331 (pos=3.3093 vel=16.2378)  val_loss=4.8760 (pos=3.2653 vel=16.1077)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=4.8760 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 004/5000  train_loss=4.8282 (pos=3.2394 vel=15.8882)  val_loss=4.7503 (pos=3.1998 vel=15.5052)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=4.7503 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 005/5000  train_loss=4.6891 (pos=3.1718 vel=15.1725)  val_loss=4.5923 (pos=3.1197 vel=14.7262)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=4.5923 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 006/5000  train_loss=4.4784 (pos=3.0645 vel=14.1392)  val_loss=4.3598 (pos=2.9996 vel=13.6014)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=4.3598 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 007/5000  train_loss=4.2396 (pos=2.9467 vel=12.9292)  val_loss=4.1561 (pos=2.8986 vel=12.5748)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=4.1561 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 008/5000  train_loss=4.0505 (pos=2.8547 vel=11.9581)  val_loss=3.9820 (pos=2.8154 vel=11.6667)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.9820 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 009/5000  train_loss=3.9041 (pos=2.7773 vel=11.2676)  val_loss=3.8567 (pos=2.7411 vel=11.1565)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.8567 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 010/5000  train_loss=3.7750 (pos=2.7062 vel=10.6883)  val_loss=3.6957 (pos=2.6625 vel=10.3319)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.6957 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 011/5000  train_loss=3.6335 (pos=2.6324 vel=10.0111)  val_loss=3.5769 (pos=2.6032 vel=9.7365)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.5769 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 012/5000  train_loss=3.5125 (pos=2.5750 vel=9.3758)  val_loss=3.4709 (pos=2.5521 vel=9.1876)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.4709 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 013/5000  train_loss=3.4110 (pos=2.5270 vel=8.8402)  val_loss=3.3751 (pos=2.5081 vel=8.6707)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.3751 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 014/5000  train_loss=3.3243 (pos=2.4840 vel=8.4024)  val_loss=3.2921 (pos=2.4650 vel=8.2714)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.2921 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 015/5000  train_loss=3.2540 (pos=2.4489 vel=8.0511)  val_loss=3.2354 (pos=2.4381 vel=7.9730)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.2354 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 016/5000  train_loss=3.1911 (pos=2.4159 vel=7.7520)  val_loss=3.1639 (pos=2.3974 vel=7.6651)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=3.1639 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 017/5000  train_loss=3.1398 (pos=2.3869 vel=7.5284)  val_loss=3.1491 (pos=2.3854 vel=7.6377)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.1491 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 018/5000  train_loss=3.0947 (pos=2.3617 vel=7.3294)  val_loss=3.1146 (pos=2.3595 vel=7.5507)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.1146 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 019/5000  train_loss=3.0669 (pos=2.3444 vel=7.2250)  val_loss=3.0529 (pos=2.3306 vel=7.2222)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.0529 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 020/5000  train_loss=3.0249 (pos=2.3197 vel=7.0519)  val_loss=3.0359 (pos=2.3202 vel=7.1561)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.0359 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 021/5000  train_loss=2.9998 (pos=2.3032 vel=6.9661)  val_loss=3.0023 (pos=2.2986 vel=7.0371)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=3.0023 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 022/5000  train_loss=2.9754 (pos=2.2874 vel=6.8790)  val_loss=2.9780 (pos=2.2852 vel=6.9277)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.9780 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 023/5000  train_loss=2.9489 (pos=2.2710 vel=6.7791)  val_loss=2.9495 (pos=2.2653 vel=6.8428)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.9495 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 024/5000  train_loss=2.9285 (pos=2.2574 vel=6.7105)  val_loss=2.9203 (pos=2.2519 vel=6.6833)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.9203 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 025/5000  train_loss=2.9084 (pos=2.2446 vel=6.6375)  val_loss=2.9062 (pos=2.2384 vel=6.6780)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.9062 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 026/5000  train_loss=2.8892 (pos=2.2324 vel=6.5683)  val_loss=2.9083 (pos=2.2357 vel=6.7262)  lr=3.00e-04  t=75s
+Epoch 027/5000  train_loss=2.8759 (pos=2.2220 vel=6.5392)  val_loss=2.8892 (pos=2.2233 vel=6.6586)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.8892 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 028/5000  train_loss=2.8610 (pos=2.2113 vel=6.4970)  val_loss=2.8488 (pos=2.2030 vel=6.4584)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.8488 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 029/5000  train_loss=2.8413 (pos=2.1998 vel=6.4158)  val_loss=2.8476 (pos=2.1971 vel=6.5050)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.8476 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 030/5000  train_loss=2.8262 (pos=2.1892 vel=6.3707)  val_loss=2.8155 (pos=2.1802 vel=6.3538)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.8155 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 031/5000  train_loss=2.8135 (pos=2.1799 vel=6.3354)  val_loss=2.8253 (pos=2.1802 vel=6.4510)  lr=3.00e-04  t=75s
+Epoch 032/5000  train_loss=2.8007 (pos=2.1716 vel=6.2914)  val_loss=2.7914 (pos=2.1641 vel=6.2724)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7914 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 033/5000  train_loss=2.7881 (pos=2.1628 vel=6.2535)  val_loss=2.7950 (pos=2.1640 vel=6.3102)  lr=3.00e-04  t=74s
+Epoch 034/5000  train_loss=2.7766 (pos=2.1549 vel=6.2170)  val_loss=2.7772 (pos=2.1523 vel=6.2491)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.7772 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 035/5000  train_loss=2.7628 (pos=2.1456 vel=6.1722)  val_loss=2.7640 (pos=2.1419 vel=6.2218)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7640 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 036/5000  train_loss=2.7506 (pos=2.1378 vel=6.1280)  val_loss=2.7676 (pos=2.1432 vel=6.2432)  lr=3.00e-04  t=75s
+Epoch 037/5000  train_loss=2.7449 (pos=2.1323 vel=6.1262)  val_loss=2.7687 (pos=2.1391 vel=6.2965)  lr=3.00e-04  t=75s
+Epoch 038/5000  train_loss=2.7359 (pos=2.1261 vel=6.0978)  val_loss=2.7365 (pos=2.1249 vel=6.1159)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.7365 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 039/5000  train_loss=2.7243 (pos=2.1190 vel=6.0532)  val_loss=2.7230 (pos=2.1148 vel=6.0823)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7230 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 040/5000  train_loss=2.7128 (pos=2.1116 vel=6.0117)  val_loss=2.7205 (pos=2.1128 vel=6.0764)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7205 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 041/5000  train_loss=2.7096 (pos=2.1074 vel=6.0218)  val_loss=2.7204 (pos=2.1105 vel=6.0985)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7204 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 042/5000  train_loss=2.6996 (pos=2.1014 vel=5.9825)  val_loss=2.7134 (pos=2.1058 vel=6.0761)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.7134 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 043/5000  train_loss=2.6911 (pos=2.0954 vel=5.9575)  val_loss=2.7093 (pos=2.1020 vel=6.0729)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.7093 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 044/5000  train_loss=2.6826 (pos=2.0897 vel=5.9298)  val_loss=2.6834 (pos=2.0873 vel=5.9613)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.6834 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 045/5000  train_loss=2.6742 (pos=2.0840 vel=5.9016)  val_loss=2.6835 (pos=2.0831 vel=6.0037)  lr=3.00e-04  t=75s
+Epoch 046/5000  train_loss=2.6652 (pos=2.0780 vel=5.8717)  val_loss=2.6900 (pos=2.0867 vel=6.0328)  lr=3.00e-04  t=75s
+Epoch 047/5000  train_loss=2.6591 (pos=2.0734 vel=5.8575)  val_loss=2.6726 (pos=2.0789 vel=5.9379)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.6726 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 048/5000  train_loss=2.6517 (pos=2.0681 vel=5.8356)  val_loss=2.6697 (pos=2.0748 vel=5.9488)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.6697 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 049/5000  train_loss=2.6452 (pos=2.0636 vel=5.8162)  val_loss=2.6747 (pos=2.0727 vel=6.0199)  lr=3.00e-04  t=75s
+Epoch 050/5000  train_loss=2.6379 (pos=2.0588 vel=5.7909)  val_loss=2.6560 (pos=2.0638 vel=5.9214)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.6560 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 051/5000  train_loss=2.6300 (pos=2.0537 vel=5.7630)  val_loss=2.6561 (pos=2.0653 vel=5.9083)  lr=3.00e-04  t=75s
+Epoch 052/5000  train_loss=2.6258 (pos=2.0498 vel=5.7592)  val_loss=2.6342 (pos=2.0524 vel=5.8179)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.6342 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 053/5000  train_loss=2.6182 (pos=2.0450 vel=5.7324)  val_loss=2.6262 (pos=2.0460 vel=5.8019)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.6262 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 054/5000  train_loss=2.6109 (pos=2.0397 vel=5.7126)  val_loss=2.6140 (pos=2.0396 vel=5.7440)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.6140 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 055/5000  train_loss=2.6033 (pos=2.0351 vel=5.6825)  val_loss=2.6190 (pos=2.0401 vel=5.7892)  lr=3.00e-04  t=75s
+Epoch 056/5000  train_loss=2.5993 (pos=2.0318 vel=5.6749)  val_loss=2.6136 (pos=2.0350 vel=5.7865)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.6136 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 057/5000  train_loss=2.5953 (pos=2.0288 vel=5.6644)  val_loss=2.6230 (pos=2.0370 vel=5.8600)  lr=3.00e-04  t=75s
+Epoch 058/5000  train_loss=2.5883 (pos=2.0239 vel=5.6438)  val_loss=2.5908 (pos=2.0229 vel=5.6795)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.5908 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 059/5000  train_loss=2.5792 (pos=2.0187 vel=5.6049)  val_loss=2.6009 (pos=2.0247 vel=5.7613)  lr=3.00e-04  t=75s
+Epoch 060/5000  train_loss=2.5783 (pos=2.0165 vel=5.6178)  val_loss=2.5924 (pos=2.0218 vel=5.7063)  lr=3.00e-04  t=75s
+Epoch 061/5000  train_loss=2.5702 (pos=2.0118 vel=5.5840)  val_loss=2.5844 (pos=2.0156 vel=5.6876)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.5844 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 062/5000  train_loss=2.5657 (pos=2.0085 vel=5.5719)  val_loss=2.5767 (pos=2.0109 vel=5.6585)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5767 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 063/5000  train_loss=2.5600 (pos=2.0048 vel=5.5517)  val_loss=2.5825 (pos=2.0136 vel=5.6890)  lr=3.00e-04  t=74s
+Epoch 064/5000  train_loss=2.5577 (pos=2.0025 vel=5.5523)  val_loss=2.5959 (pos=2.0147 vel=5.8116)  lr=3.00e-04  t=74s
+Epoch 065/5000  train_loss=2.5535 (pos=1.9997 vel=5.5388)  val_loss=2.5680 (pos=2.0032 vel=5.6481)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.5680 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 066/5000  train_loss=2.5501 (pos=1.9969 vel=5.5320)  val_loss=2.5599 (pos=2.0002 vel=5.5970)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5599 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 067/5000  train_loss=2.5418 (pos=1.9919 vel=5.4996)  val_loss=2.5649 (pos=2.0012 vel=5.6369)  lr=3.00e-04  t=75s
+Epoch 068/5000  train_loss=2.5388 (pos=1.9896 vel=5.4916)  val_loss=2.5662 (pos=2.0021 vel=5.6407)  lr=3.00e-04  t=74s
+Epoch 069/5000  train_loss=2.5339 (pos=1.9860 vel=5.4791)  val_loss=2.5485 (pos=1.9901 vel=5.5842)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5485 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 070/5000  train_loss=2.5305 (pos=1.9837 vel=5.4681)  val_loss=2.5463 (pos=1.9905 vel=5.5581)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5463 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 071/5000  train_loss=2.5288 (pos=1.9819 vel=5.4682)  val_loss=2.5349 (pos=1.9829 vel=5.5202)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5349 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 072/5000  train_loss=2.5207 (pos=1.9774 vel=5.4327)  val_loss=2.5552 (pos=1.9905 vel=5.6463)  lr=3.00e-04  t=75s
+Epoch 073/5000  train_loss=2.5215 (pos=1.9764 vel=5.4510)  val_loss=2.5354 (pos=1.9827 vel=5.5276)  lr=3.00e-04  t=75s
+Epoch 074/5000  train_loss=2.5159 (pos=1.9730 vel=5.4289)  val_loss=2.5338 (pos=1.9829 vel=5.5091)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5338 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 075/5000  train_loss=2.5101 (pos=1.9697 vel=5.4048)  val_loss=2.5425 (pos=1.9827 vel=5.5978)  lr=3.00e-04  t=75s
+Epoch 076/5000  train_loss=2.5076 (pos=1.9670 vel=5.4061)  val_loss=2.5213 (pos=1.9712 vel=5.5015)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5213 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 077/5000  train_loss=2.5044 (pos=1.9647 vel=5.3967)  val_loss=2.5261 (pos=1.9718 vel=5.5430)  lr=3.00e-04  t=75s
+Epoch 078/5000  train_loss=2.5029 (pos=1.9633 vel=5.3952)  val_loss=2.5398 (pos=1.9779 vel=5.6190)  lr=3.00e-04  t=75s
+Epoch 079/5000  train_loss=2.4991 (pos=1.9606 vel=5.3850)  val_loss=2.5144 (pos=1.9676 vel=5.4684)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5144 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 080/5000  train_loss=2.4953 (pos=1.9578 vel=5.3750)  val_loss=2.5089 (pos=1.9644 vel=5.4453)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.5089 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 081/5000  train_loss=2.4946 (pos=1.9567 vel=5.3789)  val_loss=2.5095 (pos=1.9637 vel=5.4572)  lr=3.00e-04  t=74s
+Epoch 082/5000  train_loss=2.4872 (pos=1.9527 vel=5.3449)  val_loss=2.5034 (pos=1.9580 vel=5.4542)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5034 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 083/5000  train_loss=2.4839 (pos=1.9499 vel=5.3395)  val_loss=2.5081 (pos=1.9612 vel=5.4689)  lr=3.00e-04  t=75s
+Epoch 084/5000  train_loss=2.4815 (pos=1.9481 vel=5.3348)  val_loss=2.5006 (pos=1.9566 vel=5.4400)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.5006 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 085/5000  train_loss=2.4771 (pos=1.9454 vel=5.3173)  val_loss=2.5021 (pos=1.9583 vel=5.4382)  lr=3.00e-04  t=75s
+Epoch 086/5000  train_loss=2.4739 (pos=1.9434 vel=5.3055)  val_loss=2.4999 (pos=1.9556 vel=5.4433)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4999 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 087/5000  train_loss=2.4730 (pos=1.9419 vel=5.3111)  val_loss=2.4863 (pos=1.9476 vel=5.3865)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4863 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 088/5000  train_loss=2.4715 (pos=1.9403 vel=5.3121)  val_loss=2.4971 (pos=1.9519 vel=5.4518)  lr=3.00e-04  t=74s
+Epoch 089/5000  train_loss=2.4650 (pos=1.9364 vel=5.2858)  val_loss=2.4976 (pos=1.9522 vel=5.4538)  lr=3.00e-04  t=74s
+Epoch 090/5000  train_loss=2.4624 (pos=1.9347 vel=5.2766)  val_loss=2.4769 (pos=1.9397 vel=5.3720)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4769 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 091/5000  train_loss=2.4610 (pos=1.9334 vel=5.2763)  val_loss=2.4746 (pos=1.9381 vel=5.3644)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4746 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 092/5000  train_loss=2.4560 (pos=1.9304 vel=5.2560)  val_loss=2.4814 (pos=1.9404 vel=5.4101)  lr=3.00e-04  t=75s
+Epoch 093/5000  train_loss=2.4546 (pos=1.9291 vel=5.2554)  val_loss=2.4744 (pos=1.9376 vel=5.3677)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4744 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 094/5000  train_loss=2.4529 (pos=1.9274 vel=5.2550)  val_loss=2.4713 (pos=1.9352 vel=5.3614)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4713 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 095/5000  train_loss=2.4473 (pos=1.9242 vel=5.2314)  val_loss=2.4611 (pos=1.9291 vel=5.3199)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4611 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 096/5000  train_loss=2.4475 (pos=1.9238 vel=5.2365)  val_loss=2.4686 (pos=1.9337 vel=5.3496)  lr=3.00e-04  t=75s
+Epoch 097/5000  train_loss=2.4445 (pos=1.9215 vel=5.2299)  val_loss=2.4723 (pos=1.9330 vel=5.3935)  lr=3.00e-04  t=74s
+Epoch 098/5000  train_loss=2.4462 (pos=1.9223 vel=5.2390)  val_loss=2.4699 (pos=1.9334 vel=5.3653)  lr=3.00e-04  t=75s
+Epoch 099/5000  train_loss=2.4400 (pos=1.9186 vel=5.2143)  val_loss=2.4705 (pos=1.9327 vel=5.3777)  lr=3.00e-04  t=75s
+Epoch 100/5000  train_loss=2.4391 (pos=1.9170 vel=5.2211)  val_loss=2.4474 (pos=1.9199 vel=5.2746)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4474 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 101/5000  train_loss=2.4369 (pos=1.9156 vel=5.2133)  val_loss=2.4627 (pos=1.9266 vel=5.3613)  lr=3.00e-04  t=75s
+Epoch 102/5000  train_loss=2.4326 (pos=1.9128 vel=5.1977)  val_loss=2.4560 (pos=1.9226 vel=5.3341)  lr=3.00e-04  t=74s
+Epoch 103/5000  train_loss=2.4301 (pos=1.9114 vel=5.1875)  val_loss=2.4491 (pos=1.9186 vel=5.3050)  lr=3.00e-04  t=73s
+Epoch 104/5000  train_loss=2.4299 (pos=1.9104 vel=5.1947)  val_loss=2.4559 (pos=1.9215 vel=5.3446)  lr=3.00e-04  t=74s
+Epoch 105/5000  train_loss=2.4244 (pos=1.9074 vel=5.1700)  val_loss=2.4511 (pos=1.9184 vel=5.3270)  lr=3.00e-04  t=74s
+Epoch 106/5000  train_loss=2.4242 (pos=1.9066 vel=5.1758)  val_loss=2.4406 (pos=1.9139 vel=5.2668)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4406 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 107/5000  train_loss=2.4184 (pos=1.9030 vel=5.1535)  val_loss=2.4445 (pos=1.9143 vel=5.3028)  lr=3.00e-04  t=75s
+Epoch 108/5000  train_loss=2.4204 (pos=1.9039 vel=5.1651)  val_loss=2.4456 (pos=1.9151 vel=5.3044)  lr=3.00e-04  t=74s
+Epoch 109/5000  train_loss=2.4154 (pos=1.9006 vel=5.1479)  val_loss=2.4437 (pos=1.9126 vel=5.3113)  lr=3.00e-04  t=75s
+Epoch 110/5000  train_loss=2.4165 (pos=1.9011 vel=5.1542)  val_loss=2.4379 (pos=1.9107 vel=5.2722)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4379 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 111/5000  train_loss=2.4112 (pos=1.8978 vel=5.1347)  val_loss=2.4299 (pos=1.9057 vel=5.2418)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4299 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 112/5000  train_loss=2.4108 (pos=1.8971 vel=5.1368)  val_loss=2.4306 (pos=1.9061 vel=5.2455)  lr=3.00e-04  t=74s
+Epoch 113/5000  train_loss=2.4095 (pos=1.8960 vel=5.1348)  val_loss=2.4329 (pos=1.9068 vel=5.2612)  lr=3.00e-04  t=74s
+Epoch 114/5000  train_loss=2.4076 (pos=1.8945 vel=5.1309)  val_loss=2.4310 (pos=1.9032 vel=5.2777)  lr=3.00e-04  t=75s
+Epoch 115/5000  train_loss=2.4057 (pos=1.8928 vel=5.1294)  val_loss=2.4251 (pos=1.9008 vel=5.2423)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4251 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 116/5000  train_loss=2.4030 (pos=1.8914 vel=5.1161)  val_loss=2.4232 (pos=1.8987 vel=5.2445)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4232 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 117/5000  train_loss=2.4015 (pos=1.8901 vel=5.1143)  val_loss=2.4259 (pos=1.9014 vel=5.2443)  lr=3.00e-04  t=74s
+Epoch 118/5000  train_loss=2.4002 (pos=1.8889 vel=5.1128)  val_loss=2.4473 (pos=1.9115 vel=5.3581)  lr=3.00e-04  t=75s
+Epoch 119/5000  train_loss=2.3987 (pos=1.8879 vel=5.1081)  val_loss=2.4151 (pos=1.8965 vel=5.1861)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4151 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 120/5000  train_loss=2.3947 (pos=1.8853 vel=5.0931)  val_loss=2.4237 (pos=1.8986 vel=5.2514)  lr=3.00e-04  t=74s
+Epoch 121/5000  train_loss=2.3933 (pos=1.8844 vel=5.0890)  val_loss=2.4163 (pos=1.8938 vel=5.2251)  lr=3.00e-04  t=75s
+Epoch 122/5000  train_loss=2.3907 (pos=1.8825 vel=5.0827)  val_loss=2.4149 (pos=1.8925 vel=5.2243)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4149 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 123/5000  train_loss=2.3920 (pos=1.8828 vel=5.0916)  val_loss=2.4232 (pos=1.8980 vel=5.2511)  lr=3.00e-04  t=74s
+Epoch 124/5000  train_loss=2.3875 (pos=1.8803 vel=5.0720)  val_loss=2.4070 (pos=1.8878 vel=5.1918)  lr=3.00e-04  t=75s
+  ✓ New best val_loss=2.4070 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 125/5000  train_loss=2.3845 (pos=1.8784 vel=5.0609)  val_loss=2.4157 (pos=1.8927 vel=5.2298)  lr=3.00e-04  t=74s
+Epoch 126/5000  train_loss=2.3851 (pos=1.8782 vel=5.0694)  val_loss=2.4129 (pos=1.8906 vel=5.2231)  lr=3.00e-04  t=75s
+Epoch 127/5000  train_loss=2.3828 (pos=1.8767 vel=5.0603)  val_loss=2.4049 (pos=1.8867 vel=5.1824)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4049 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 128/5000  train_loss=2.3815 (pos=1.8756 vel=5.0589)  val_loss=2.4062 (pos=1.8869 vel=5.1921)  lr=3.00e-04  t=74s
+Epoch 129/5000  train_loss=2.3791 (pos=1.8741 vel=5.0495)  val_loss=2.4044 (pos=1.8863 vel=5.1812)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.4044 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 130/5000  train_loss=2.3748 (pos=1.8714 vel=5.0341)  val_loss=2.4057 (pos=1.8869 vel=5.1882)  lr=3.00e-04  t=74s
+Epoch 131/5000  train_loss=2.3766 (pos=1.8721 vel=5.0449)  val_loss=2.4069 (pos=1.8848 vel=5.2214)  lr=3.00e-04  t=75s
+Epoch 132/5000  train_loss=2.3735 (pos=1.8698 vel=5.0363)  val_loss=2.3983 (pos=1.8811 vel=5.1713)  lr=3.00e-04  t=74s
+  ✓ New best val_loss=2.3983 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 133/5000  train_loss=2.3819 (pos=1.8751 vel=5.0671)  val_loss=2.3995 (pos=1.8805 vel=5.1903)  lr=3.00e-04  t=74s
+Epoch 134/5000  train_loss=2.3699 (pos=1.8674 vel=5.0248)  val_loss=2.4028 (pos=1.8825 vel=5.2029)  lr=2.99e-04  t=74s
+Epoch 135/5000  train_loss=2.3696 (pos=1.8671 vel=5.0256)  val_loss=2.3992 (pos=1.8801 vel=5.1906)  lr=2.99e-04  t=75s
+Epoch 136/5000  train_loss=2.3685 (pos=1.8660 vel=5.0251)  val_loss=2.4008 (pos=1.8815 vel=5.1931)  lr=2.99e-04  t=75s
+Epoch 137/5000  train_loss=2.3679 (pos=1.8653 vel=5.0259)  val_loss=2.3893 (pos=1.8733 vel=5.1601)  lr=2.99e-04  t=75s
+  ✓ New best val_loss=2.3893 saved to race-car/WorldModel/checkpoints/model_a_best.pt
+Epoch 138/5000  train_loss=2.3651 (pos=1.8635 vel=5.0159)  val_loss=2.3961 (pos=1.8784 vel=5.1762)  lr=2.99e-04  t=74s
+Epoch 139/5000  train_loss=2.3634 (pos=1.8623 vel=5.0107)  val_loss=2.3921 (pos=1.8725 vel=5.1963)  lr=2.99e-04  t=75s
+Epoch 140/5000  train_loss=2.3611 (pos=1.8608 vel=5.0034)  val_loss=2.3893 (pos=1.8728 vel=5.1647)  lr=2.99e-04  t=74s
+Epoch 141/5000  train_loss=2.3615 (pos=1.8607 vel=5.0084)  val_loss=2.3926 (pos=1.8745 vel=5.1811)  lr=2.99e-04  t=74s

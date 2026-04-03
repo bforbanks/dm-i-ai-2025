@@ -1,0 +1,66 @@
+{
+  "os": "Linux-6.1.166-1.el9.elrepo.x86_64-x86_64-with-glibc2.34",
+  "python": "CPython 3.9.25",
+  "startedAt": "2026-04-02T22:39:41.347318Z",
+  "args": [
+    "--model",
+    "model_a_lg",
+    "--data",
+    "laneshift_dataset.npz",
+    "--run-name",
+    "model_a_fullgame",
+    "--project",
+    "laneshift-worldmodel",
+    "--out-dir",
+    "race-car/WorldModel/checkpoints",
+    "--epochs",
+    "5000",
+    "--batch-size",
+    "1024",
+    "--lr",
+    "1e-3",
+    "--lambda-vel",
+    "0.1",
+    "--patience",
+    "10",
+    "--tbptt-chunk",
+    "200",
+    "--num-workers",
+    "0"
+  ],
+  "program": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py",
+  "codePath": "race-car/WorldModel/train_run_1/train_fullgame.py",
+  "codePathLocal": "race-car/WorldModel/train_run_1/train_fullgame.py",
+  "git": {
+    "remote": "https://github.com/bforbanks/dm-i-ai-2025.git",
+    "commit": "2049de6f99488741a30a458866e7898b87bd1a0b"
+  },
+  "email": "lucas191202@gmail.com",
+  "root": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025",
+  "host": "n-62-12-23",
+  "executable": "/usr/bin/python",
+  "cpu_count": 32,
+  "cpu_count_logical": 32,
+  "gpu": "NVIDIA A100-PCIE-40GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "76817485824",
+      "used": "8038850560"
+    }
+  },
+  "memory": {
+    "total": "810713288704"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A100-PCIE-40GB",
+      "memoryTotal": "42949672960",
+      "cudaCores": 6912,
+      "architecture": "Ampere",
+      "uuid": "GPU-3115652d-1f7f-55b8-e673-6114aac8e132"
+    }
+  ],
+  "cudaVersion": "13.1",
+  "writerId": "28wx2sieqtvxwdr1w9gajpegoqqfu839"
+}

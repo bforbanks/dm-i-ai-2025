@@ -1,0 +1,82 @@
+Loaded module: cuda/11.6
+/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/transformer.py:392: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: lucasrgpedersen (lucasrgpedersen-dtu) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run rubyva45
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /zhome/2e/b/205201/Desktop/dm-i-ai-2025/wandb/run-20260403_004344-rubyva45
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run model_b_lg
+wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/rubyva45
+Exception ignored in: <function _MultiProcessingDataLoaderIter.__del__ at 0x7f2b51846160>
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 1663, in __del__
+    def __del__(self):
+KeyboardInterrupt: 
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train.py", line 347, in <module>
+    main()
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train.py", line 290, in main
+    train_metrics = train_epoch(model, train_loader, optimizer, scheduler,
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train.py", line 137, in train_epoch
+    pos_logits, vel_pred, _ = run_recurrent_segment(
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train.py", line 104, in run_recurrent_segment
+    pl, vp, state = model(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/model.py", line 317, in forward
+    out = self.transformer(tokens, src_key_padding_mask=pad_mask)  # [B, max_filled, d]
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/transformer.py", line 524, in forward
+    output = mod(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/transformer.py", line 928, in forward
+    x = x + self._sa_block(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/transformer.py", line 949, in _sa_block
+    x = self.self_attn(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/activation.py", line 1380, in forward
+    attn_output, attn_output_weights = F.multi_head_attention_forward(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 6304, in multi_head_attention_forward
+    q, k, v = _in_projection_packed(query, key, value, in_proj_weight, in_proj_bias)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 5695, in _in_projection_packed
+    proj = linear(q, w, b)
+KeyboardInterrupt
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/asyncio_manager.py", line 137, in run
+    return future.result()
+  File "/usr/lib64/python3.9/concurrent/futures/_base.py", line 446, in result
+    return self.__get_result()
+  File "/usr/lib64/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+    raise self._exception
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/asyncio_manager.py", line 220, in _wrap
+    return await fn()
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_connection.py", line 335, in publish_teardown_and_close
+    await self._client.publish(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 45, in publish
+    await self._send_server_request(request)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 78, in _send_server_request
+    raise self._broken_exc.with_traceback(self._broken_tb)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 87, in _send_server_request
+    await self._drain_writer()
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 104, in _drain_writer
+    await self._writer.drain()
+  File "/usr/lib64/python3.9/asyncio/streams.py", line 387, in drain
+    await self._protocol._drain_helper()
+  File "/usr/lib64/python3.9/asyncio/streams.py", line 190, in _drain_helper
+    raise ConnectionResetError('Connection lost')
+ConnectionResetError: Connection lost

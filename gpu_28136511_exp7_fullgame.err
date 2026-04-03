@@ -1,0 +1,44 @@
+Loaded module: cuda/11.6
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: lucasrgpedersen (lucasrgpedersen-dtu) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run bwa9alx2
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /zhome/2e/b/205201/Desktop/dm-i-ai-2025/wandb/run-20260403_003758-bwa9alx2
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run model_a_fullgame
+wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/bwa9alx2
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py", line 452, in <module>
+    main()
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py", line 395, in main
+    train_metrics = train_epoch(
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py", line 217, in train_epoch
+    pos_logits, vel_pred, _ = run_recurrent_padded_game(
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/train_fullgame.py", line 150, in run_recurrent_padded_game
+    pl, vp, new_sub = model(sensors[idx, t], ego_y[idx, t], gather_state(state, idx))
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/model.py", line 172, in forward
+    cnn_out = self.prev_pos_cnn(prev_pos)           # [B, cnn_dim]
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/model.py", line 92, in forward
+    h = self.net(prev_pos)          # [B, 16, 8]
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/container.py", line 244, in forward
+    input = module(input)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/nn/modules/pooling.py", line 1436, in forward
+    return F.adaptive_avg_pool1d(input, self.output_size)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 512.00 KiB is free. Including non-PyTorch memory, this process has 39.49 GiB memory in use. Of the allocated memory 38.61 GiB is allocated by PyTorch, and 391.31 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

@@ -1,0 +1,7 @@
+Device: cuda
+Loading laneshift_dataset.npz …
+  split=train  games=8100  segments=156190
+Loading laneshift_dataset.npz …
+  split=val  games=1000  segments=18822
+Model: model_b_lg  |  Parameters: 700,002
+Epoch 001/5000  train_loss=4.2212 (pos=2.9516 vel=12.6959)  val_loss=nan (pos=nan vel=nan)  lr=3.00e-04  t=5191s

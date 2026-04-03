@@ -16,6 +16,8 @@ partial tail shorter than T_seg // 2 ticks is dropped.
 The numpy arrays are loaded into memory at construction time (dataset ≈ 1.5 GB).
 """
 
+from __future__ import annotations
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -105,6 +107,96 @@ class LaneShiftDataset(Dataset):
             'car_x':   torch.from_numpy(self.car_x[sl].copy()),    # [T, 5]
             'car_vx':  torch.from_numpy(self.car_vx[sl].copy()),   # [T, 5]
             'ego_y':   torch.from_numpy(self.ego_y[sl].copy()),    # [T, 1]
+        }
+
+
+class LaneShiftGameDataset(Dataset):
+    """
+    One item = one full game (variable length).
+
+    Used by train_run_1/train_fullgame.py: batches are built by sorting games
+    by length and padding within each batch.  RNN state resets only at game
+    start (per row), not at artificial segment cuts.
+
+    Args:
+        max_ticks: if set, each game is truncated to its first ``max_ticks``
+            ticks (still one contiguous prefix per game).
+    """
+
+    def __init__(
+        self,
+        data_path: str,
+        split: str = 'train',
+        seed: int = 42,
+        max_ticks: int | None = None,
+    ):
+        assert split in ('train', 'val', 'test')
+        self.max_ticks = max_ticks
+
+        print(f"Loading {data_path} (full-game mode) …", flush=True)
+        d = np.load(data_path)
+        sensors = d['sensors'].astype(np.float32)
+        car_x   = d['car_x'].astype(np.float32)
+        car_vx  = d['car_vx'].astype(np.float32)
+        ego_xy  = d['ego_xy'].astype(np.float32)
+        lengths = d['game_lengths'].astype(np.int64)
+
+        n_games = len(lengths)
+        rng     = np.random.RandomState(seed)
+        perm    = rng.permutation(n_games)
+
+        n_val   = int(round(0.10 * n_games))
+        n_test  = int(round(0.09 * n_games))
+        n_train = n_games - n_val - n_test
+
+        split_idx = {
+            'train': perm[:n_train],
+            'val':   perm[n_train:n_train + n_val],
+            'test':  perm[n_train + n_val:],
+        }[split]
+
+        starts_all = np.concatenate([[0], np.cumsum(lengths[:-1])])
+
+        self.sensors = sensors
+        self.car_x   = car_x
+        self.car_vx  = car_vx
+        self.ego_y   = ego_xy[:, 1:2]
+        self.starts_all = starts_all
+        self.lengths    = lengths
+
+        self.game_ids: list[int] = []
+        self.tick_lens: list[int] = []
+        for gi in split_idx:
+            T = int(lengths[gi])
+            if max_ticks is not None:
+                T = min(T, int(max_ticks))
+            if T < 1:
+                continue
+            self.game_ids.append(int(gi))
+            self.tick_lens.append(T)
+
+        print(
+            f"  split={split}  games={len(self.game_ids)}  "
+            f"(full-game items; max_ticks={max_ticks})",
+            flush=True,
+        )
+
+    def tick_len(self, idx: int) -> int:
+        return self.tick_lens[idx]
+
+    def __len__(self) -> int:
+        return len(self.game_ids)
+
+    def __getitem__(self, idx: int) -> dict:
+        gi   = self.game_ids[idx]
+        T    = self.tick_lens[idx]
+        base = int(self.starts_all[gi])
+        sl   = slice(base, base + T)
+        return {
+            'sensors': torch.from_numpy(self.sensors[sl].copy()),
+            'car_x':   torch.from_numpy(self.car_x[sl].copy()),
+            'car_vx':  torch.from_numpy(self.car_vx[sl].copy()),
+            'ego_y':   torch.from_numpy(self.ego_y[sl].copy()),
         }
 
 

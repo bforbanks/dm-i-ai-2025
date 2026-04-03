@@ -1,0 +1,16 @@
+Device: cuda
+Loading laneshift_dataset.npz …
+  split=train  games=8100  segments=156190
+Loading laneshift_dataset.npz …
+  split=val  games=1000  segments=18822
+Model: model_d  |  Parameters: 249,618
+Epoch 001/5000  train_loss=5.7212 (pos=3.6659 vel=20.5532)  val_loss=5.3935 (pos=3.5615 vel=18.3198)  lr=3.00e-04  t=72s
+  ✓ New best val_loss=5.3935 saved to race-car/WorldModel/checkpoints/model_d_best.pt
+Epoch 002/5000  train_loss=5.2958 (pos=3.5171 vel=17.7869)  val_loss=5.1754 (pos=3.4467 vel=17.2877)  lr=3.00e-04  t=69s
+  ✓ New best val_loss=5.1754 saved to race-car/WorldModel/checkpoints/model_d_best.pt
+Epoch 003/5000  train_loss=5.1286 (pos=3.4069 vel=17.2169)  val_loss=5.1567 (pos=3.3984 vel=17.5835)  lr=3.00e-04  t=69s
+  ✓ New best val_loss=5.1567 saved to race-car/WorldModel/checkpoints/model_d_best.pt
+Epoch 004/5000  train_loss=5.0211 (pos=3.3293 vel=16.9177)  val_loss=4.9519 (pos=3.2856 vel=16.6633)  lr=3.00e-04  t=69s
+  ✓ New best val_loss=4.9519 saved to race-car/WorldModel/checkpoints/model_d_best.pt
+Epoch 005/5000  train_loss=4.9275 (pos=3.2701 vel=16.5747)  val_loss=4.8837 (pos=3.2413 vel=16.4237)  lr=3.00e-04  t=69s
+  ✓ New best val_loss=4.8837 saved to race-car/WorldModel/checkpoints/model_d_best.pt

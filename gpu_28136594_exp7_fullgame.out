@@ -1,0 +1,14 @@
+Device: cuda
+Loading laneshift_dataset.npz (full-game mode) …
+  split=train  games=8100  (full-game items; max_ticks=None)
+Loading laneshift_dataset.npz (full-game mode) …
+  split=val  games=1000  (full-game items; max_ticks=None)
+Model: model_a_lg  |  Parameters: 796,050
+Epoch 001/5000  train_loss=5.3681  val_loss=5.2009  lr=1.00e-03  t=1414s
+  ✓ New best val_loss=5.2009 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 002/5000  train_loss=5.0734  val_loss=4.9365  lr=1.00e-03  t=1399s
+  ✓ New best val_loss=4.9365 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 003/5000  train_loss=4.8449  val_loss=4.7161  lr=1.00e-03  t=1366s
+  ✓ New best val_loss=4.7161 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 004/5000  train_loss=4.6437  val_loss=4.4867  lr=1.00e-03  t=1344s
+  ✓ New best val_loss=4.4867 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
