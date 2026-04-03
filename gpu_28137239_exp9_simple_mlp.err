@@ -1,1 +1,49 @@
 Loaded module: cuda/11.6
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: lucasrgpedersen (lucasrgpedersen-dtu) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run cbucxdmn
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /zhome/2e/b/205201/Desktop/dm-i-ai-2025/wandb/run-20260403_032310-cbucxdmn
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run simple_mlp_fullgame_parser
+wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/cbucxdmn
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/simple_mlp_fullgame.py", line 369, in <module>
+    main()
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/simple_mlp_fullgame.py", line 326, in main
+    tr = train_epoch(model, train_loader, optimizer, scheduler, device, args.lambda_vel, tbptt)
+  File "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/simple_mlp_fullgame.py", line 176, in train_epoch
+    loss.backward()
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/_tensor.py", line 647, in backward
+    torch.autograd.backward(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/torch/autograd/graph.py", line 829, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+KeyboardInterrupt
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/asyncio_manager.py", line 137, in run
+    return future.result()
+  File "/usr/lib64/python3.9/concurrent/futures/_base.py", line 446, in result
+    return self.__get_result()
+  File "/usr/lib64/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+    raise self._exception
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/asyncio_manager.py", line 220, in _wrap
+    return await fn()
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_connection.py", line 335, in publish_teardown_and_close
+    await self._client.publish(
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 45, in publish
+    await self._send_server_request(request)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 78, in _send_server_request
+    raise self._broken_exc.with_traceback(self._broken_tb)
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 87, in _send_server_request
+    await self._drain_writer()
+  File "/zhome/2e/b/205201/.local/lib/python3.9/site-packages/wandb/sdk/lib/service/service_client.py", line 104, in _drain_writer
+    await self._writer.drain()
+  File "/usr/lib64/python3.9/asyncio/streams.py", line 375, in drain
+    raise exc
+  File "/usr/lib64/python3.9/asyncio/selector_events.py", line 916, in write
+    n = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe

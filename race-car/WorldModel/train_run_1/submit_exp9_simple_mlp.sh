@@ -22,10 +22,10 @@ python race-car/WorldModel/train_run_1/simple_mlp_fullgame.py \
     --run-name   simple_mlp_fullgame_parser \
     --project    laneshift-worldmodel \
     --out-dir    race-car/WorldModel/checkpoints \
-    --hidden     1024 \
+    --hidden     128 \
     --epochs     10000 \
     --batch-size 32 \
-    --lr         1e-2 \
+    --lr         1e-3 \
     --lambda-vel 0.1 \
     --patience   100 \
     --tbptt-chunk 200 \

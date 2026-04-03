@@ -12,3 +12,43 @@ Epoch 003/5000  train_loss=4.8449  val_loss=4.7161  lr=1.00e-03  t=1366s
   ✓ New best val_loss=4.7161 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
 Epoch 004/5000  train_loss=4.6437  val_loss=4.4867  lr=1.00e-03  t=1344s
   ✓ New best val_loss=4.4867 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 005/5000  train_loss=4.4293  val_loss=4.4835  lr=1.00e-03  t=1372s
+  ✓ New best val_loss=4.4835 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 006/5000  train_loss=4.2504  val_loss=4.1132  lr=1.00e-03  t=1384s
+  ✓ New best val_loss=4.1132 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 007/5000  train_loss=4.0556  val_loss=3.8495  lr=1.00e-03  t=1379s
+  ✓ New best val_loss=3.8495 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 008/5000  train_loss=3.7816  val_loss=3.6654  lr=1.00e-03  t=1361s
+  ✓ New best val_loss=3.6654 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 009/5000  train_loss=3.6224  val_loss=3.5016  lr=1.00e-03  t=1342s
+  ✓ New best val_loss=3.5016 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 010/5000  train_loss=3.5161  val_loss=3.5851  lr=1.00e-03  t=1345s
+Epoch 011/5000  train_loss=3.4273  val_loss=3.2829  lr=1.00e-03  t=1342s
+  ✓ New best val_loss=3.2829 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 012/5000  train_loss=3.2501  val_loss=3.1629  lr=1.00e-03  t=1343s
+  ✓ New best val_loss=3.1629 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 013/5000  train_loss=3.1450  val_loss=3.0578  lr=1.00e-03  t=1341s
+  ✓ New best val_loss=3.0578 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 014/5000  train_loss=3.0277  val_loss=2.9984  lr=1.00e-03  t=1366s
+  ✓ New best val_loss=2.9984 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 015/5000  train_loss=2.9685  val_loss=2.9201  lr=1.00e-03  t=1385s
+  ✓ New best val_loss=2.9201 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 016/5000  train_loss=2.9645  val_loss=2.9859  lr=1.00e-03  t=1378s
+Epoch 017/5000  train_loss=2.8936  val_loss=2.8644  lr=1.00e-03  t=1341s
+  ✓ New best val_loss=2.8644 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 018/5000  train_loss=2.8459  val_loss=2.8298  lr=1.00e-03  t=1342s
+  ✓ New best val_loss=2.8298 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 019/5000  train_loss=2.7788  val_loss=2.7614  lr=1.00e-03  t=1382s
+  ✓ New best val_loss=2.7614 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 020/5000  train_loss=2.7104  val_loss=2.7953  lr=1.00e-03  t=1378s
+Epoch 021/5000  train_loss=2.7090  val_loss=2.6586  lr=1.00e-03  t=1342s
+  ✓ New best val_loss=2.6586 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 022/5000  train_loss=2.6455  val_loss=2.6134  lr=1.00e-03  t=1340s
+  ✓ New best val_loss=2.6134 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 023/5000  train_loss=2.6144  val_loss=2.5556  lr=1.00e-03  t=1363s
+  ✓ New best val_loss=2.5556 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 024/5000  train_loss=2.6712  val_loss=2.7241  lr=1.00e-03  t=1383s
+Epoch 025/5000  train_loss=2.5662  val_loss=2.6203  lr=1.00e-03  t=1341s
+Epoch 026/5000  train_loss=2.5577  val_loss=2.5409  lr=1.00e-03  t=1340s
+  ✓ New best val_loss=2.5409 → race-car/WorldModel/checkpoints/model_a_fullgame_best.pt
+Epoch 027/5000  train_loss=2.5532  val_loss=2.5418  lr=1.00e-03  t=1341s

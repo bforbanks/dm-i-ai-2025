@@ -1,0 +1,10 @@
+Loaded module: cuda/11.6
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from WANDB_API_KEY.
+wandb: Currently logged in as: lucasrgpedersen (lucasrgpedersen-dtu) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run y5i3oj0z
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /zhome/2e/b/205201/Desktop/dm-i-ai-2025/wandb/run-20260403_041340-y5i3oj0z
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run simple_mlp_fullgame_parser
+wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/y5i3oj0z

@@ -8,3 +8,32 @@ wandb: Run `wandb offline` to turn off syncing.
 wandb: Syncing run model_d
 wandb: ⭐️ View project at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
 wandb: 🚀 View run at https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/skpnj2ry
+wandb: updating run metadata
+wandb: uploading output.log; uploading wandb-summary.json; uploading config.yaml
+wandb: uploading output.log; uploading config.yaml
+wandb: 
+wandb: Run history:
+wandb:      epoch ▁▁▂▂▂▂▂▃▃▃▄▄▄▄▄▄▄▅▅▅▅▅▅▅▆▆▆▆▆▆▆▇▇▇▇▇▇███
+wandb:         lr ██████████▇▇▇▇▇▇▇▇▇▆▆▆▆▆▆▅▅▅▅▅▄▄▃▃▃▂▂▂▂▁
+wandb: train/loss █▇▆▆▅▃▃▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▂▁▁▁▁▁▁
+wandb:  train/pos █▇▅▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:  train/vel █▇▄▄▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▂▁▁▁▁▁▁▁▁▁▂▁▁▁▁▁▁▁▁
+wandb:   val/loss █▆▄▄▄▃▃▃▂▂▂▂▂▂▂▂▂▂▁▁▂▁▁▁▁▁▁▁▁▁▁▃▁▁▁▁▁▁▁▃
+wandb:    val/pos █▇▅▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb:    val/vel █▇▇▇▆▆▅▄▄▃▃▃▃▂▂▂▂▂▂▂▂▂▁▁▂▂▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb: best_val_loss 2.88207
+wandb:         epoch 126
+wandb:            lr 0.0003
+wandb:    train/loss 2.89096
+wandb:     train/pos 2.0978
+wandb:     train/vel 7.93164
+wandb:      val/loss 2.91482
+wandb:       val/pos 2.09732
+wandb:       val/vel 8.17493
+wandb: 
+wandb: 🚀 View run model_d at: https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel/runs/skpnj2ry
+wandb: ⭐️ View project at: https://wandb.ai/lucasrgpedersen-dtu/laneshift-worldmodel
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260403_023827-skpnj2ry/logs

@@ -31,6 +31,74 @@ SENSOR_NAMES = [
 VEL_SCALE = 28.0
 PARSER_DIM = 5 * 4  # per lane: x, x_mask, v, v_mask
 
+# Bump when `parsed_list_to_vec` / SensorParser wiring changes (invalidates caches).
+PARSER_CACHE_VERSION = 1
+
+
+def parser_cache_path(data_path: str) -> str:
+    """Sidecar cache next to the dataset: ``dataset.npz`` → ``dataset.sensor_parser_feats.npz``."""
+    base, _ = os.path.splitext(os.path.abspath(data_path))
+    return base + ".sensor_parser_feats.npz"
+
+
+def _source_stat_fingerprint(path: str) -> tuple[int, int]:
+    st = os.stat(path)
+    mtime_ns = getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))
+    return int(st.st_size), int(mtime_ns)
+
+
+def load_or_precompute_parser_features(
+    data_path: str,
+    sensors: np.ndarray,
+    ego_y: np.ndarray,
+    lengths: np.ndarray,
+    *,
+    use_cache: bool = True,
+    force_recompute: bool = False,
+) -> np.ndarray:
+    """
+    Return ``[total_ticks, PARSER_DIM]``. Uses a compressed ``.sensor_parser_feats.npz``
+    beside the dataset when ``use_cache`` and the source file size/mtime still match.
+    """
+    data_path = os.path.abspath(data_path)
+    n = int(sensors.shape[0])
+
+    if use_cache and not force_recompute:
+        cache_path = parser_cache_path(data_path)
+        if os.path.isfile(cache_path):
+            try:
+                z = np.load(cache_path)
+                sz, mt = _source_stat_fingerprint(data_path)
+                if (
+                    int(z["cache_version"]) == PARSER_CACHE_VERSION
+                    and int(z["source_size"]) == sz
+                    and int(z["source_mtime_ns"]) == mt
+                    and int(z["n_ticks"]) == n
+                ):
+                    print(f"Loaded SensorParser cache ({cache_path})", flush=True)
+                    return np.asarray(z["parser_feats"], dtype=np.float32)
+            except Exception as exc:
+                print(f"Parser cache unreadable ({exc}); recomputing …", flush=True)
+
+    print("Precomputing SensorParser features (one pass over all games) …", flush=True)
+    out = precompute_parser_features(sensors, ego_y, lengths).astype(np.float32)
+
+    if use_cache:
+        cache_path = parser_cache_path(data_path)
+        sz, mt = _source_stat_fingerprint(data_path)
+        np.savez_compressed(
+            cache_path,
+            parser_feats=out,
+            cache_version=np.int32(PARSER_CACHE_VERSION),
+            source_size=np.int64(sz),
+            source_mtime_ns=np.int64(mt),
+            n_ticks=np.int64(n),
+        )
+        print(f"  Wrote SensorParser cache → {cache_path}", flush=True)
+
+    print(f"  parser_feats shape={out.shape}", flush=True)
+    return out
+
 
 def _load_sensor_parser_class():
     # …/race-car/WorldModel/train_run_1/this_file → …/race-car/LaneShift/

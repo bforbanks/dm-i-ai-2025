@@ -1,0 +1,66 @@
+{
+  "os": "Linux-6.1.166-1.el9.elrepo.x86_64-x86_64-with-glibc2.34",
+  "python": "CPython 3.9.25",
+  "startedAt": "2026-04-03T01:23:10.760937Z",
+  "args": [
+    "--data",
+    "laneshift_dataset.npz",
+    "--run-name",
+    "simple_mlp_fullgame_parser",
+    "--project",
+    "laneshift-worldmodel",
+    "--out-dir",
+    "race-car/WorldModel/checkpoints",
+    "--hidden",
+    "1024",
+    "--epochs",
+    "10000",
+    "--batch-size",
+    "32",
+    "--lr",
+    "1e-2",
+    "--lambda-vel",
+    "0.1",
+    "--patience",
+    "100",
+    "--tbptt-chunk",
+    "200",
+    "--num-workers",
+    "0"
+  ],
+  "program": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025/race-car/WorldModel/train_run_1/simple_mlp_fullgame.py",
+  "codePath": "race-car/WorldModel/train_run_1/simple_mlp_fullgame.py",
+  "codePathLocal": "race-car/WorldModel/train_run_1/simple_mlp_fullgame.py",
+  "git": {
+    "remote": "https://github.com/bforbanks/dm-i-ai-2025.git",
+    "commit": "e87745350cfce01ec1da407ed7c5e3254f9267f6"
+  },
+  "email": "lucas191202@gmail.com",
+  "root": "/zhome/2e/b/205201/Desktop/dm-i-ai-2025",
+  "host": "n-62-20-2",
+  "executable": "/usr/bin/python",
+  "cpu_count": 24,
+  "cpu_count_logical": 24,
+  "gpu": "Tesla V100-PCIE-16GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "76817485824",
+      "used": "8025231360"
+    }
+  },
+  "memory": {
+    "total": "201910497280"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla V100-PCIE-16GB",
+      "memoryTotal": "17179869184",
+      "cudaCores": 5120,
+      "architecture": "Volta",
+      "uuid": "GPU-aad9ec94-aab3-2e41-da3d-f87a4f423c0b"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "1bcb3q2g7e4ansbff80s33koepn9ip46"
+}
