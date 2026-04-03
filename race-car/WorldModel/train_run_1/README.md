@@ -145,7 +145,7 @@ bsub < race-car/WorldModel/train_run_1/submit_exp9_simple_mlp.sh
 Each job writes:
 
 - `checkpoints/{model}_best.pt`  — best checkpoint by val loss
-- `gpu_{JOB_ID}.out` / `.err`  — LSF stdout/stderr
+- `race-car/WorldModel/gpu_logs/gpu_{JOB_ID}_….out` / `.err`  — LSF stdout/stderr (submit from repo root so paths resolve)
 - W&B run at project `laneshift-worldmodel`
 
 ---
